@@ -1,66 +1,94 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
-  <meta name="theme-color" content="#efe0c7" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#e7d4b1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>One Move Puzzle</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <main class="app" aria-label="One Move Puzzle">
-    <header class="hud">
-      <button id="levelBtn" class="hud-chip level-chip" type="button" aria-label="Restart level">
-        <span class="eyebrow">LEVEL</span>
-        <strong id="levelNumber">01</strong>
-      </button>
-      <div class="brand" aria-label="One Move Puzzle">
-        <span class="brand-mark"></span>
-        <div>
-          <strong>ONE MOVE</strong>
-          <span>PUZZLE</span>
+  <div id="app" class="app-shell">
+    <section id="homeScreen" class="screen home-screen active" aria-label="Home">
+      <div class="home-topbar">
+        <button id="settingsBtn" class="round-btn" type="button" aria-label="Settings">⚙</button>
+        <div class="mini-stat"><span>★</span><strong id="homeStars">0</strong></div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-kicker">A TINY MACHINE. ONE DECISION.</div>
+        <div class="logo-lockup"><span>ONE</span><strong>MOVE</strong><em>PUZZLE</em></div>
+        <p>Touch one piece. Then trust the physics.</p>
+        <div class="hero-machine" aria-hidden="true">
+          <img class="hero-ball" src="./assets/sheet01/obj_ball_blue_1u_01.png" alt="" />
+          <img class="hero-slope" src="./assets/sheet01/obj_slope_wood_2u_01.png" alt="" />
+          <img class="hero-goal" src="./assets/sheet01/goal_hole_yellow_1u_idle.png" alt="" />
+          <img class="hero-gear" src="./assets/sheet01/mech_gear_metal_1u_01.png" alt="" />
         </div>
       </div>
-      <button id="restartBtn" class="icon-btn" type="button" aria-label="Restart level">↻</button>
-    </header>
 
-    <section class="mission" aria-live="polite">
-      <div>
-        <span class="eyebrow">YOUR ONLY MOVE</span>
-        <h1 id="levelTitle">Release</h1>
+      <div class="home-actions">
+        <button id="playBtn" class="cta-btn" type="button"><span>PLAY</span><small id="continueLabel">LEVEL 01</small><b>→</b></button>
+        <button id="levelsBtn" class="secondary-btn" type="button">LEVELS <span>▦</span></button>
       </div>
-      <div class="move-badge"><span id="movesLeft">1</span><small>MOVE</small></div>
+      <div class="home-version">WORKSHOP SERIES · 12 PUZZLES</div>
     </section>
 
-    <section id="stage" class="stage" aria-label="Puzzle stage">
-      <div class="stage-grain"></div>
-      <div class="stage-frame"></div>
-      <div id="objects" class="objects"></div>
-      <div id="tapRipple" class="tap-ripple" aria-hidden="true"></div>
+    <section id="levelsScreen" class="screen levels-screen" aria-label="Level select">
+      <header class="screen-header">
+        <button id="levelsBackBtn" class="round-btn" type="button" aria-label="Back">←</button>
+        <div><span class="eyebrow">WORKSHOP</span><h1>Select a puzzle</h1></div>
+        <div class="mini-stat"><span>★</span><strong id="levelStars">0</strong></div>
+      </header>
+      <div id="levelGrid" class="level-grid"></div>
     </section>
 
-    <footer class="controls">
-      <p id="hintText" class="hint">Tap the glowing ball and watch what happens.</p>
-      <div class="progress" aria-label="Level progress">
-        <span class="progress-dot active"></span>
-        <span class="progress-dot"></span>
-        <span class="progress-dot"></span>
-      </div>
-    </footer>
+    <section id="gameScreen" class="screen game-screen" aria-label="Game">
+      <header class="game-hud">
+        <button id="gameBackBtn" class="round-btn" type="button" aria-label="Back">←</button>
+        <div class="level-title-wrap"><span id="levelNumber" class="eyebrow">LEVEL 01</span><h1 id="levelTitle">Release</h1></div>
+        <button id="restartBtn" class="round-btn" type="button" aria-label="Restart">↻</button>
+      </header>
 
-    <section id="resultPanel" class="result-panel" aria-live="assertive" hidden>
+      <div class="objective-row">
+        <p id="levelHint">Choose your one move.</p>
+        <div id="moveToken" class="move-token"><strong>1</strong><span>MOVE</span></div>
+      </div>
+
+      <main id="stage" class="stage" aria-label="Puzzle board">
+        <div class="stage-grid"></div>
+        <div class="stage-border"></div>
+        <div id="world" class="world"></div>
+        <div id="tapFx" class="tap-fx"></div>
+      </main>
+
+      <div class="game-footer"><span id="statusText">Find the piece that changes everything.</span><div id="miniProgress" class="mini-progress"></div></div>
+    </section>
+
+    <section id="resultSheet" class="modal" hidden>
       <div class="result-card">
-        <div class="result-star">★</div>
-        <span class="eyebrow">PERFECT MOVE</span>
-        <h2>Level Clear</h2>
-        <p id="resultText">One move. Clean finish.</p>
-        <button id="nextBtn" class="primary-btn" type="button">NEXT LEVEL <span>→</span></button>
-        <button id="replayBtn" class="text-btn" type="button">Replay</button>
+        <div id="resultBadge" class="result-badge">★</div>
+        <span class="eyebrow">MACHINE SOLVED</span>
+        <h2 id="resultTitle">Perfect move</h2>
+        <div id="resultStars" class="result-stars">★★★</div>
+        <p id="resultCopy">One touch. Clean chain.</p>
+        <button id="nextBtn" class="cta-btn compact" type="button"><span>NEXT</span><small>KEEP GOING</small><b>→</b></button>
+        <button id="retryBtn" class="secondary-btn full" type="button">REPLAY</button>
       </div>
     </section>
 
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  </main>
-  <script src="js/game.js"></script>
+    <section id="settingsSheet" class="modal" hidden>
+      <div class="settings-card">
+        <div class="settings-head"><div><span class="eyebrow">WORKSHOP</span><h2>Settings</h2></div><button id="closeSettingsBtn" class="round-btn" type="button">×</button></div>
+        <button id="soundToggle" class="setting-row" type="button"><span>Sound</span><b>ON</b></button>
+        <button id="hapticsToggle" class="setting-row" type="button"><span>Haptics</span><b>ON</b></button>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status"></div>
+  </div>
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
