@@ -1,35 +1,57 @@
 # One Move Puzzle
 
-A lightweight mobile-first puzzle prototype built around one rule: **every level gives the player exactly one move**.
+A production-oriented mobile puzzle game built around one rule: **every puzzle gives the player exactly one move**.
 
-## First playable vertical slice
+## Current game foundation
 
-- **Level 01 — Release:** tap once, then gravity completes the route.
-- **Level 02 — Trigger:** one button opens a gate and starts a chain reaction.
-- **Level 03 — Balance:** one seesaw tilt triggers a spring, block, bumper, and goal sequence.
-- Uses the committed `assets/sheet01` and `assets/sheet02` art directly.
-- No build step and no external dependency.
-- Responsive portrait layout, restart/replay flow, simple WebAudio feedback, and local progress storage.
+- Real-time 2D rigid-body physics with Matter.js.
+- 12 data-driven puzzle levels using the committed art sheets.
+- One-move interaction system with correct/incorrect choices and real failure states.
+- Ball, ramps, blockers, gates, bumpers, fan boosts, conveyors, portals, keys, magnets and collectible stars.
+- Home screen, level select, locked progression, star scoring, retry/next flow and settings.
+- Local save data for unlocked levels, stars, attempts, sound and haptics.
+- Responsive portrait layout with mobile safe-area support.
+- Sound effects and vibration feedback.
+- Production build pipeline using Vite.
 
-## Run locally
+## Run
 
-Serve the repository root with any static server, for example:
+Requires Node.js 20.19+.
 
 ```bash
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
-Then open `http://localhost:8080`.
+Open the local URL printed by Vite.
 
-## Structure
+## Production build
+
+```bash
+npm run build
+npm run preview
+```
+
+The production bundle is written to `dist/`.
+
+## Project structure
 
 ```text
 index.html
 styles.css
-js/game.js
+vite.config.js
+package.json
+src/
+  main.js
+  levels.js
+  core/
+    audio.js
+    save.js
 assets/
   sheet01/
   sheet02/
 ```
 
-This is intentionally a vertical slice. The next step is to validate feel, timing, and visual scale before building a data-driven level editor or adding more levels.
+## Development direction
+
+The repository is now structured as a real game rather than a scripted prototype. New levels should be created as level data in `src/levels.js` and should use the shared physics/effect runtime instead of hard-coded animation paths.
