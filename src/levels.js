@@ -17,75 +17,184 @@ const A = {
   pulley: a2('mech_rope_pulley_2u_01.png'), star: a2('collect_star_gold_1u_01.png')
 };
 
-const ball = (x,y,metal=false) => ({ id:'ball', kind:'ball', x,y,w:9,h:9, shape:'circle', dynamic:true, asset: metal ? A.metalBall : A.blueBall, restitution:.22, friction:.02 });
-const goal = (x,y) => ({ id:'goal', kind:'goal', x,y,w:13,h:13, sensor:true, shape:'circle', asset:A.goal });
-const star = (x,y) => ({ id:'star', kind:'star', x,y,w:8,h:8, sensor:true, shape:'circle', asset:A.star });
-const plank = (id,x,y,w,angle=0,interactive=false) => ({ id, kind:'plank', x,y,w,h:4.5,angle,static:true,asset:A.plank,interactive,action:'remove' });
-const slope = (id,x,y,w,angle=18) => ({ id, kind:'slope', x,y,w,h:5,angle,static:true,asset:A.slope });
-const block = (id,x,y,w=9,h=9,interactive=false) => ({ id,kind:'block',x,y,w,h,static:true,asset:A.block,interactive,action:'remove' });
-const gate = (id,x,y,interactive=false) => ({ id,kind:'gate',x,y,w:9,h:19,static:true,asset:A.gate,interactive,action:'remove' });
-const bumper = (id,x,y) => ({ id,kind:'bumper',x,y,w:11,h:11,static:true,shape:'circle',asset:A.bumper,restitution:1.25 });
+const ball = (x,y,metal=false) => ({
+  id:'ball', kind:'ball', x,y,w:10,h:8, visualW:18, shape:'circle', dynamic:true,
+  asset: metal ? A.metalBall : A.blueBall, restitution:.18, friction:.025, bodyRadius:.43
+});
+const goal = (x,y) => ({ id:'goal', kind:'goal', x,y,w:14,h:11.2,visualW:20,sensor:true,shape:'circle',asset:A.goal,bodyRadius:.42 });
+const star = (x,y) => ({ id:'star', kind:'star', x,y,w:10,h:8,visualW:14,sensor:true,shape:'circle',asset:A.star,bodyRadius:.44 });
+const plank = (id,x,y,w,angle=0,interactive=false) => ({
+  id,kind:'plank',x,y,w,h:5,visualW:Math.min(38, Math.max(28,w*.9)),angle,static:true,asset:A.plank,
+  interactive,action:'remove',bodyScaleX:.84,bodyScaleY:.58
+});
+const slope = (id,x,y,w,angle=18) => ({
+  id,kind:'slope',x,y,w,h:7,visualW:Math.min(40, Math.max(30,w*.92)),angle,static:true,asset:A.slope,
+  bodyScaleX:.82,bodyScaleY:.54
+});
+const block = (id,x,y,w=10,h=8,interactive=false) => ({
+  id,kind:'block',x,y,w,h,visualW:17,static:true,asset:A.block,interactive,action:'remove',bodyScaleX:.68,bodyScaleY:.64
+});
+const gate = (id,x,y,interactive=false) => ({
+  id,kind:'gate',x,y,w:11,h:14,visualW:19,static:true,asset:A.gate,interactive,action:'remove',bodyScaleX:.62,bodyScaleY:.78
+});
+const bumper = (id,x,y) => ({
+  id,kind:'bumper',x,y,w:12,h:9.6,visualW:17,static:true,shape:'circle',asset:A.bumper,restitution:1.15,bodyRadius:.43
+});
 
 export const levels = [
   {
     id:'release', name:'Release', solution:'support', subtitle:'Remove one support', tutorial:true,
-    hint:'One move. Choose the piece that sets gravity free.',
-    entities:[ball(22,20), block('support',22,33,10,9,true), slope('ramp',43,48,42,17), plank('floor',66,67,28,4), star(61,57), goal(86,74)]
+    hint:'Remove the support. Gravity will do the rest.',
+    entities:[
+      ball(20,17),
+      block('support',20,29,10,8,true),
+      slope('ramp',36,42,38,14),
+      plank('bridge',62,60,32,3),
+      star(59,54),
+      goal(83,74)
+    ]
   },
   {
     id:'gate', name:'Open Route', solution:'gate', subtitle:'Pick the right obstacle',
-    hint:'Only one gate is stopping the path.',
-    entities:[ball(18,20,true), slope('ramp',36,35,38,13), gate('gate',55,50,true), block('decoy',76,31,9,9,true), plank('floor',69,68,27,2), star(70,59), goal(88,75)]
+    hint:'Two pieces can move. Only one opens the route.',
+    entities:[
+      ball(18,17,true),
+      slope('ramp',35,36,34,12),
+      gate('gate',53,50,true),
+      block('decoy',73,34,10,8,true),
+      plank('bridge',69,63,34,2),
+      star(69,55),
+      goal(84,75)
+    ]
   },
   {
     id:'tilt', name:'Tilt', solution:'tilter', subtitle:'Change the angle once',
-    hint:'A tiny angle can change the whole route.',
-    entities:[ball(23,21), {id:'tilter',kind:'plank',x:34,y:38,w:36,h:5,angle:-5,static:true,asset:A.plank,interactive:true,action:'rotate',actionValue:18}, bumper('bumper',63,55), plank('floor',72,69,40,0), star(70,56), goal(86,75)]
+    hint:'One small tilt changes the entire route.',
+    entities:[
+      ball(21,17),
+      {id:'tilter',kind:'plank',x:34,y:36,w:36,h:5,visualW:34,angle:-6,static:true,asset:A.plank,interactive:true,action:'rotate',actionValue:19,bodyScaleX:.84,bodyScaleY:.58},
+      bumper('bumper',61,54),
+      plank('floor',69,67,37,0),
+      star(68,56),
+      goal(84,76)
+    ]
   },
   {
     id:'choice', name:'False Support', solution:'leftSupport', subtitle:'Two choices, one move',
-    hint:'Removing the wrong support ruins the line.',
-    entities:[ball(18,20,true), slope('choiceRamp',39,43,45,16), block('leftSupport',29,37,8,9,true), block('rightSupport',58,54,8,9,true), plank('exitFloor',70,68,25,1), star(70,58), goal(88,74)]
+    hint:'Both supports look useful. Only one preserves the line.',
+    entities:[
+      ball(18,17),
+      block('leftSupport',24,31,9,8,true),
+      block('rightSupport',55,49,9,8,true),
+      slope('choiceRamp',37,42,38,15),
+      plank('exitFloor',69,63,34,2),
+      star(68,55),
+      goal(85,74)
+    ]
   },
   {
     id:'bounce', name:'Bounce', solution:'stopper', subtitle:'Trust the bumper',
-    hint:'Release the ball where the bounce can save it.',
-    entities:[ball(18,18), block('stopper',18,31,10,9,true), slope('ramp',35,45,33,24), bumper('bumper',59,59), star(70,50), goal(83,36), plank('catch',80,50,26,-8)]
+    hint:'Release the ball where the bumper can redirect it.',
+    entities:[
+      ball(18,16),
+      block('stopper',18,29,10,8,true),
+      slope('ramp',34,42,32,21),
+      bumper('bumper',57,57),
+      star(68,47),
+      goal(82,35),
+      plank('catch',79,49,28,-7)
+    ]
   },
   {
-    id:'trapdoor', name:'Trapdoor', solution:'hatch', subtitle:'Drop at the right moment',
-    hint:'Open exactly one floor panel.',
-    entities:[ball(20,18,true), plank('upper',34,32,35,7), {id:'hatch',kind:'trapdoor',x:52,y:32,w:18,h:6,static:true,asset:A.trapdoor,interactive:true,action:'remove'}, block('decoy',73,32,9,9,true), slope('ramp',56,57,36,16), star(66,59), goal(84,73)]
+    id:'trapdoor', name:'Trapdoor', solution:'hatch', subtitle:'Drop through the right panel',
+    hint:'Open one floor panel. The rest is timing.',
+    entities:[
+      ball(20,16),
+      plank('upper',35,31,34,5),
+      {id:'hatch',kind:'trapdoor',x:52,y:31,w:18,h:6,visualW:22,static:true,asset:A.trapdoor,interactive:true,action:'remove',bodyScaleX:.82,bodyScaleY:.55},
+      block('decoy',74,31,10,8,true),
+      slope('ramp',57,55,36,14),
+      star(65,56),
+      goal(83,74)
+    ]
   },
   {
     id:'fan', name:'Air Line', solution:'stopper', subtitle:'Open the airflow',
-    hint:'The fan only needs a clear shot.',
-    entities:[ball(19,22), block('stopper',19,35,9,9,true), {id:'fan',kind:'fan',x:43,y:49,w:15,h:15,static:true,sensor:true,asset:A.fan,effect:'boost',force:{x:.018,y:-.011}}, plank('floor',63,69,52,0), star(66,50), goal(85,55)]
+    hint:'Clear the route and let the fan finish the shot.',
+    entities:[
+      ball(19,18),
+      block('stopper',19,31,10,8,true),
+      {id:'fan',kind:'fan',x:42,y:47,w:14,h:11.2,visualW:19,static:true,sensor:true,shape:'circle',asset:A.fan,effect:'boost',force:{x:.018,y:-.011},bodyRadius:.44},
+      plank('floor',63,64,48,0),
+      star(66,48),
+      goal(84,56)
+    ]
   },
   {
     id:'portal', name:'Shortcut', solution:'release', subtitle:'Enter the impossible route',
-    hint:'A portal turns one fall into two places.',
-    entities:[ball(18,18), block('release',18,31,9,9,true), slope('ramp',34,46,30,18), {id:'portalA',kind:'portal',x:54,y:62,w:14,h:14,static:true,sensor:true,asset:A.portal,effect:'portal',target:'portalB'}, {id:'portalB',kind:'portal',x:72,y:30,w:14,h:14,static:true,sensor:true,asset:A.portal,effect:'portalExit'}, star(74,45), goal(86,60)]
+    hint:'One fall can exit somewhere else.',
+    entities:[
+      ball(18,16),
+      block('release',18,29,10,8,true),
+      slope('ramp',34,42,31,17),
+      {id:'portalA',kind:'portal',x:54,y:60,w:14,h:11.2,visualW:19,static:true,sensor:true,shape:'circle',asset:A.portal,effect:'portal',target:'portalB',bodyRadius:.44},
+      {id:'portalB',kind:'portal',x:72,y:29,w:14,h:11.2,visualW:19,static:true,sensor:true,shape:'circle',asset:A.portal,effect:'portalExit',bodyRadius:.44},
+      star(74,44),
+      goal(85,61)
+    ]
   },
   {
-    id:'key', name:'Key Run', solution:'release', subtitle:'Let the ball unlock itself',
-    hint:'Release the route through the key.',
-    entities:[ball(18,19,true), block('release',18,32,9,9,true), slope('ramp',37,46,38,15), {id:'key',kind:'key',x:54,y:55,w:10,h:10,static:true,sensor:true,asset:A.key,effect:'key',target:'lock'}, {id:'lock',kind:'gate',x:68,y:59,w:10,h:21,static:true,asset:A.lockedGate}, plank('floor',76,72,35,0), star(78,60), goal(89,76)]
+    id:'key', name:'Key Run', solution:'release', subtitle:'Unlock while moving',
+    hint:'The ball must collect the key before it reaches the lock.',
+    entities:[
+      ball(18,17,true),
+      block('release',18,30,10,8,true),
+      slope('ramp',37,43,38,14),
+      {id:'key',kind:'key',x:54,y:53,w:10,h:8,visualW:15,static:true,sensor:true,shape:'circle',asset:A.key,effect:'key',target:'lock',bodyRadius:.44},
+      {id:'lock',kind:'gate',x:68,y:58,w:11,h:14,visualW:19,static:true,asset:A.lockedGate,bodyScaleX:.62,bodyScaleY:.78},
+      plank('floor',76,70,35,0),
+      star(78,58),
+      goal(88,76)
+    ]
   },
   {
     id:'conveyor', name:'Carry', solution:'release', subtitle:'Start the chain',
-    hint:'The belt can finish what gravity starts.',
-    entities:[ball(19,18), block('release',19,31,9,9,true), slope('ramp',35,44,30,20), {id:'belt',kind:'conveyor',x:59,y:61,w:35,h:9,static:true,asset:A.conveyor,effect:'conveyor',force:{x:.012,y:0}}, star(66,51), goal(86,66)]
+    hint:'Gravity starts it. The belt carries it home.',
+    entities:[
+      ball(19,16),
+      block('release',19,29,10,8,true),
+      slope('ramp',35,41,31,18),
+      {id:'belt',kind:'conveyor',x:59,y:59,w:34,h:8,visualW:34,static:true,asset:A.conveyor,effect:'conveyor',force:{x:.012,y:0},bodyScaleX:.82,bodyScaleY:.62},
+      star(65,49),
+      goal(85,66)
+    ]
   },
   {
     id:'magnet', name:'Magnetic', solution:'release', subtitle:'Free the steel ball',
-    hint:'Metal has a different idea of straight.',
-    entities:[ball(18,18,true), block('release',18,31,9,9,true), slope('ramp',34,44,31,18), {id:'magnet',kind:'magnet',x:64,y:47,w:18,h:18,static:true,sensor:true,asset:A.magnet,effect:'magnet'}, star(72,48), goal(86,62)]
+    hint:'The magnet bends a route gravity cannot.',
+    entities:[
+      ball(18,16,true),
+      block('release',18,29,10,8,true),
+      slope('ramp',34,41,31,17),
+      {id:'magnet',kind:'magnet',x:63,y:46,w:18,h:14.4,visualW:22,static:true,sensor:true,shape:'circle',asset:A.magnet,effect:'magnet',bodyRadius:.44},
+      star(71,47),
+      goal(85,62)
+    ]
   },
   {
     id:'finale', name:'One Machine', solution:'release', subtitle:'Everything you learned',
-    hint:'One support starts the whole machine.',
-    entities:[ball(14,17,true), block('release',14,30,9,9,true), slope('ramp1',30,43,28,20), bumper('bumper',49,58), {id:'fan',kind:'fan',x:59,y:50,w:14,h:14,static:true,sensor:true,asset:A.fan,effect:'boost',force:{x:.014,y:-.009}}, {id:'portalA',kind:'portal',x:69,y:65,w:13,h:13,static:true,sensor:true,asset:A.portal,effect:'portal',target:'portalB'}, {id:'portalB',kind:'portal',x:79,y:31,w:13,h:13,static:true,sensor:true,asset:A.portal,effect:'portalExit'}, star(83,45), goal(89,62)]
+    hint:'One support wakes the entire workshop.',
+    entities:[
+      ball(14,15,true),
+      block('release',14,28,10,8,true),
+      slope('ramp1',30,40,29,19),
+      bumper('bumper',48,56),
+      {id:'fan',kind:'fan',x:59,y:48,w:14,h:11.2,visualW:19,static:true,sensor:true,shape:'circle',asset:A.fan,effect:'boost',force:{x:.014,y:-.009},bodyRadius:.44},
+      {id:'portalA',kind:'portal',x:69,y:63,w:13,h:10.4,visualW:18,static:true,sensor:true,shape:'circle',asset:A.portal,effect:'portal',target:'portalB',bodyRadius:.44},
+      {id:'portalB',kind:'portal',x:79,y:29,w:13,h:10.4,visualW:18,static:true,sensor:true,shape:'circle',asset:A.portal,effect:'portalExit',bodyRadius:.44},
+      star(82,44),
+      goal(89,61)
+    ]
   }
 ];
 
