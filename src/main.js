@@ -14,6 +14,12 @@ const dom = {
   homeStars: $('#homeStars'), levelStars: $('#levelStars'), continueLabel: $('#continueLabel'), miniProgress: $('#miniProgress')
 };
 
+const VISUAL_WIDTH = {
+  ball: 18, goal: 20, star: 14, block: 17, plank: 34, slope: 36, gate: 19,
+  bumper: 17, trapdoor: 22, fan: 19, portal: 19, key: 15, conveyor: 34,
+  magnet: 22, pressure: 18, spring: 17, seesaw: 34, gear: 18, wall: 20
+};
+
 let save = loadSave();
 let engine = null;
 let runnerFrame = 0;
@@ -64,26 +70,27 @@ function startLevel(index) {
   current = Math.max(0, Math.min(index, levels.length - 1));
   showScreen('game');
   dom.result.hidden = true;
-  requestAnimationFrame(() => buildLevel());
+  requestAnimationFrame(buildLevel);
 }
 
 function buildLevel() {
   destroyWorld();
   const level = levels[current];
   moveUsed = false; resolved = false; bonusStar = false; portalLockUntil = 0;
+  dom.resultBadge.classList.remove('fail');
   dom.move.classList.remove('used');
   dom.move.querySelector('strong').textContent = '1';
   dom.levelNumber.textContent = `LEVEL ${String(current + 1).padStart(2,'0')}`;
   dom.levelTitle.textContent = level.name;
   dom.hint.textContent = level.hint;
-  dom.status.textContent = level.tutorial ? 'Tap a movable piece. After that, no more touches.' : 'One touch changes the whole machine.';
+  dom.status.textContent = level.tutorial ? 'Choose one highlighted piece.' : 'One touch changes the whole machine.';
   renderMiniProgress();
 
   const rect = dom.stage.getBoundingClientRect();
   engine = Engine.create({ enableSleeping: true });
   engine.gravity.y = 0;
-  engine.positionIterations = 8;
-  engine.velocityIterations = 6;
+  engine.positionIterations = 10;
+  engine.velocityIterations = 8;
 
   dom.world.innerHTML = '';
   bodyById.clear(); spriteById.clear(); entityById.clear();
@@ -106,25 +113,37 @@ function addEntity(e, rect) {
     isStatic: !!e.static || !!e.sensor,
     isSensor: !!e.sensor,
     restitution: e.restitution ?? .08,
-    friction: e.friction ?? .2,
-    frictionAir: e.kind === 'ball' ? .008 : .015,
+    friction: e.friction ?? .22,
+    frictionStatic: e.frictionStatic ?? .45,
+    frictionAir: e.kind === 'ball' ? .006 : .014,
     angle,
     label: e.id,
     plugin: { entityId: e.id }
   };
+
   let body;
-  if (e.shape === 'circle') body = Bodies.circle(x, y, Math.min(w,h) * .37, common);
-  else body = Bodies.rectangle(x, y, Math.max(w * .72, 12), Math.max(h * .42, 9), common);
+  if (e.shape === 'circle') {
+    body = Bodies.circle(x, y, Math.min(w, h) * (e.bodyRadius ?? .45), common);
+  } else {
+    body = Bodies.rectangle(
+      x,
+      y,
+      Math.max(w * (e.bodyScaleX ?? .80), 12),
+      Math.max(h * (e.bodyScaleY ?? .58), 8),
+      common
+    );
+  }
   if (e.dynamic) Sleeping.set(body, true);
-  bodyById.set(e.id, body); entityById.set(e.id, e);
+  bodyById.set(e.id, body);
+  entityById.set(e.id, e);
   Composite.add(engine.world, body);
 
   const sprite = document.createElement(e.interactive ? 'button' : 'div');
   if (e.interactive) sprite.type = 'button';
   sprite.className = `entity kind-${e.kind}${e.interactive ? ' interactive' : ''}`;
   sprite.dataset.id = e.id;
-  sprite.style.width = `${e.w}%`;
-  sprite.style.height = `${e.h}%`;
+  sprite.style.width = `${e.visualW ?? VISUAL_WIDTH[e.kind] ?? Math.max(e.w, 14)}%`;
+  if (e.visualScale) sprite.style.setProperty('--visual-scale', e.visualScale);
   sprite.innerHTML = `<img src="${e.asset}" alt="" draggable="false">`;
   if (e.interactive) sprite.addEventListener('click', ev => useMove(e.id, ev));
   dom.world.appendChild(sprite);
@@ -152,7 +171,7 @@ function useMove(id, ev) {
   sfx.tap(save.sound); haptic(save.haptics);
   tapFx(ev);
   $$('.entity.interactive').forEach(el => el.classList.remove('interactive'));
-  dom.status.textContent = id === levels[current].solution ? 'Move committed. Watch the machine.' : 'Move committed… that choice may hurt.';
+  dom.status.textContent = id === levels[current].solution ? 'Move committed. Watch the chain.' : 'Move committed. Let the machine answer.';
 
   const body = bodyById.get(id);
   if (entity.action === 'remove') {
@@ -170,7 +189,7 @@ function useMove(id, ev) {
   [...bodyById.values()].forEach(b => { if (!b.isStatic) Sleeping.set(b, false); });
   clearTimeout(timeoutId);
   timeoutId = setTimeout(() => failLevel('The machine ran out of room.'), 9000);
-  if (id !== levels[current].solution) setTimeout(() => { if (!resolved) failLevel('That move broke the chain.'); }, 2200);
+  if (id !== levels[current].solution) setTimeout(() => { if (!resolved) failLevel('That move broke the chain.'); }, 2400);
 }
 
 function tick(now) {
@@ -182,7 +201,9 @@ function tick(now) {
   bodyById.forEach((body,id) => syncSprite(body, spriteById.get(id)));
   applyContinuousEffects();
   const ball = bodyById.get('ball');
-  if (moveUsed && ball && (ball.position.y > rect.height + 40 || ball.position.x < -50 || ball.position.x > rect.width + 50)) failLevel('The ball escaped the machine.');
+  if (moveUsed && ball && (ball.position.y > rect.height + 40 || ball.position.x < -50 || ball.position.x > rect.width + 50)) {
+    failLevel('The ball escaped the machine.');
+  }
   runnerFrame = requestAnimationFrame(tick);
 }
 
@@ -190,7 +211,7 @@ function syncSprite(body, sprite) {
   if (!body || !sprite) return;
   sprite.style.left = `${body.position.x}px`;
   sprite.style.top = `${body.position.y}px`;
-  sprite.style.transform = `translate(-50%,-50%) rotate(${body.angle}rad)`;
+  sprite.style.transform = `translate(-50%,-50%) rotate(${body.angle}rad) scale(var(--visual-scale,1))`;
 }
 
 function onCollisionStart(event) {
@@ -202,14 +223,20 @@ function onCollisionStart(event) {
     if (!e) continue;
     if (e.kind === 'goal') return winLevel();
     if (e.kind === 'star' && !bonusStar) {
-      bonusStar = true; sfx.star(save.sound); haptic(save.haptics, [12,30,12]);
+      bonusStar = true;
+      sfx.star(save.sound);
+      haptic(save.haptics, [12,30,12]);
       spriteById.get(otherId)?.classList.add('collected');
-      const b = bodyById.get(otherId); if (b) Composite.remove(engine.world,b);
+      const b = bodyById.get(otherId);
+      if (b) Composite.remove(engine.world,b);
       dom.status.textContent = 'Bonus star collected.';
     }
     if (e.effect === 'boost') {
       const ball = bodyById.get('ball');
-      if (ball) { Body.applyForce(ball, ball.position, e.force || {x:.015,y:-.01}); sfx.metal(save.sound); }
+      if (ball) {
+        Body.applyForce(ball, ball.position, e.force || {x:.015,y:-.01});
+        sfx.metal(save.sound);
+      }
     }
     if (e.effect === 'portal' && performance.now() > portalLockUntil) teleportBall(e.target);
     if (e.effect === 'key') unlockTarget(e.target);
@@ -222,60 +249,78 @@ function onCollisionActive(event) {
     if (!ids.includes('ball')) continue;
     const e = entityById.get(ids[0] === 'ball' ? ids[1] : ids[0]);
     if (e?.effect === 'conveyor') {
-      const ball = bodyById.get('ball'); if (ball) Body.applyForce(ball, ball.position, e.force || {x:.004,y:0});
+      const ball = bodyById.get('ball');
+      if (ball) Body.applyForce(ball, ball.position, e.force || {x:.004,y:0});
     }
   }
 }
 
 function applyContinuousEffects() {
   if (!moveUsed) return;
-  const ball = bodyById.get('ball'); if (!ball) return;
+  const ball = bodyById.get('ball');
+  if (!ball) return;
   entityById.forEach((e,id) => {
     if (e.effect !== 'magnet') return;
-    const magnet = bodyById.get(id); if (!magnet) return;
-    const dx = magnet.position.x - ball.position.x, dy = magnet.position.y - ball.position.y;
+    const magnet = bodyById.get(id);
+    if (!magnet) return;
+    const dx = magnet.position.x - ball.position.x;
+    const dy = magnet.position.y - ball.position.y;
     const d = Math.hypot(dx,dy);
-    if (d < dom.stage.clientWidth * .42 && d > 10) Body.applyForce(ball, ball.position, {x:dx/d*.00045, y:dy/d*.00045});
+    if (d < dom.stage.clientWidth * .42 && d > 10) {
+      Body.applyForce(ball, ball.position, {x:dx/d*.00045, y:dy/d*.00045});
+    }
   });
 }
 
 function teleportBall(targetId) {
-  const ball = bodyById.get('ball'), target = bodyById.get(targetId);
+  const ball = bodyById.get('ball');
+  const target = bodyById.get(targetId);
   if (!ball || !target) return;
   portalLockUntil = performance.now() + 650;
-  const vx = ball.velocity.x, vy = ball.velocity.y;
+  const vx = ball.velocity.x;
+  const vy = ball.velocity.y;
   Body.setPosition(ball, {x:target.position.x + 18, y:target.position.y + 25});
   Body.setVelocity(ball, {x:Math.max(2.4,vx), y:Math.min(2,vy)});
-  sfx.star(save.sound); haptic(save.haptics, 22);
+  sfx.star(save.sound);
+  haptic(save.haptics, 22);
 }
 
 function unlockTarget(id) {
-  const body = bodyById.get(id), sprite = spriteById.get(id);
-  if (body) { Composite.remove(engine.world, body); bodyById.delete(id); }
+  const body = bodyById.get(id);
+  const sprite = spriteById.get(id);
+  if (body) {
+    Composite.remove(engine.world, body);
+    bodyById.delete(id);
+  }
   sprite?.classList.add('unlocked');
   sfx.metal(save.sound);
 }
 
 function winLevel() {
   if (resolved || !moveUsed) return;
-  resolved = true; clearTimeout(timeoutId);
+  resolved = true;
+  clearTimeout(timeoutId);
   const stars = bonusStar ? 3 : 2;
   recordClear(save, levels[current].id, current + 1, stars);
-  sfx.win(save.sound); haptic(save.haptics, [20,35,20,35,40]);
+  sfx.win(save.sound);
+  haptic(save.haptics, [20,35,20,35,40]);
   spriteById.get('goal')?.classList.add('goal-win');
   setTimeout(() => {
     dom.resultBadge.textContent = '★';
     dom.resultTitle.textContent = stars === 3 ? 'Perfect chain' : 'Machine solved';
     dom.resultStars.textContent = '★'.repeat(stars) + '☆'.repeat(3-stars);
     dom.resultCopy.textContent = bonusStar ? 'One move, bonus collected, clean finish.' : 'Solved. Find the bonus star for a perfect clear.';
-    dom.result.hidden = false; refreshMeta();
+    dom.result.hidden = false;
+    refreshMeta();
   }, 480);
 }
 
 function failLevel(copy) {
   if (resolved || !moveUsed) return;
-  resolved = true; clearTimeout(timeoutId);
-  sfx.fail(save.sound); haptic(save.haptics, [45,35,45]);
+  resolved = true;
+  clearTimeout(timeoutId);
+  sfx.fail(save.sound);
+  haptic(save.haptics, [45,35,45]);
   setTimeout(() => {
     dom.resultBadge.textContent = '×';
     dom.resultBadge.classList.add('fail');
@@ -303,12 +348,18 @@ function nextAction() {
   dom.resultBadge.classList.remove('fail');
   $('#nextBtn').querySelector('span').textContent = 'NEXT';
   $('#nextBtn').querySelector('small').textContent = 'KEEP GOING';
-  if (passed && current < levels.length - 1) startLevel(current + 1); else buildLevel();
+  if (passed && current < levels.length - 1) startLevel(current + 1);
+  else buildLevel();
 }
 
 function destroyWorld() {
-  cancelAnimationFrame(runnerFrame); clearTimeout(timeoutId);
-  if (engine) { Events.off(engine); Composite.clear(engine.world, false); Engine.clear(engine); }
+  cancelAnimationFrame(runnerFrame);
+  clearTimeout(timeoutId);
+  if (engine) {
+    Events.off(engine);
+    Composite.clear(engine.world, false);
+    Engine.clear(engine);
+  }
   engine = null;
 }
 
@@ -319,8 +370,11 @@ function renderMiniProgress() {
 function tapFx(ev) {
   const rect = dom.stage.getBoundingClientRect();
   const fx = $('#tapFx');
-  fx.style.left = `${ev.clientX - rect.left}px`; fx.style.top = `${ev.clientY - rect.top}px`;
-  fx.classList.remove('show'); void fx.offsetWidth; fx.classList.add('show');
+  fx.style.left = `${ev.clientX - rect.left}px`;
+  fx.style.top = `${ev.clientY - rect.top}px`;
+  fx.classList.remove('show');
+  void fx.offsetWidth;
+  fx.classList.add('show');
 }
 
 $('#playBtn').addEventListener('click', () => startLevel(Math.min((save.unlocked || 1) - 1, levels.length - 1)));
@@ -335,6 +389,9 @@ $('#closeSettingsBtn').addEventListener('click', () => dom.settings.hidden = tru
 $('#soundToggle').addEventListener('click', () => { save.sound = !save.sound; storeSave(save); refreshMeta(); sfx.tap(save.sound); });
 $('#hapticsToggle').addEventListener('click', () => { save.haptics = !save.haptics; storeSave(save); refreshMeta(); haptic(save.haptics); });
 window.addEventListener('resize', () => { if (dom.game.classList.contains('active')) buildLevel(); });
-document.addEventListener('visibilitychange', () => { if (document.hidden && engine) engine.timing.timeScale = 0; else if (engine) engine.timing.timeScale = 1; });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && engine) engine.timing.timeScale = 0;
+  else if (engine) engine.timing.timeScale = 1;
+});
 
 refreshMeta();
