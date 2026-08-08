@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no" />
+  <meta name="theme-color" content="#efe0c7" />
+  <title>One Move Puzzle</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app" aria-label="One Move Puzzle">
+    <header class="hud">
+      <button id="levelBtn" class="hud-chip level-chip" type="button" aria-label="Restart level">
+        <span class="eyebrow">LEVEL</span>
+        <strong id="levelNumber">01</strong>
+      </button>
+      <div class="brand" aria-label="One Move Puzzle">
+        <span class="brand-mark"></span>
+        <div>
+          <strong>ONE MOVE</strong>
+          <span>PUZZLE</span>
+        </div>
+      </div>
+      <button id="restartBtn" class="icon-btn" type="button" aria-label="Restart level">↻</button>
+    </header>
+
+    <section class="mission" aria-live="polite">
+      <div>
+        <span class="eyebrow">YOUR ONLY MOVE</span>
+        <h1 id="levelTitle">Release</h1>
+      </div>
+      <div class="move-badge"><span id="movesLeft">1</span><small>MOVE</small></div>
+    </section>
+
+    <section id="stage" class="stage" aria-label="Puzzle stage">
+      <div class="stage-grain"></div>
+      <div class="stage-frame"></div>
+      <div id="objects" class="objects"></div>
+      <div id="tapRipple" class="tap-ripple" aria-hidden="true"></div>
+    </section>
+
+    <footer class="controls">
+      <p id="hintText" class="hint">Tap the glowing ball and watch what happens.</p>
+      <div class="progress" aria-label="Level progress">
+        <span class="progress-dot active"></span>
+        <span class="progress-dot"></span>
+        <span class="progress-dot"></span>
+      </div>
+    </footer>
+
+    <section id="resultPanel" class="result-panel" aria-live="assertive" hidden>
+      <div class="result-card">
+        <div class="result-star">★</div>
+        <span class="eyebrow">PERFECT MOVE</span>
+        <h2>Level Clear</h2>
+        <p id="resultText">One move. Clean finish.</p>
+        <button id="nextBtn" class="primary-btn" type="button">NEXT LEVEL <span>→</span></button>
+        <button id="replayBtn" class="text-btn" type="button">Replay</button>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </main>
+  <script src="js/game.js"></script>
+</body>
+</html>
