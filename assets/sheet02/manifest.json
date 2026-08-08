@@ -1,0 +1,121 @@
+{
+  "project": "One Move Puzzle",
+  "source": "Asset Sheet 02",
+  "asset_count": 14,
+  "format": "PNG RGBA",
+  "recommended_anchor": "center",
+  "assets": [
+    {
+      "file": "obj_ball_metal_1u_01.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_bumper_blue_1u_idle.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_pivot_pin_metal_1u_01.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_sliding_rail_woodmetal_2u_01.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_conveyor_belt_2u_idle.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_pressure_plate_blue_1u_idle.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_trapdoor_wood_1u_idle.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_portal_blue_2u_idle.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "obj_key_tile_1u_01.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_gate_locked_woodmetal_2u_idle.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_rotating_arrow_1u_01.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "obj_glass_block_1u_01.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "mech_rope_pulley_2u_01.png",
+      "size": [
+        320,
+        320
+      ],
+      "anchor": "center"
+    },
+    {
+      "file": "collect_star_gold_1u_01.png",
+      "size": [
+        256,
+        256
+      ],
+      "anchor": "center"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "project": "One Move Puzzle",
+  "version": "v1",
+  "asset_count": 14,
+  "background": "transparent",
+  "recommended_anchor": "center",
+  "assets": [
+    {
+      "file": "goal_hole_yellow_1u_idle.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "mech_button_yellow_1u_idle.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "mech_fan_blue_1u_idle.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "mech_gate_woodmetal_2u_idle.png",
+      "size": "320x320",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "mech_gear_metal_1u_01.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "mech_magnet_redblue_2u_01.png",
+      "size": "320x320",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "mech_seesaw_wood_2u_01.png",
+      "size": "320x320",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "mech_spring_orange_1u_idle.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "obj_ball_blue_1u_01.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "obj_block_wood_1u_01.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "obj_breakable_wood_1u_01.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "obj_plank_wood_2u_01.png",
+      "size": "320x320",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "obj_slope_wood_2u_01.png",
+      "size": "320x320",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    },
+    {
+      "file": "obj_wall_wood_2u_01.png",
+      "size": "256x256",
+      "format": "PNG RGBA",
+      "anchor": "center"
+    }
+  ]
+}
