@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#e7d4b1" />
+  <meta name="theme-color" content="#2f2118" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="mobile-web-app-capable" content="yes" />
   <title>One Move Puzzle</title>
@@ -21,7 +21,7 @@
       <div class="hero">
         <div class="hero-kicker">A TINY MACHINE. ONE DECISION.</div>
         <div class="logo-lockup"><span>ONE</span><strong>MOVE</strong><em>PUZZLE</em></div>
-        <p>Touch one piece. Then trust the physics.</p>
+        <p>Touch one piece. Then watch the machine come alive.</p>
         <div class="hero-machine" aria-hidden="true">
           <img class="hero-ball" src="./assets/sheet01/obj_ball_blue_1u_01.png" alt="" />
           <img class="hero-slope" src="./assets/sheet01/obj_slope_wood_2u_01.png" alt="" />
@@ -32,15 +32,15 @@
 
       <div class="home-actions">
         <button id="playBtn" class="cta-btn" type="button"><span>PLAY</span><small id="continueLabel">LEVEL 01</small><b>→</b></button>
-        <button id="levelsBtn" class="secondary-btn" type="button">LEVELS <span>▦</span></button>
+        <button id="levelsBtn" class="secondary-btn" type="button">WORKSHOP <span>▦</span></button>
       </div>
-      <div class="home-version">WORKSHOP SERIES · 12 PUZZLES</div>
+      <div class="home-version">WOOD WORKSHOP · SEASON 01</div>
     </section>
 
     <section id="levelsScreen" class="screen levels-screen" aria-label="Level select">
       <header class="screen-header">
         <button id="levelsBackBtn" class="round-btn" type="button" aria-label="Back">←</button>
-        <div><span class="eyebrow">WORKSHOP</span><h1>Select a puzzle</h1></div>
+        <div><span class="eyebrow">WOOD WORKSHOP</span><h1>Select a machine</h1></div>
         <div class="mini-stat"><span>★</span><strong id="levelStars">0</strong></div>
       </header>
       <div id="levelGrid" class="level-grid"></div>
@@ -49,23 +49,29 @@
     <section id="gameScreen" class="screen game-screen" aria-label="Game">
       <header class="game-hud">
         <button id="gameBackBtn" class="round-btn" type="button" aria-label="Back">←</button>
-        <div class="level-title-wrap"><span id="levelNumber" class="eyebrow">LEVEL 01</span><h1 id="levelTitle">Release</h1></div>
+        <div class="level-title-wrap"><span id="levelNumber" class="eyebrow">LEVEL 01</span><h1 id="levelTitle">Pull the Pin</h1></div>
         <button id="restartBtn" class="round-btn" type="button" aria-label="Restart">↻</button>
       </header>
 
       <div class="objective-row">
-        <p id="levelHint">Choose your one move.</p>
+        <p id="levelHint">Pull the blue pin. Then let the workshop run.</p>
         <div id="moveToken" class="move-token"><strong>1</strong><span>MOVE</span></div>
       </div>
 
-      <main id="stage" class="stage" aria-label="Puzzle board">
+      <main id="stage" class="stage" aria-label="Puzzle machine">
         <div class="stage-grid"></div>
         <div class="stage-border"></div>
+        <div class="machine-plate">WOOD WORKSHOP</div>
+        <div id="pullCoach" class="pull-coach" hidden>
+          <i aria-hidden="true">←</i>
+          <div><strong>PULL THE PIN</strong><span>One move starts everything</span></div>
+        </div>
         <div id="world" class="world"></div>
         <div id="tapFx" class="tap-fx"></div>
+        <div id="boardPlaque" class="board-plaque">LEVEL 1</div>
       </main>
 
-      <div class="game-footer"><span id="statusText">Find the piece that changes everything.</span><div id="miniProgress" class="mini-progress"></div></div>
+      <div class="game-footer"><span id="statusText">Pull the blue pin.</span><div id="miniProgress" class="mini-progress"></div></div>
     </section>
 
     <section id="resultSheet" class="modal" hidden>
