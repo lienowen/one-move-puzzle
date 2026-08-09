@@ -1,0 +1,315 @@
+/* Commercial Workshop Board runtime */
+
+.stage[data-board="workshop"] {
+  background:
+    radial-gradient(circle at 50% 16%, rgba(255,224,169,.10), transparent 34%),
+    linear-gradient(145deg,#3b281c 0%,#241811 58%,#18100c 100%);
+  box-shadow:
+    0 24px 58px rgba(35,20,10,.34),
+    inset 0 1px rgba(255,255,255,.08),
+    inset 0 -18px 45px rgba(0,0,0,.18);
+  border: 1px solid rgba(255,222,171,.10);
+}
+
+.stage[data-board="workshop"] .stage-grid {
+  opacity: .05;
+  background-image: linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px);
+  background-size: 46px 46px;
+  mask-image: none;
+}
+
+.stage[data-board="workshop"] .stage-border {
+  inset: 8px;
+  border-color: rgba(255,222,171,.10);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.22);
+}
+
+.stage[data-board="workshop"] .machine-plate {
+  top: 11px;
+  color: rgba(255,230,194,.66);
+  background: rgba(24,15,10,.54);
+  border-color: rgba(255,222,171,.12);
+  box-shadow: inset 0 1px rgba(255,255,255,.05);
+}
+
+.workshop-world {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: visible;
+}
+
+.workshop-board {
+  position: absolute;
+  left: 50%;
+  top: 51%;
+  width: 92%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%,-50%);
+  filter: drop-shadow(0 24px 24px rgba(0,0,0,.34));
+  animation: workshopBoardIn .42s cubic-bezier(.18,.82,.22,1) both;
+}
+
+@keyframes workshopBoardIn {
+  from { opacity: 0; transform: translate(-50%,-48%) scale(.965); }
+}
+
+.workshop-board-base,
+.workshop-board-vignette,
+.workshop-board-pieces,
+.workshop-sparks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.workshop-board-base {
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.workshop-board-vignette {
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 18%;
+  background:
+    radial-gradient(circle at 22% 15%, rgba(255,217,148,.10), transparent 28%),
+    radial-gradient(circle at 55% 60%, transparent 48%, rgba(38,18,7,.09) 86%);
+  mix-blend-mode: soft-light;
+}
+
+.workshop-board-pieces {
+  z-index: 4;
+}
+
+.workshop-piece {
+  position: absolute;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%,-50%) rotate(var(--piece-rotation,0deg));
+  transform-origin: center;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+  filter: drop-shadow(0 7px 5px rgba(38,20,8,.22));
+  will-change: left,top,transform,opacity,filter;
+}
+
+.workshop-piece img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.workshop-piece.interactive {
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.workshop-piece.interactive::after {
+  content: "";
+  position: absolute;
+  inset: 27% 4%;
+  border-radius: 999px;
+  border: 2px solid rgba(86,158,255,.78);
+  box-shadow:
+    0 0 0 7px rgba(52,119,220,.10),
+    0 0 26px rgba(50,127,255,.38);
+  animation: pinFocus 1.15s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pinFocus {
+  50% { opacity: .55; transform: scale(1.08); box-shadow: 0 0 0 10px rgba(52,119,220,.05),0 0 34px rgba(50,127,255,.46); }
+}
+
+.piece-track {
+  filter: drop-shadow(0 8px 5px rgba(38,20,8,.26));
+}
+
+.piece-holder,
+.piece-goal-socket,
+.piece-star-socket,
+.piece-pin-socket {
+  filter: drop-shadow(0 9px 6px rgba(35,17,5,.28));
+}
+
+.piece-ball {
+  transform: translate(-50%,-50%) rotate(var(--travel-rotation,0deg));
+  filter: drop-shadow(0 7px 5px rgba(19,35,65,.34));
+  transition: filter .18s ease;
+}
+
+.piece-ball.is-running {
+  filter:
+    drop-shadow(0 8px 5px rgba(19,35,65,.36))
+    drop-shadow(0 0 7px rgba(63,130,235,.18));
+}
+
+.piece-ball.at-goal {
+  animation: ballDrop .36s cubic-bezier(.3,.8,.35,1) forwards;
+}
+
+@keyframes ballDrop {
+  to { transform: translate(-50%,-50%) scale(.42) rotate(var(--travel-rotation,0deg)); opacity: .3; }
+}
+
+.piece-pin {
+  transition: filter .18s ease;
+}
+
+.piece-pin.is-pulled {
+  pointer-events: none;
+  animation: pullPin .42s cubic-bezier(.22,.78,.2,1) forwards;
+}
+
+.piece-pin.is-pulled::after { display: none; }
+
+@keyframes pullPin {
+  0% { transform: translate(-50%,-50%) rotate(var(--piece-rotation,0deg)); }
+  72% { transform: translate(-118%,-50%) rotate(-3deg); }
+  100% { transform: translate(-132%,-50%) rotate(-4deg); filter: drop-shadow(0 10px 7px rgba(12,25,50,.28)); }
+}
+
+.piece-pin-socket.is-active {
+  animation: socketKick .34s ease;
+}
+
+@keyframes socketKick {
+  40% { transform: translate(-50%,-50%) scale(.94); }
+}
+
+.piece-bell.struck {
+  animation: bellStrike .52s cubic-bezier(.22,.75,.24,1);
+}
+
+@keyframes bellStrike {
+  20% { transform: translate(-50%,-50%) rotate(-9deg); }
+  42% { transform: translate(-50%,-50%) rotate(8deg); }
+  65% { transform: translate(-50%,-50%) rotate(-4deg); }
+  100% { transform: translate(-50%,-50%) rotate(0deg); }
+}
+
+.piece-gear.activated {
+  animation: gearWake 1.4s cubic-bezier(.2,.65,.25,1) forwards;
+}
+
+@keyframes gearWake {
+  to { transform: translate(-50%,-50%) rotate(310deg); }
+}
+
+.piece-star {
+  filter:
+    drop-shadow(0 5px 4px rgba(91,50,2,.24))
+    drop-shadow(0 0 10px rgba(255,191,31,.36));
+  animation: starIdle 1.45s ease-in-out infinite;
+}
+
+@keyframes starIdle {
+  50% { transform: translate(-50%,-53%) scale(1.06); filter: drop-shadow(0 5px 4px rgba(91,50,2,.24)) drop-shadow(0 0 18px rgba(255,191,31,.62)); }
+}
+
+.piece-star.collected {
+  animation: workshopStarCollect .46s cubic-bezier(.2,.75,.2,1) forwards;
+}
+
+@keyframes workshopStarCollect {
+  45% { transform: translate(-50%,-50%) scale(1.36) rotate(14deg); filter: drop-shadow(0 0 28px rgba(255,204,59,.96)); }
+  to { transform: translate(-50%,-72%) scale(.18) rotate(55deg); opacity: 0; }
+}
+
+.piece-star-socket.lit {
+  animation: socketGlow .72s ease-out;
+}
+
+@keyframes socketGlow {
+  45% { filter: drop-shadow(0 0 22px rgba(255,194,39,.75)) brightness(1.15); }
+}
+
+.piece-goal,
+.piece-goal-socket {
+  transition: filter .2s ease,transform .2s ease;
+}
+
+.piece-goal.goal-active,
+.piece-goal.goal-win,
+.piece-goal-socket.goal-active,
+.piece-goal-socket.goal-win {
+  animation: workshopGoal 1s ease-in-out infinite alternate;
+}
+
+@keyframes workshopGoal {
+  to {
+    filter: drop-shadow(0 0 26px rgba(255,178,25,.88)) brightness(1.12);
+    transform: translate(-50%,-50%) scale(1.045);
+  }
+}
+
+.workshop-sparks {
+  z-index: 30;
+  pointer-events: none;
+}
+
+.workshop-sparks i {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ffd35a;
+  box-shadow: 0 0 8px rgba(255,190,34,.85);
+  transform: translate(-50%,-50%);
+  animation: workshopSpark .78s cubic-bezier(.22,.67,.31,1) forwards;
+}
+
+@keyframes workshopSpark {
+  to {
+    transform: translate(calc(-50% + var(--spark-x)),calc(-50% + var(--spark-y))) scale(.15);
+    opacity: 0;
+  }
+}
+
+.stage[data-board="workshop"] .pull-coach {
+  left: 5%;
+  top: 30%;
+  z-index: 40;
+  color: #fff1da;
+  background: linear-gradient(145deg,rgba(35,21,12,.94),rgba(58,35,18,.91));
+  border: 1px solid rgba(255,213,153,.22);
+  box-shadow: 0 12px 28px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.07);
+}
+
+.stage[data-board="workshop"] .pull-coach i {
+  color: #77adff;
+  text-shadow: 0 0 12px rgba(65,132,238,.5);
+}
+
+.stage.machine-running .pull-coach { opacity: 0; pointer-events: none; }
+
+.stage[data-board="workshop"] .board-plaque {
+  bottom: 4.5%;
+  z-index: 35;
+  color: #342010;
+  background: linear-gradient(180deg,#d79b39,#a86b1f);
+  border-color: rgba(255,217,139,.55);
+  box-shadow: 0 5px 8px rgba(25,12,5,.28),inset 0 1px rgba(255,244,208,.42);
+}
+
+.stage.solved .workshop-board {
+  animation: solvedBoardPulse .7s ease;
+}
+
+@keyframes solvedBoardPulse {
+  45% { filter: drop-shadow(0 24px 24px rgba(0,0,0,.34)) brightness(1.07); }
+}
+
+@media (max-width: 390px) {
+  .workshop-board { width: 96%; }
+  .stage[data-board="workshop"] .pull-coach { transform: scale(.88); transform-origin: left center; }
+}
