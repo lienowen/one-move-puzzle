@@ -71,6 +71,8 @@ jobs:
           })().catch(err => { console.error(err); process.exit(1); });
           NODE
 
+          node scripts/visual-sweep.mjs
+
       - name: Build visual review snapshots
         run: |
           python3 -m pip install --quiet pillow
@@ -119,6 +121,8 @@ jobs:
           build_xpm('.visual-check/level1-desktop.jpg','.visual-check/review-desktop.xpm',42,61,40)
           build_xpm('.visual-check/board-mobile.jpg','.visual-check/review-board.xpm',48,48,48)
           PY
+
+          python3 scripts/build-visual-contact.py
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
       - name: Publish visual snapshots
