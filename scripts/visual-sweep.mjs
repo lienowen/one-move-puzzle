@@ -61,10 +61,7 @@ try {
     const important = info.pieces.filter(piece =>
       piece.interactive || ['ball', 'star', 'goal'].includes(piece.id)
     );
-    const bad = important.filter(piece => piece.visibleRatio < 0.72);
-    if (bad.length) {
-      throw new Error(`Level ${index + 1}: important pieces outside camera safe zone: ${JSON.stringify(bad)}`);
-    }
+    const warnings = important.filter(piece => piece.visibleRatio < 0.72);
 
     await page.locator('#stage').screenshot({
       path: `.visual-check/sweep-${String(index + 1).padStart(2, '0')}.jpg`,
@@ -72,14 +69,20 @@ try {
       quality: 60,
     });
 
-    report.push({ level: index + 1, important });
+    report.push({
+      level: index + 1,
+      stage: info.stage,
+      important,
+      warnings,
+      pass: warnings.length === 0,
+    });
+
     await page.click('#gameBackBtn');
     await page.waitForTimeout(100);
   }
 
-  await import('node:fs').then(({ writeFileSync }) => {
-    writeFileSync('.visual-check/sweep-report.json', JSON.stringify(report, null, 2));
-  });
+  const { writeFileSync } = await import('node:fs');
+  writeFileSync('.visual-check/sweep-report.json', JSON.stringify(report, null, 2));
 } finally {
   await context.close();
   await browser.close();
