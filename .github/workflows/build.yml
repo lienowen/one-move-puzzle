@@ -59,6 +59,11 @@ jobs:
               await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`,type:'jpeg',quality:62,fullPage:false});
               if (item.name === 'mobile') {
                 await page.locator('.machine-board').screenshot({path:'.visual-check/board-mobile.jpg',type:'jpeg',quality:72});
+                await page.click('[data-id="pin"]');
+                await page.waitForTimeout(1500);
+                await page.screenshot({path:'.visual-check/level1-running-mobile.jpg',type:'jpeg',quality:62,fullPage:false});
+                await page.waitForTimeout(3500);
+                await page.screenshot({path:'.visual-check/level1-result-mobile.jpg',type:'jpeg',quality:62,fullPage:false});
               }
               await context.close();
             }
@@ -109,6 +114,8 @@ jobs:
           build_json('.visual-check/level1-mobile.jpg','.visual-check/review-level.json')
           build_xpm('.visual-check/home-mobile.jpg','.visual-check/review-home.xpm',32,69)
           build_xpm('.visual-check/level1-mobile.jpg','.visual-check/review-level.xpm',32,69)
+          build_xpm('.visual-check/level1-running-mobile.jpg','.visual-check/review-running.xpm',32,69)
+          build_xpm('.visual-check/level1-result-mobile.jpg','.visual-check/review-result.xpm',32,69)
           build_xpm('.visual-check/level1-desktop.jpg','.visual-check/review-desktop.xpm',42,61,40)
           build_xpm('.visual-check/board-mobile.jpg','.visual-check/review-board.xpm',48,48,48)
           PY
