@@ -38,11 +38,11 @@
 }
 
 /* Gameplay pieces need to read before the frame at phone scale. */
-.piece-ball img{transform:scale(1.28)}
+.piece-ball img{transform:scale(1.28);filter:saturate(1.20) brightness(1.08)}
 .piece-holder img{transform:scale(1.10)}
-.piece-pin img{transform:scale(1.22)}
-.piece-star img{transform:scale(1.18)}
-.piece-goal img{transform:scale(1.13)}
+.piece-pin img{transform:scale(1.22);filter:saturate(1.18) brightness(1.08)}
+.piece-star img{transform:scale(1.18);filter:saturate(1.12) brightness(1.08)}
+.piece-goal img{transform:scale(1.13);filter:saturate(1.10) brightness(1.07)}
 .piece-goal-socket img{transform:scale(1.07)}
 
 .piece-pin.interactive::after{
@@ -78,9 +78,9 @@
   .machine-board{width:145%;top:52%}
   .game-footer{margin-left:3px;margin-right:3px}
 
-  /* Level 1's long pin originally sat at x=17.5%, which hides its blue grip in a close crop. */
-  .piece-pin{left:24.5%!important}
-  .piece-pin-socket{left:25.5%!important}
+  /* Keep the long pull pin inside the close-up camera safe zone. */
+  .piece-pin{left:27%!important}
+  .piece-pin-socket{left:29%!important}
 }
 
 @media(max-height:720px){
