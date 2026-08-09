@@ -9,6 +9,7 @@
   <title>One Move Puzzle</title>
   <link rel="stylesheet" href="./styles.css" />
   <link rel="stylesheet" href="./game-polish.css" />
+  <link rel="stylesheet" href="./workshop-runtime.css" />
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -21,12 +22,12 @@
       <div class="hero">
         <div class="hero-kicker">A TINY MACHINE. ONE DECISION.</div>
         <div class="logo-lockup"><span>ONE</span><strong>MOVE</strong><em>PUZZLE</em></div>
-        <p>Touch one piece. Then watch the machine come alive.</p>
+        <p>Pull one piece. Then watch the machine come alive.</p>
         <div class="hero-machine" aria-hidden="true">
-          <img class="hero-ball" src="./assets/sheet01/obj_ball_blue_1u_01.png" alt="" />
-          <img class="hero-slope" src="./assets/sheet01/obj_slope_wood_2u_01.png" alt="" />
-          <img class="hero-goal" src="./assets/sheet01/goal_hole_yellow_1u_idle.png" alt="" />
-          <img class="hero-gear" src="./assets/sheet01/mech_gear_metal_1u_01.png" alt="" />
+          <img class="hero-ball" src="./assets/workshop/goals/ball_blue.png" alt="" />
+          <img class="hero-slope" src="./assets/workshop/tracks/track_s_curve.png" alt="" />
+          <img class="hero-goal" src="./assets/workshop/goals/goal_socket.png" alt="" />
+          <img class="hero-gear" src="./assets/workshop/mechanisms/gear.png" alt="" />
         </div>
       </div>
 
@@ -54,7 +55,7 @@
       </header>
 
       <div class="objective-row">
-        <p id="levelHint">Pull the blue pin. Then let the workshop run.</p>
+        <p id="levelHint">Pull the blue pin. One move wakes the whole machine.</p>
         <div id="moveToken" class="move-token"><strong>1</strong><span>MOVE</span></div>
       </div>
 
