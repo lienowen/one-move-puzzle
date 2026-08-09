@@ -1,0 +1,60 @@
+/* Visual review pass: tuned against real 390x844 and 620x900 browser captures. */
+
+.game-screen.active{
+  background:
+    radial-gradient(ellipse at 50% 56%,rgba(255,249,235,.38) 0 26%,rgba(202,157,91,.08) 55%,transparent 76%);
+}
+
+.stage::before{
+  content:"";
+  position:absolute;
+  z-index:0;
+  left:50%;
+  top:47%;
+  width:118%;
+  height:76%;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(255,252,242,.48) 0 28%,rgba(202,158,95,.11) 57%,transparent 75%);
+  filter:blur(2px);
+}
+
+.machine-board{
+  top:46.5%;
+  width:min(104%,580px,76dvh);
+  filter:drop-shadow(0 20px 20px rgba(54,30,11,.26));
+}
+
+.piece-ball img{transform:scale(1.16)}
+.piece-holder img{transform:scale(1.07)}
+.piece-pin img{transform:scale(1.12)}
+.piece-star img{transform:scale(1.07)}
+
+.piece-pin.interactive::after{
+  inset:35% 1%;
+  border-color:rgba(98,171,255,.78);
+  box-shadow:0 0 0 6px rgba(47,121,219,.07),0 0 24px rgba(47,121,219,.30);
+}
+
+.game-footer{
+  min-height:50px;
+  margin:0 auto 2px;
+  padding:8px 13px 6px;
+  border:1px solid rgba(85,57,34,.09);
+  border-radius:16px;
+  background:rgba(255,249,236,.34);
+  box-shadow:0 7px 18px rgba(74,46,22,.045),inset 0 1px rgba(255,255,255,.42);
+  backdrop-filter:blur(7px);
+}
+
+.mini-progress{margin-top:6px}
+
+@media(max-width:390px){
+  .machine-board{width:104%;top:46%}
+  .game-footer{margin-left:3px;margin-right:3px}
+}
+
+@media(max-height:720px){
+  .machine-board{top:48%;width:min(101%,520px,72dvh)}
+  .stage::before{top:49%;height:82%}
+}
