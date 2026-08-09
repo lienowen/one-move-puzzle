@@ -8,6 +8,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onBe
   let startTimer = 0;
   const nodes = new Map();
   const firedEvents = new Set();
+  const sampledPath = buildSampledPath(scene.path || []);
 
   world.innerHTML = '';
   world.classList.add('workshop-world');
@@ -70,14 +71,14 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onBe
     const tick = now => {
       if (destroyed) return;
       const raw = Math.min(1, (now - start) / duration);
-      const t = raw < 0.08 ? easeOutCubic(raw / 0.08) * 0.08 : raw;
-      const point = pointOnPath(scene.path, t);
-      const ahead = pointOnPath(scene.path, Math.min(1, t + 0.006));
+      const t = raw < 0.065 ? easeOutCubic(raw / 0.065) * 0.065 : raw;
+      const point = pointOnSampledPath(sampledPath, t);
+      const ahead = pointOnSampledPath(sampledPath, Math.min(1, t + 0.008));
       const angle = Math.atan2(ahead.y - point.y, ahead.x - point.x) * 180 / Math.PI;
 
       ball.style.left = `${point.x}%`;
       ball.style.top = `${point.y}%`;
-      ball.style.setProperty('--travel-rotation', `${angle * 0.28 + t * 760}deg`);
+      ball.style.setProperty('--travel-rotation', `${angle * 0.22 + t * 790}deg`);
 
       fireTimeline(t);
 
@@ -149,37 +150,67 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onBe
   return { commit, destroy, nodes, board };
 }
 
-function pointOnPath(points, t) {
-  if (!points?.length) return { x: 50, y: 50 };
-  if (points.length === 1) return points[0];
+function buildSampledPath(points) {
+  if (!points.length) return [{ x: 50, y: 50, distance: 0 }];
+  if (points.length === 1) return [{ ...points[0], distance: 0 }];
 
-  const lengths = [];
-  let total = 0;
-  for (let i = 0; i < points.length - 1; i += 1) {
-    const dx = points[i + 1].x - points[i].x;
-    const dy = points[i + 1].y - points[i].y;
-    const len = Math.hypot(dx, dy);
-    lengths.push(len);
-    total += len;
-  }
+  const samples = [];
+  const subdivisions = 18;
+  let distance = 0;
+  let previous = null;
 
-  let remaining = Math.max(0, Math.min(1, t)) * total;
-  for (let i = 0; i < lengths.length; i += 1) {
-    if (remaining <= lengths[i] || i === lengths.length - 1) {
-      const local = lengths[i] ? remaining / lengths[i] : 0;
-      const eased = smoothStep(local);
-      return {
-        x: points[i].x + (points[i + 1].x - points[i].x) * eased,
-        y: points[i].y + (points[i + 1].y - points[i].y) * eased,
-      };
+  for (let segment = 0; segment < points.length - 1; segment += 1) {
+    const p0 = points[Math.max(0, segment - 1)];
+    const p1 = points[segment];
+    const p2 = points[segment + 1];
+    const p3 = points[Math.min(points.length - 1, segment + 2)];
+
+    for (let step = 0; step < subdivisions; step += 1) {
+      if (segment > 0 && step === 0) continue;
+      const t = step / subdivisions;
+      const point = catmullRom(p0, p1, p2, p3, t);
+      if (previous) distance += Math.hypot(point.x - previous.x, point.y - previous.y);
+      samples.push({ ...point, distance });
+      previous = point;
     }
-    remaining -= lengths[i];
   }
-  return points[points.length - 1];
+
+  const finalPoint = points[points.length - 1];
+  if (previous) distance += Math.hypot(finalPoint.x - previous.x, finalPoint.y - previous.y);
+  samples.push({ ...finalPoint, distance });
+  return samples;
 }
 
-function smoothStep(t) {
-  return t * t * (3 - 2 * t);
+function pointOnSampledPath(samples, t) {
+  if (samples.length === 1) return samples[0];
+  const total = samples[samples.length - 1].distance || 1;
+  const target = Math.max(0, Math.min(1, t)) * total;
+
+  let low = 0;
+  let high = samples.length - 1;
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2);
+    if (samples[mid].distance < target) low = mid + 1;
+    else high = mid;
+  }
+
+  const next = samples[low];
+  const prev = samples[Math.max(0, low - 1)];
+  const span = Math.max(0.0001, next.distance - prev.distance);
+  const local = Math.max(0, Math.min(1, (target - prev.distance) / span));
+  return {
+    x: prev.x + (next.x - prev.x) * local,
+    y: prev.y + (next.y - prev.y) * local,
+  };
+}
+
+function catmullRom(p0, p1, p2, p3, t) {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return {
+    x: 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2*p0.x - 5*p1.x + 4*p2.x - p3.x) * t2 + (-p0.x + 3*p1.x - 3*p2.x + p3.x) * t3),
+    y: 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2*p0.y - 5*p1.y + 4*p2.y - p3.y) * t2 + (-p0.y + 3*p1.y - 3*p2.y + p3.y) * t3),
+  };
 }
 
 function easeOutCubic(t) {
