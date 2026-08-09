@@ -1,3 +1,5 @@
+import { WORKSHOP_ASSETS as W } from './workshopAssets.js';
+
 const a1 = file => new URL(`../assets/sheet01/${file}`, import.meta.url).href;
 const a2 = file => new URL(`../assets/sheet02/${file}`, import.meta.url).href;
 
@@ -25,24 +27,50 @@ const slope = (id,x,y,w,angle=18) => ({ id, kind:'slope', x,y,w,h:5,angle,static
 const block = (id,x,y,w=9,h=9,interactive=false) => ({ id,kind:'block',x,y,w,h,static:true,asset:A.block,interactive,action:'remove' });
 const gate = (id,x,y,interactive=false) => ({ id,kind:'gate',x,y,w:9,h:19,static:true,asset:A.gate,interactive,action:'remove' });
 const bumper = (id,x,y) => ({ id,kind:'bumper',x,y,w:11,h:11,static:true,shape:'circle',asset:A.bumper,restitution:1.25 });
-const rail = (id,x,y,w,angle=0) => ({ id,kind:'rail',x,y,w,h:4.2,angle,static:true,render:'rail',visualW:w,visualH:7,bodyScaleX:.96,bodyScaleY:.72,friction:.16,frictionStatic:.55,restitution:.04 });
 
 export const levels = [
   {
-    id:'release', name:'Pull the Pin', solution:'pin', subtitle:'Wake the workshop', tutorial:true, board:'workshop',
-    hint:'Pull the blue pin. Then let the workshop run.',
-    entities:[
-      ball(18,15),
-      {id:'pin',kind:'pin',x:18,y:27,w:18,h:4,static:true,interactive:true,action:'remove',render:'pin',visualW:29,visualH:8,bodyScaleX:.78,bodyScaleY:.9},
-      rail('rail1',34,36,34,14),
-      rail('rail2',57,49,34,-12),
-      rail('rail3',47,62,34,13),
-      rail('rail4',70,74,31,5),
-      {id:'gearDecor',kind:'gear',x:80,y:16,w:13,h:13,static:true,sensor:true,asset:A.gear,visualW:15},
-      {id:'buttonDecor',kind:'pressure',x:52,y:16,w:11,h:11,static:true,sensor:true,asset:A.button,visualW:13},
-      star(61,64),
-      goal(87,79)
-    ]
+    id:'release',
+    name:'Pull the Pin',
+    solution:'pin',
+    subtitle:'Wake the workshop',
+    tutorial:true,
+    board:'workshop',
+    mode:'workshop-path',
+    hint:'Pull the blue pin. One move wakes the whole machine.',
+    scene:{
+      board:W.base.boardWorkshopBase,
+      ballId:'ball',
+      duration:4650,
+      pieces:[
+        {id:'holder',kind:'holder',asset:W.pins.ballHolder,x:17,y:17,w:22,z:10},
+        {id:'trackA',kind:'track',asset:W.tracks.trackCurveRight,x:27,y:28,w:26,rotation:88,z:6},
+        {id:'trackB',kind:'track',asset:W.tracks.trackSCurve,x:43,y:43,w:38,rotation:12,z:6},
+        {id:'trackC',kind:'track',asset:W.tracks.trackCurveWideLeft,x:54,y:58,w:28,rotation:84,z:6},
+        {id:'trackD',kind:'track',asset:W.tracks.trackCurveRight,x:67,y:68,w:27,rotation:5,z:6},
+        {id:'trackE',kind:'track',asset:W.tracks.trackHalfStraight,x:77,y:75,w:25,rotation:12,z:6},
+        {id:'bell',kind:'bell',asset:W.mechanisms.bell,x:49,y:36,w:17,z:12},
+        {id:'gear',kind:'gear',asset:W.mechanisms.gear,x:78,y:20,w:18,z:9},
+        {id:'starSocket',kind:'star-socket',asset:W.goals.starSocket,x:57,y:61,w:15,z:7},
+        {id:'star',kind:'star',asset:W.goals.star,x:57,y:61,w:11,z:14},
+        {id:'goalSocket',kind:'goal-socket',asset:W.goals.goalSocket,x:83,y:81,w:21,z:8},
+        {id:'goal',kind:'goal',asset:W.goals.goalYellow,x:83,y:81,w:14,z:11},
+        {id:'pinSocket',kind:'pin-socket',asset:W.pins.pinSocket,x:16,y:31,w:15,z:11},
+        {id:'pin',kind:'pin',asset:W.pins.pinBlue,x:15,y:31,w:31,z:16,interactive:true,label:'Pull the blue pin'},
+        {id:'ball',kind:'ball',asset:W.goals.ballBlue,x:17,y:17,w:12,z:20}
+      ],
+      path:[
+        {x:17,y:17},{x:18,y:23},{x:22,y:29},{x:31,y:34},{x:40,y:39},
+        {x:48,y:45},{x:52,y:52},{x:50,y:58},{x:55,y:63},{x:64,y:67},
+        {x:71,y:71},{x:77,y:76},{x:83,y:81}
+      ],
+      events:[
+        {type:'bell',id:'bell',at:.34,x:48,y:43},
+        {type:'gear',id:'gear',at:.46,x:78,y:20},
+        {type:'star',id:'star',at:.69,x:57,y:61},
+        {type:'goal',id:'goal',at:.94,x:83,y:81}
+      ]
+    }
   },
   {
     id:'gate', name:'Open Route', solution:'gate', subtitle:'Pick the right obstacle',
