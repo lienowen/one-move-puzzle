@@ -1,0 +1,497 @@
+{
+  "project": "One Move Puzzle",
+  "pack": "Workshop Machine Kit — code ready",
+  "version": "1.0.0",
+  "basePath": "assets/workshop",
+  "assetCount": 79,
+  "categories": {
+    "base": {
+      "board_workshop_base": {
+        "file": "/assets/workshop/base/board_workshop_base.png",
+        "width": 768,
+        "height": 768,
+        "anchor": "center"
+      },
+      "board_side_panel": {
+        "file": "/assets/workshop/base/board_side_panel.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "board_corner_cap": {
+        "file": "/assets/workshop/base/board_corner_cap.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      }
+    },
+    "tracks": {
+      "track_straight": {
+        "file": "/assets/workshop/tracks/track_straight.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "track_curve_left": {
+        "file": "/assets/workshop/tracks/track_curve_left.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "track_curve_right": {
+        "file": "/assets/workshop/tracks/track_curve_right.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "track_s_curve": {
+        "file": "/assets/workshop/tracks/track_s_curve.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "track_end": {
+        "file": "/assets/workshop/tracks/track_end.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "track_t": {
+        "file": "/assets/workshop/tracks/track_t.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_half_straight": {
+        "file": "/assets/workshop/tracks/track_half_straight.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_joiner": {
+        "file": "/assets/workshop/tracks/track_joiner.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_fork_left": {
+        "file": "/assets/workshop/tracks/track_fork_left.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_fork_right": {
+        "file": "/assets/workshop/tracks/track_fork_right.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_cross": {
+        "file": "/assets/workshop/tracks/track_cross.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_bridge": {
+        "file": "/assets/workshop/tracks/track_bridge.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_riser_short": {
+        "file": "/assets/workshop/tracks/track_riser_short.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_riser_tall": {
+        "file": "/assets/workshop/tracks/track_riser_tall.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_drop_gate": {
+        "file": "/assets/workshop/tracks/track_drop_gate.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_spinner_switch": {
+        "file": "/assets/workshop/tracks/track_spinner_switch.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_flip_flap": {
+        "file": "/assets/workshop/tracks/track_flip_flap.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_funnel": {
+        "file": "/assets/workshop/tracks/track_funnel.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_curve_tight_left": {
+        "file": "/assets/workshop/tracks/track_curve_tight_left.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_curve_tight_right": {
+        "file": "/assets/workshop/tracks/track_curve_tight_right.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_curve_wide_left": {
+        "file": "/assets/workshop/tracks/track_curve_wide_left.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "track_curve_wide_right": {
+        "file": "/assets/workshop/tracks/track_curve_wide_right.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      }
+    },
+    "pins": {
+      "ball_holder": {
+        "file": "/assets/workshop/pins/ball_holder.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "pin_blue": {
+        "file": "/assets/workshop/pins/pin_blue.png",
+        "width": 384,
+        "height": 384,
+        "anchor": "center"
+      },
+      "pin_red": {
+        "file": "/assets/workshop/pins/pin_red.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "pin_socket": {
+        "file": "/assets/workshop/pins/pin_socket.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "pin_end": {
+        "file": "/assets/workshop/pins/pin_end.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      }
+    },
+    "hardware": {
+      "bracket_corner": {
+        "file": "/assets/workshop/hardware/bracket_corner.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "bracket_straight": {
+        "file": "/assets/workshop/hardware/bracket_straight.png",
+        "width": 384,
+        "height": 384,
+        "anchor": "center"
+      },
+      "bracket_u": {
+        "file": "/assets/workshop/hardware/bracket_u.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "screw": {
+        "file": "/assets/workshop/hardware/screw.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "screw_cap": {
+        "file": "/assets/workshop/hardware/screw_cap.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "metal_plate": {
+        "file": "/assets/workshop/hardware/metal_plate.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "post_wood": {
+        "file": "/assets/workshop/hardware/post_wood.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "post_metal": {
+        "file": "/assets/workshop/hardware/post_metal.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "chain_short": {
+        "file": "/assets/workshop/hardware/chain_short.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "chain_long": {
+        "file": "/assets/workshop/hardware/chain_long.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      }
+    },
+    "mechanisms": {
+      "button_yellow": {
+        "file": "/assets/workshop/mechanisms/button_yellow.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "button_green": {
+        "file": "/assets/workshop/mechanisms/button_green.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "lever_red": {
+        "file": "/assets/workshop/mechanisms/lever_red.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "lever_blue": {
+        "file": "/assets/workshop/mechanisms/lever_blue.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "spring_bumper": {
+        "file": "/assets/workshop/mechanisms/spring_bumper.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "gear": {
+        "file": "/assets/workshop/mechanisms/gear.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "wheel_valve": {
+        "file": "/assets/workshop/mechanisms/wheel_valve.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "bell": {
+        "file": "/assets/workshop/mechanisms/bell.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "fan": {
+        "file": "/assets/workshop/mechanisms/fan.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "conveyor": {
+        "file": "/assets/workshop/mechanisms/conveyor.png",
+        "width": 384,
+        "height": 384,
+        "anchor": "center"
+      },
+      "magnet": {
+        "file": "/assets/workshop/mechanisms/magnet.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "portal": {
+        "file": "/assets/workshop/mechanisms/portal.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "gate_slider": {
+        "file": "/assets/workshop/mechanisms/gate_slider.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "gate_locked_round": {
+        "file": "/assets/workshop/mechanisms/gate_locked_round.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "piston_pusher": {
+        "file": "/assets/workshop/mechanisms/piston_pusher.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "hammer_striker": {
+        "file": "/assets/workshop/mechanisms/hammer_striker.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "spring_pad_small": {
+        "file": "/assets/workshop/mechanisms/spring_pad_small.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "bumper_round": {
+        "file": "/assets/workshop/mechanisms/bumper_round.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "bumper_triangle": {
+        "file": "/assets/workshop/mechanisms/bumper_triangle.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "lamp_indicator_green": {
+        "file": "/assets/workshop/mechanisms/lamp_indicator_green.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "lamp_indicator_red": {
+        "file": "/assets/workshop/mechanisms/lamp_indicator_red.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "checkpoint_ring": {
+        "file": "/assets/workshop/mechanisms/checkpoint_ring.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "crank_handle": {
+        "file": "/assets/workshop/mechanisms/crank_handle.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "pulley_single": {
+        "file": "/assets/workshop/mechanisms/pulley_single.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "pulley_double": {
+        "file": "/assets/workshop/mechanisms/pulley_double.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "rope_hook": {
+        "file": "/assets/workshop/mechanisms/rope_hook.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      }
+    },
+    "goals": {
+      "goal_socket": {
+        "file": "/assets/workshop/goals/goal_socket.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "goal_yellow": {
+        "file": "/assets/workshop/goals/goal_yellow.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "star": {
+        "file": "/assets/workshop/goals/star.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "ball_blue": {
+        "file": "/assets/workshop/goals/ball_blue.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "ball_steel": {
+        "file": "/assets/workshop/goals/ball_steel.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "star_socket": {
+        "file": "/assets/workshop/goals/star_socket.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "coin_brass": {
+        "file": "/assets/workshop/goals/coin_brass.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      }
+    },
+    "decor": {
+      "crate_wood": {
+        "file": "/assets/workshop/decor/crate_wood.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "stopper_wood": {
+        "file": "/assets/workshop/decor/stopper_wood.png",
+        "width": 384,
+        "height": 384,
+        "anchor": "center"
+      },
+      "sign_arrow": {
+        "file": "/assets/workshop/decor/sign_arrow.png",
+        "width": 384,
+        "height": 384,
+        "anchor": "center"
+      },
+      "flag_blue": {
+        "file": "/assets/workshop/decor/flag_blue.png",
+        "width": 320,
+        "height": 320,
+        "anchor": "center"
+      },
+      "sign_start": {
+        "file": "/assets/workshop/decor/sign_start.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      },
+      "sign_goal": {
+        "file": "/assets/workshop/decor/sign_goal.png",
+        "width": 256,
+        "height": 256,
+        "anchor": "center"
+      }
+    }
+  }
+}

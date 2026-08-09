@@ -55,3 +55,31 @@ assets/
 ## Development direction
 
 The repository is now structured as a real game rather than a scripted prototype. New levels should be created as level data in `src/levels.js` and should use the shared physics/effect runtime instead of hard-coded animation paths.
+
+## Code-ready workshop assets
+
+The workshop asset pack combines Workshop Machine Kit V1-V3 into one deduplicated runtime asset tree.
+
+```text
+assets/workshop/
+  base/
+  tracks/
+  pins/
+  hardware/
+  mechanisms/
+  goals/
+  decor/
+  manifest.json
+src/workshopAssets.js
+```
+
+Import the generated asset map with:
+
+```js
+import { WORKSHOP_ASSETS } from './src/workshopAssets.js';
+
+const img = new Image();
+img.src = WORKSHOP_ASSETS.tracks.trackStraight;
+```
+
+The pack uses transparent PNG files with runtime-safe lowercase snake_case names. Its manifest includes image dimensions and center-anchor metadata.
