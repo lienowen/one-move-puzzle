@@ -2,7 +2,7 @@
 
 .game-screen.active{
   background:
-    radial-gradient(ellipse at 50% 48%,rgba(137,88,42,.18) 0 26%,rgba(57,35,21,.10) 49%,transparent 70%),
+    radial-gradient(ellipse at 50% 50%,rgba(137,88,42,.20) 0 28%,rgba(57,35,21,.10) 51%,transparent 72%),
     linear-gradient(180deg,#211710 0%,#120c08 54%,#0b0705 100%);
 }
 
@@ -22,31 +22,33 @@
   position:absolute;
   z-index:0;
   left:50%;
-  top:47%;
-  width:122%;
-  height:78%;
+  top:51%;
+  width:128%;
+  height:82%;
   transform:translate(-50%,-50%);
   pointer-events:none;
-  background:
-    radial-gradient(ellipse at center,rgba(158,102,49,.16) 0 29%,rgba(89,54,29,.08) 52%,transparent 72%);
+  background:radial-gradient(ellipse at center,rgba(158,102,49,.18) 0 29%,rgba(89,54,29,.08) 54%,transparent 74%);
   filter:blur(3px);
 }
 
 .machine-board{
-  top:46.5%;
-  width:min(104%,580px,76dvh);
-  filter:drop-shadow(0 24px 25px rgba(0,0,0,.40));
+  top:51%;
+  width:min(112%,620px,82dvh);
+  filter:drop-shadow(0 25px 27px rgba(0,0,0,.43));
 }
 
-.piece-ball img{transform:scale(1.16)}
-.piece-holder img{transform:scale(1.07)}
-.piece-pin img{transform:scale(1.12)}
-.piece-star img{transform:scale(1.07)}
+/* Gameplay pieces need to read before the frame at phone scale. */
+.piece-ball img{transform:scale(1.28)}
+.piece-holder img{transform:scale(1.10)}
+.piece-pin img{transform:scale(1.22)}
+.piece-star img{transform:scale(1.18)}
+.piece-goal img{transform:scale(1.13)}
+.piece-goal-socket img{transform:scale(1.07)}
 
 .piece-pin.interactive::after{
-  inset:35% 1%;
-  border-color:rgba(105,177,255,.86);
-  box-shadow:0 0 0 6px rgba(47,121,219,.10),0 0 27px rgba(47,121,219,.48);
+  inset:35% -2%;
+  border-color:rgba(108,181,255,.92);
+  box-shadow:0 0 0 7px rgba(47,121,219,.10),0 0 30px rgba(47,121,219,.54);
 }
 
 .game-footer{
@@ -72,11 +74,11 @@
 }
 
 @media(max-width:390px){
-  .machine-board{width:104%;top:46%}
+  .machine-board{width:118%;top:51%}
   .game-footer{margin-left:3px;margin-right:3px}
 }
 
 @media(max-height:720px){
-  .machine-board{top:48%;width:min(101%,520px,72dvh)}
-  .stage::before{top:49%;height:82%}
+  .machine-board{top:50%;width:min(108%,550px,78dvh)}
+  .stage::before{top:50%;height:84%}
 }
