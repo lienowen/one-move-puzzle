@@ -2,6 +2,7 @@ import Matter from 'matter-js';
 import { levels } from './levels.js';
 import { loadSave, storeSave, recordAttempt, recordClear } from './core/save.js';
 import { sfx, haptic } from './core/audio.js';
+import { mountWorkshopRuntime } from './workshopRuntime.js';
 
 const { Engine, Bodies, Body, Composite, Events, Sleeping } = Matter;
 const $ = q => document.querySelector(q);
@@ -26,6 +27,7 @@ const VISUAL_WIDTH = {
 
 let save = loadSave();
 let engine = null;
+let workshopRuntime = null;
 let runnerFrame = 0;
 let current = 0;
 let bodyById = new Map();
@@ -92,7 +94,7 @@ function buildLevel() {
   bonusStar = false;
   portalLockUntil = 0;
 
-  dom.stage.classList.remove('running', 'solved');
+  dom.stage.classList.remove('running', 'solved', 'machine-running');
   dom.stage.dataset.level = level.id;
   dom.stage.dataset.board = level.board || 'workshop';
   dom.pullCoach.hidden = !level.tutorial;
@@ -106,16 +108,42 @@ function buildLevel() {
   dom.status.textContent = level.tutorial ? 'Pull the blue pin.' : 'One touch changes the whole machine.';
   renderMiniProgress();
 
+  dom.world.innerHTML = '';
+  bodyById.clear();
+  spriteById.clear();
+  entityById.clear();
+
+  if (level.mode === 'workshop-path') {
+    workshopRuntime = mountWorkshopRuntime({
+      world: dom.world,
+      stage: dom.stage,
+      level,
+      onMove: (id, ev) => useMove(id, ev),
+      onStar: () => {
+        if (bonusStar) return;
+        bonusStar = true;
+        sfx.star(save.sound);
+        haptic(save.haptics, [12, 30, 12]);
+        dom.status.textContent = 'Bonus star collected. Keep rolling.';
+      },
+      onBell: () => {
+        sfx.metal(save.sound);
+        haptic(save.haptics, 12);
+        dom.status.textContent = 'The workshop is awake.';
+      },
+      onGear: () => sfx.metal(save.sound),
+      onGoal: () => winLevel(),
+      onStatus: text => { dom.status.textContent = text; }
+    });
+    return;
+  }
+
   const rect = dom.stage.getBoundingClientRect();
   engine = Engine.create({ enableSleeping: true });
   engine.gravity.y = 0;
   engine.positionIterations = 12;
   engine.velocityIterations = 10;
 
-  dom.world.innerHTML = '';
-  bodyById.clear();
-  spriteById.clear();
-  entityById.clear();
   level.entities.forEach(e => addEntity(e, rect));
   addBounds(rect);
 
@@ -195,12 +223,34 @@ function addBounds(rect) {
 }
 
 function useMove(id, ev) {
-  if (moveUsed || resolved || !engine) return;
+  if (moveUsed || resolved || (!engine && !workshopRuntime)) return;
+  const level = levels[current];
+
+  if (workshopRuntime) {
+    if (id !== level.solution) return;
+    moveUsed = true;
+    recordAttempt(save, level.id);
+    dom.move.classList.add('used');
+    dom.move.querySelector('strong').textContent = '0';
+    dom.pullCoach.hidden = true;
+    dom.stage.classList.add('running');
+    sfx.tap(save.sound);
+    haptic(save.haptics);
+    tapFx(ev);
+    const committed = workshopRuntime.commit(id);
+    if (!committed) {
+      moveUsed = false;
+      dom.move.classList.remove('used');
+      dom.move.querySelector('strong').textContent = '1';
+    }
+    return;
+  }
+
   const entity = entityById.get(id);
   if (!entity?.interactive) return;
 
   moveUsed = true;
-  recordAttempt(save, levels[current].id);
+  recordAttempt(save, level.id);
   dom.move.classList.add('used');
   dom.move.querySelector('strong').textContent = '0';
   dom.pullCoach.hidden = true;
@@ -209,7 +259,7 @@ function useMove(id, ev) {
   haptic(save.haptics);
   tapFx(ev);
   $$('.entity.interactive').forEach(el => el.classList.remove('interactive'));
-  dom.status.textContent = id === levels[current].solution ? 'Pin released. Watch the machine.' : 'Move committed. Let the machine answer.';
+  dom.status.textContent = id === level.solution ? 'Pin released. Watch the machine.' : 'Move committed. Let the machine answer.';
 
   const body = bodyById.get(id);
   if (entity.action === 'remove') {
@@ -228,11 +278,11 @@ function useMove(id, ev) {
   }
 
   engine.gravity.y = 1;
-  engine.gravity.scale = levels[current].gravityScale || .00108;
+  engine.gravity.scale = level.gravityScale || .00108;
   [...bodyById.values()].forEach(b => { if (!b.isStatic) Sleeping.set(b, false); });
   clearTimeout(timeoutId);
   timeoutId = setTimeout(() => failLevel('The machine ran out of room.'), 10000);
-  if (id !== levels[current].solution) {
+  if (id !== level.solution) {
     setTimeout(() => { if (!resolved) failLevel('That move broke the chain.'); }, 2400);
   }
 }
@@ -361,6 +411,8 @@ function winLevel() {
   haptic(save.haptics, [20,35,20,35,40]);
   dom.stage.classList.add('solved');
   spriteById.get('goal')?.classList.add('goal-win');
+  workshopRuntime?.nodes.get('goal')?.classList.add('goal-win');
+  workshopRuntime?.nodes.get('goalSocket')?.classList.add('goal-win');
   setTimeout(() => {
     dom.resultBadge.textContent = '★';
     dom.resultTitle.textContent = stars === 3 ? 'Perfect machine' : 'Machine solved';
@@ -420,6 +472,10 @@ function nextAction() {
 function destroyWorld() {
   cancelAnimationFrame(runnerFrame);
   clearTimeout(timeoutId);
+  if (workshopRuntime) {
+    workshopRuntime.destroy();
+    workshopRuntime = null;
+  }
   if (engine) {
     Events.off(engine);
     Composite.clear(engine.world, false);
