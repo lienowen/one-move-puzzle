@@ -37,37 +37,34 @@ export const levels = [
     tutorial:true,
     board:'workshop',
     mode:'workshop-path',
-    hint:'Pull the blue pin. One move wakes the whole machine.',
+    hint:'Pull the blue pin.',
     scene:{
       board:W.base.boardWorkshopBase,
       ballId:'ball',
-      duration:4200,
+      duration:3900,
       pieces:[
-        {id:'holder',kind:'holder',asset:W.pins.ballHolder,x:20,y:20,w:21,z:10},
-        {id:'pinSocket',kind:'pin-socket',asset:W.pins.pinSocket,x:20,y:31,w:12,z:11},
-        {id:'pin',kind:'pin',asset:W.pins.pinBlue,x:17,y:31,w:28,z:16,interactive:true,label:'Pull the blue pin'},
+        {id:'holder',kind:'holder',asset:W.pins.ballHolder,x:23,y:18,w:17,z:10},
+        {id:'pinSocket',kind:'pin-socket',asset:W.pins.pinSocket,x:22,y:29,w:8,z:11},
+        {id:'pin',kind:'pin',asset:W.pins.pinBlue,x:17.5,y:29,w:21,z:16,interactive:true,label:'Pull the blue pin'},
 
-        {id:'trackA',kind:'track',asset:W.tracks.trackCurveRight,x:31,y:33,w:28,rotation:88,z:6},
-        {id:'trackB',kind:'track',asset:W.tracks.trackSCurve,x:50,y:52,w:42,rotation:8,z:6},
-        {id:'trackC',kind:'track',asset:W.tracks.trackCurveWideLeft,x:70,y:71,w:31,rotation:82,z:6},
+        {id:'trackA',kind:'track',asset:W.tracks.trackCurveRight,x:34,y:30,w:25,rotation:90,z:6},
+        {id:'trackB',kind:'track',asset:W.tracks.trackSCurve,x:51,y:49,w:41,rotation:0,z:6},
+        {id:'trackC',kind:'track',asset:W.tracks.trackCurveRight,x:69,y:68,w:24,rotation:0,z:6},
 
-        {id:'bell',kind:'bell',asset:W.mechanisms.bell,x:48,y:31,w:12,z:8},
-        {id:'gear',kind:'gear',asset:W.mechanisms.gear,x:80,y:19,w:13,z:7},
-
-        {id:'star',kind:'star',asset:W.goals.star,x:57,y:59,w:10,z:14},
-        {id:'goalSocket',kind:'goal-socket',asset:W.goals.goalSocket,x:82,y:80,w:18,z:8},
-        {id:'goal',kind:'goal',asset:W.goals.goalYellow,x:82,y:80,w:12,z:11},
-        {id:'ball',kind:'ball',asset:W.goals.ballBlue,x:20,y:20,w:11,z:20}
+        {id:'gear',kind:'gear',asset:W.mechanisms.gear,x:79,y:18,w:9,z:5},
+        {id:'star',kind:'star',asset:W.goals.star,x:58,y:59,w:8,z:14},
+        {id:'goalSocket',kind:'goal-socket',asset:W.goals.goalSocket,x:77,y:79,w:15,z:8},
+        {id:'goal',kind:'goal',asset:W.goals.goalYellow,x:77,y:79,w:9.5,z:11},
+        {id:'ball',kind:'ball',asset:W.goals.ballBlue,x:23,y:18,w:8.5,z:20}
       ],
       path:[
-        {x:20,y:20},{x:21,y:25},{x:26,y:31},{x:35,y:35},{x:43,y:41},
-        {x:49,y:49},{x:53,y:56},{x:58,y:61},{x:66,y:66},{x:74,y:72},{x:82,y:80}
+        {x:23,y:18},{x:23,y:23},{x:27,y:28},{x:33,y:31},{x:39,y:36},
+        {x:44,y:42},{x:49,y:49},{x:53,y:55},{x:58,y:59},{x:63,y:64},
+        {x:68,y:68},{x:72,y:73},{x:77,y:79}
       ],
       events:[
-        {type:'bell',id:'bell',at:.38,x:48,y:36},
-        {type:'gear',id:'gear',at:.50,x:80,y:19},
-        {type:'star',id:'star',at:.65,x:57,y:59},
-        {type:'goal',id:'goal',at:.94,x:82,y:80}
+        {type:'star',id:'star',at:.68,x:58,y:59},
+        {type:'goal',id:'goal',at:.95,x:77,y:79}
       ]
     }
   },
