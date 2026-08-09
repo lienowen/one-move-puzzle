@@ -109,6 +109,7 @@ jobs:
           build_json('.visual-check/level1-mobile.jpg','.visual-check/review-level.json')
           build_xpm('.visual-check/home-mobile.jpg','.visual-check/review-home.xpm',32,69)
           build_xpm('.visual-check/level1-mobile.jpg','.visual-check/review-level.xpm',32,69)
+          build_xpm('.visual-check/level1-desktop.jpg','.visual-check/review-desktop.xpm',42,61,40)
           build_xpm('.visual-check/board-mobile.jpg','.visual-check/review-board.xpm',48,48,48)
           PY
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
