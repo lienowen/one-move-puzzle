@@ -1,82 +1,68 @@
-/* Final workshop presentation overrides. Keep the game board visually clean. */
-.stage[data-board="workshop"] .machine-plate {
-  display: none;
-}
-
-.stage[data-board="workshop"] .pull-coach {
-  left: 4.5%;
-  top: 21%;
-  width: min(45%, 220px);
-  display: grid;
-  grid-template-columns: 30px 1fr;
-  align-items: center;
-  gap: 9px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  line-height: 1.15;
-  transform: none;
-}
-
-.stage[data-board="workshop"] .pull-coach[hidden] {
+/* Clean commercial workshop presentation: the machine is the hero. */
+.stage[data-board="workshop"] .machine-plate,
+.stage[data-board="workshop"] .pull-coach,
+.stage[data-board="workshop"] .board-plaque {
   display: none !important;
 }
 
-.stage[data-board="workshop"] .pull-coach i {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  font-style: normal;
-  font-size: 25px;
-  line-height: 1;
-}
-
-.stage[data-board="workshop"] .pull-coach strong,
-.stage[data-board="workshop"] .pull-coach span {
-  display: block;
-  white-space: normal;
-}
-
-.stage[data-board="workshop"] .pull-coach strong {
-  margin-bottom: 3px;
-  font-size: 11px;
-  letter-spacing: .08em;
-}
-
-.stage[data-board="workshop"] .pull-coach span {
-  color: rgba(255,238,213,.72);
-  font-size: 8px;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-.stage[data-board="workshop"] .board-plaque {
-  left: 50%;
-  right: auto;
-  bottom: 3.2%;
-  min-width: 82px;
-  padding: 5px 13px;
-  border-radius: 8px;
-  transform: translateX(-50%);
-  text-align: center;
-  font-size: 9px;
-  font-weight: 950;
-  letter-spacing: .12em;
-}
-
 .stage[data-board="workshop"] .stage-border {
+  inset: 7px;
   z-index: 3;
+  opacity: .42;
 }
 
 .stage[data-board="workshop"] .workshop-world {
   z-index: 6;
 }
 
+.stage[data-board="workshop"] .workshop-board {
+  top: 49.5%;
+  width: 94%;
+}
+
+/* Keep the route dominant and everything else secondary. */
+.stage[data-board="workshop"] .piece-track {
+  z-index: 6 !important;
+  filter: drop-shadow(0 6px 4px rgba(38,20,8,.22));
+}
+
+.stage[data-board="workshop"] .piece-holder,
+.stage[data-board="workshop"] .piece-pin,
+.stage[data-board="workshop"] .piece-pin-socket,
+.stage[data-board="workshop"] .piece-ball {
+  z-index: 16 !important;
+}
+
+.stage[data-board="workshop"] .piece-bell,
+.stage[data-board="workshop"] .piece-gear {
+  opacity: .58;
+  filter: saturate(.82) brightness(.92) drop-shadow(0 5px 4px rgba(38,20,8,.16));
+}
+
+.stage[data-board="workshop"] .piece-star {
+  z-index: 18 !important;
+}
+
+.stage[data-board="workshop"] .piece-goal,
+.stage[data-board="workshop"] .piece-goal-socket {
+  z-index: 14 !important;
+}
+
+/* The pin itself is the tutorial. No extra floating instruction card. */
+.stage[data-board="workshop"] .piece-pin.interactive::after {
+  inset: 29% 7%;
+  border-width: 2px;
+  box-shadow:
+    0 0 0 6px rgba(52,119,220,.08),
+    0 0 22px rgba(50,127,255,.34);
+}
+
+.stage[data-board="workshop"] .piece-ball {
+  filter: drop-shadow(0 6px 5px rgba(19,35,65,.28));
+}
+
 @media (max-width: 390px) {
-  .stage[data-board="workshop"] .pull-coach {
-    top: 19%;
-    width: 48%;
-    padding: 8px 9px;
-    gap: 6px;
+  .stage[data-board="workshop"] .workshop-board {
+    width: 96%;
   }
 }
