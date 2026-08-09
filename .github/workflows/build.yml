@@ -53,31 +53,37 @@ jobs:
               const context = await browser.newContext({viewport:{width:item.width,height:item.height},deviceScaleFactor:1,reducedMotion:'reduce'});
               const page = await context.newPage();
               await page.goto('http://127.0.0.1:4173', {waitUntil:'networkidle'});
-              await page.screenshot({path:`.visual-check/home-${item.name}.jpg`,type:'jpeg',quality:52,fullPage:false});
+              await page.screenshot({path:`.visual-check/home-${item.name}.jpg`,type:'jpeg',quality:58,fullPage:false});
               await page.click('#playBtn');
               await page.waitForTimeout(500);
-              await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`,type:'jpeg',quality:58,fullPage:false});
+              await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`,type:'jpeg',quality:62,fullPage:false});
               await context.close();
             }
             await browser.close();
           })().catch(err => { console.error(err); process.exit(1); });
           NODE
 
-      - name: Build compact visual review map
+      - name: Build compact visual review maps
         run: |
           python3 -m pip install --quiet pillow
           python3 <<'PY'
           from PIL import Image
           import json
-          img = Image.open('.visual-check/level1-mobile.jpg').convert('RGB').resize((48,104))
-          q = img.quantize(colors=16, method=Image.Quantize.MEDIANCUT)
-          pal_raw = q.getpalette()[:48]
-          palette = ['#%02x%02x%02x' % tuple(pal_raw[i:i+3]) for i in range(0,48,3)]
-          px = list(q.getdata())
-          alphabet = '0123456789abcdef'
-          rows = [''.join(alphabet[v] for v in px[y*48:(y+1)*48]) for y in range(104)]
-          with open('.visual-check/review-map.json','w') as f:
-              json.dump({'width':48,'height':104,'palette':palette,'rows':rows},f,separators=(',',':'))
+
+          alphabet = '0123456789abcdefghijklmnopqrstuv'
+
+          def build(src, dst):
+              img = Image.open(src).convert('RGB').resize((48,104))
+              q = img.quantize(colors=32, method=Image.Quantize.MEDIANCUT)
+              raw = q.getpalette()[:96]
+              palette = ['#%02x%02x%02x' % tuple(raw[i:i+3]) for i in range(0,96,3)]
+              px = list(q.getdata())
+              rows = [''.join(alphabet[v] for v in px[y*48:(y+1)*48]) for y in range(104)]
+              with open(dst,'w') as f:
+                  json.dump({'width':48,'height':104,'palette':palette,'rows':rows},f,separators=(',',':'))
+
+          build('.visual-check/home-mobile.jpg','.visual-check/review-home.json')
+          build('.visual-check/level1-mobile.jpg','.visual-check/review-level.json')
           PY
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
