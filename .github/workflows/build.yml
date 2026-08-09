@@ -3,7 +3,12 @@ name: Build
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '.visual-check/**'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -22,3 +27,61 @@ jobs:
 
       - name: Build production bundle
         run: npm run build
+
+      - name: Install browser for visual check
+        run: |
+          npm install --no-save playwright@1.54.2
+          npx playwright install --with-deps chromium
+
+      - name: Capture visual snapshots
+        run: |
+          mkdir -p .visual-check
+          npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/one-move-preview.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
+            sleep 1
+          done
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          (async () => {
+            const browser = await chromium.launch({headless:true});
+            const cases = [
+              {name:'mobile', width:390, height:844, scale:1},
+              {name:'desktop', width:620, height:900, scale:1},
+            ];
+            for (const item of cases) {
+              const context = await browser.newContext({
+                viewport:{width:item.width,height:item.height},
+                deviceScaleFactor:item.scale,
+                reducedMotion:'reduce',
+              });
+              const page = await context.newPage();
+              await page.goto('http://127.0.0.1:4173', {waitUntil:'networkidle'});
+              await page.screenshot({path:`.visual-check/home-${item.name}.jpg`, type:'jpeg', quality:52, fullPage:false});
+              await page.click('#playBtn');
+              await page.waitForTimeout(500);
+              await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`, type:'jpeg', quality:58, fullPage:false});
+              await context.close();
+            }
+            await browser.close();
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+          printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
+
+      - name: Upload visual snapshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-check
+          path: .visual-check/*.jpg
+          retention-days: 7
+
+      - name: Publish latest visual snapshot metadata
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .visual-check
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: refresh visual snapshots [skip ci]'
+            git push
+          fi
