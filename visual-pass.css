@@ -73,10 +73,14 @@
   box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 -4px rgba(110,57,0,.15),0 0 22px rgba(224,155,34,.10);
 }
 
-/* Mobile is a camera crop, not a smaller desktop board. Core pieces live between x≈20% and x≈80%. */
+/* Mobile is a camera crop, not a smaller desktop board. */
 @media(max-width:500px){
   .machine-board{width:145%;top:52%}
   .game-footer{margin-left:3px;margin-right:3px}
+
+  /* Level 1's long pin originally sat at x=17.5%, which hides its blue grip in a close crop. */
+  .piece-pin{left:24.5%!important}
+  .piece-pin-socket{left:25.5%!important}
 }
 
 @media(max-height:720px){
