@@ -1,128 +1,218 @@
 import { WORKSHOP_ASSETS as W } from './workshopAssets.js';
 
-const a1 = file => new URL(`../assets/sheet01/${file}`, import.meta.url).href;
-const a2 = file => new URL(`../assets/sheet02/${file}`, import.meta.url).href;
-
-const A = {
-  blueBall: a1('obj_ball_blue_1u_01.png'), metalBall: a2('obj_ball_metal_1u_01.png'),
-  plank: a1('obj_plank_wood_2u_01.png'), slope: a1('obj_slope_wood_2u_01.png'),
-  block: a1('obj_block_wood_1u_01.png'), breakable: a1('obj_breakable_wood_1u_01.png'),
-  wall: a1('obj_wall_wood_2u_01.png'), goal: a1('goal_hole_yellow_1u_idle.png'),
-  button: a1('mech_button_yellow_1u_idle.png'), spring: a1('mech_spring_orange_1u_idle.png'),
-  seesaw: a1('mech_seesaw_wood_2u_01.png'), gear: a1('mech_gear_metal_1u_01.png'),
-  gate: a1('mech_gate_woodmetal_2u_idle.png'), fan: a1('mech_fan_blue_1u_idle.png'),
-  magnet: a1('mech_magnet_redblue_2u_01.png'), bumper: a2('mech_bumper_blue_1u_idle.png'),
-  pivot: a2('mech_pivot_pin_metal_1u_01.png'), conveyor: a2('mech_conveyor_belt_2u_idle.png'),
-  pressure: a2('mech_pressure_plate_blue_1u_idle.png'), trapdoor: a2('mech_trapdoor_wood_1u_idle.png'),
-  portal: a2('mech_portal_blue_2u_idle.png'), key: a2('obj_key_tile_1u_01.png'), lockedGate: a2('mech_gate_locked_woodmetal_2u_idle.png'),
-  arrow: a2('mech_rotating_arrow_1u_01.png'), glass: a2('obj_glass_block_1u_01.png'),
-  pulley: a2('mech_rope_pulley_2u_01.png'), star: a2('collect_star_gold_1u_01.png')
-};
-
-const ball = (x,y,metal=false) => ({ id:'ball', kind:'ball', x,y,w:9,h:9, shape:'circle', dynamic:true, asset: metal ? A.metalBall : A.blueBall, restitution:.2, friction:.02, visualW:15 });
-const goal = (x,y) => ({ id:'goal', kind:'goal', x,y,w:12,h:12, sensor:true, shape:'circle', asset:A.goal, visualW:18, bodyRadius:.36 });
-const star = (x,y) => ({ id:'star', kind:'star', x,y,w:8,h:8, sensor:true, shape:'circle', asset:A.star, visualW:12, bodyRadius:.4 });
-const plank = (id,x,y,w,angle=0,interactive=false) => ({ id, kind:'plank', x,y,w,h:4.5,angle,static:true,asset:A.plank,interactive,action:'remove' });
-const slope = (id,x,y,w,angle=18) => ({ id, kind:'slope', x,y,w,h:5,angle,static:true,asset:A.slope });
-const block = (id,x,y,w=9,h=9,interactive=false) => ({ id,kind:'block',x,y,w,h,static:true,asset:A.block,interactive,action:'remove' });
-const gate = (id,x,y,interactive=false) => ({ id,kind:'gate',x,y,w:9,h:19,static:true,asset:A.gate,interactive,action:'remove' });
-const bumper = (id,x,y) => ({ id,kind:'bumper',x,y,w:11,h:11,static:true,shape:'circle',asset:A.bumper,restitution:1.25 });
+const p = (id, kind, asset, x, y, w, extra = {}) => ({ id, kind, asset, x, y, w, ...extra });
+const control = (id, kind, asset, x, y, w, action, extra = {}) => p(id, kind, asset, x, y, w, { interactive:true, action, ...extra });
+const holder = (x,y,w=16) => p('holder','holder',W.pins.ballHolder,x,y,w,{z:16});
+const ball = (x,y,steel=false,w=8.5) => p('ball','ball',steel ? W.goals.ballSteel : W.goals.ballBlue,x,y,w,{z:42});
+const star = (x,y,w=8) => p('star','star',W.goals.star,x,y,w,{z:34});
+const goal = (x,y) => [
+  p('goalSocket','goal-socket',W.goals.goalSocket,x,y,15,{z:20}),
+  p('goal','goal',W.goals.goalYellow,x,y,9.4,{z:24}),
+];
+const decor = (id, asset, x, y, w, extra={}) => p(id,'decor',asset,x,y,w,{z:5,...extra});
+const activate = (id, at, x, y, sound='metal') => ({type:'activate',id,at,x,y,sound});
+const starEvent = (at,x,y) => ({type:'star',id:'star',at,x,y,sound:'star'});
+const goalEvent = (at,x,y) => ({type:'goal',id:'goal',at,x,y,sound:'goal'});
 
 export const levels = [
   {
-    id:'release',
-    name:'Pull the Pin',
-    solution:'pin',
-    subtitle:'Wake the workshop',
-    tutorial:true,
-    board:'workshop',
-    mode:'workshop-path',
-    hint:'Pull the blue pin.',
+    id:'release', name:'Pull the Pin', subtitle:'Release the first machine', icon:W.pins.pinBlue,
+    solution:'pin', hint:'Pull the blue pin.', status:'One move starts everything.', tutorial:true,
     scene:{
-      board:W.base.boardWorkshopBase,
-      ballId:'ball',
-      duration:3900,
+      board:W.base.boardWorkshopBase, duration:3900, joints:[.24,.49,.74],
       pieces:[
-        {id:'holder',kind:'holder',asset:W.pins.ballHolder,x:23,y:18,w:17,z:10},
-        {id:'pinSocket',kind:'pin-socket',asset:W.pins.pinSocket,x:22,y:29,w:8,z:11},
-        {id:'pin',kind:'pin',asset:W.pins.pinBlue,x:17.5,y:29,w:21,z:16,interactive:true,label:'Pull the blue pin'},
-
-        {id:'trackA',kind:'track',asset:W.tracks.trackCurveRight,x:34,y:30,w:25,rotation:90,z:6},
-        {id:'trackB',kind:'track',asset:W.tracks.trackSCurve,x:51,y:49,w:41,rotation:0,z:6},
-        {id:'trackC',kind:'track',asset:W.tracks.trackCurveRight,x:69,y:68,w:24,rotation:0,z:6},
-
-        {id:'gear',kind:'gear',asset:W.mechanisms.gear,x:79,y:18,w:9,z:5},
-        {id:'star',kind:'star',asset:W.goals.star,x:58,y:59,w:8,z:14},
-        {id:'goalSocket',kind:'goal-socket',asset:W.goals.goalSocket,x:77,y:79,w:15,z:8},
-        {id:'goal',kind:'goal',asset:W.goals.goalYellow,x:77,y:79,w:9.5,z:11},
-        {id:'ball',kind:'ball',asset:W.goals.ballBlue,x:23,y:18,w:8.5,z:20}
+        holder(23,19,17),
+        p('pinSocket','pin-socket',W.pins.pinSocket,22,30,8,{z:18}),
+        control('pin','pin',W.pins.pinBlue,17.5,30,21,'pull',{z:32,label:'Pull the blue pin'}),
+        decor('gear',W.mechanisms.gear,78,20,9),
+        star(49,60), ...goal(77,79), ball(23,19)
       ],
-      path:[
-        {x:23,y:18},{x:23,y:23},{x:27,y:28},{x:33,y:31},{x:39,y:36},
-        {x:44,y:42},{x:49,y:49},{x:53,y:55},{x:58,y:59},{x:63,y:64},
-        {x:68,y:68},{x:72,y:73},{x:77,y:79}
-      ],
-      events:[
-        {type:'star',id:'star',at:.68,x:58,y:59},
-        {type:'goal',id:'goal',at:.95,x:77,y:79}
-      ]
+      path:[{x:23,y:19},{x:25,y:27},{x:34,y:33},{x:46,y:39},{x:52,y:49},{x:47,y:59},{x:54,y:68},{x:66,y:72},{x:77,y:79}],
+      events:[starEvent(.64,49,60),goalEvent(.96,77,79)]
     }
   },
   {
-    id:'gate', name:'Open Route', solution:'gate', subtitle:'Pick the right obstacle',
-    hint:'Only one gate is stopping the path.',
-    entities:[ball(18,20,true), slope('ramp',36,35,38,13), gate('gate',55,50,true), block('decoy',76,31,9,9,true), plank('floor',69,68,27,2), star(70,59), goal(88,75)]
+    id:'gate', name:'Open Route', subtitle:'Choose the lever that clears the path', icon:W.mechanisms.gateSlider,
+    solution:'blueLever', hint:'One lever opens the route.', status:'Choose one lever.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4050, joints:[.2,.43,.72],
+      pieces:[
+        holder(20,21),
+        control('blueLever','lever',W.mechanisms.leverBlue,20,77,12,'flip',{z:30,label:'Blue lever'}),
+        control('redLever','lever',W.mechanisms.leverRed,80,24,12,'flip',{z:30,label:'Red lever'}),
+        p('gate','gate',W.mechanisms.gateSlider,53,48,14,{z:26}),
+        decor('gear',W.mechanisms.gear,78,77,9),
+        star(66,60), ...goal(81,74), ball(20,21)
+      ],
+      path:[{x:20,y:21},{x:27,y:29},{x:38,y:34},{x:49,y:42},{x:54,y:49},{x:61,y:56},{x:70,y:62},{x:81,y:74}],
+      events:[activate('gate',.42,53,48),starEvent(.72,66,60),goalEvent(.96,81,74)]
+    }
   },
   {
-    id:'tilt', name:'Tilt', solution:'tilter', subtitle:'Change the angle once',
-    hint:'A tiny angle can change the whole route.',
-    entities:[ball(23,21), {id:'tilter',kind:'plank',x:34,y:38,w:36,h:5,angle:-5,static:true,asset:A.plank,interactive:true,action:'rotate',actionValue:18}, bumper('bumper',63,55), plank('floor',72,69,40,0), star(70,56), goal(86,75)]
+    id:'switch', name:'Turn the Switch', subtitle:'Rotate one piece to complete the line', icon:W.mechanisms.crankHandle,
+    solution:'crank', hint:'Turn the control that aligns the route.', status:'One turn changes the machine.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4200, joints:[.18,.47,.78],
+      pieces:[
+        holder(20,76),
+        control('crank','crank',W.mechanisms.crankHandle,22,22,12,'turn',{z:30,label:'Crank handle'}),
+        control('wheel','wheel',W.mechanisms.wheelValve,79,77,11,'turn',{z:30,label:'Valve wheel'}),
+        p('spinner','spinner',W.tracks.trackSpinnerSwitch,52,48,13,{z:24}),
+        star(67,34), ...goal(81,23), ball(20,76)
+      ],
+      path:[{x:20,y:76},{x:27,y:68},{x:37,y:60},{x:47,y:53},{x:53,y:47},{x:60,y:40},{x:68,y:33},{x:81,y:23}],
+      events:[activate('spinner',.48,52,48),starEvent(.74,67,34),goalEvent(.96,81,23)]
+    }
   },
   {
-    id:'choice', name:'False Support', solution:'leftSupport', subtitle:'Two choices, one move',
-    hint:'Removing the wrong support ruins the line.',
-    entities:[ball(18,20,true), slope('choiceRamp',39,43,45,16), block('leftSupport',29,37,8,9,true), block('rightSupport',58,54,8,9,true), plank('exitFloor',70,68,25,1), star(70,58), goal(88,74)]
+    id:'button', name:'Green Means Go', subtitle:'Press the right control', icon:W.mechanisms.buttonGreen,
+    solution:'greenButton', hint:'Only one button opens the gate.', status:'Pick a button.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4000, joints:[.26,.54,.78],
+      pieces:[
+        holder(20,21),
+        control('greenButton','button',W.mechanisms.buttonGreen,21,78,11,'press',{z:30,label:'Green button'}),
+        control('yellowButton','button',W.mechanisms.buttonYellow,79,22,11,'press',{z:30,label:'Yellow button'}),
+        p('gate','gate',W.mechanisms.gateLockedRound,54,49,14,{z:26}),
+        star(70,60), ...goal(81,74), ball(20,21)
+      ],
+      path:[{x:20,y:21},{x:28,y:30},{x:40,y:36},{x:50,y:44},{x:55,y:50},{x:62,y:55},{x:70,y:61},{x:81,y:74}],
+      events:[activate('gate',.45,54,49),starEvent(.74,70,60),goalEvent(.96,81,74)]
+    }
   },
   {
-    id:'bounce', name:'Bounce', solution:'stopper', subtitle:'Trust the bumper',
-    hint:'Release the ball where the bounce can save it.',
-    entities:[ball(18,18), block('stopper',18,31,10,9,true), slope('ramp',35,45,33,24), bumper('bumper',59,59), star(70,50), goal(83,36), plank('catch',80,50,26,-8)]
+    id:'spring', name:'Spring Step', subtitle:'Wake the only useful bumper', icon:W.mechanisms.springPadSmall,
+    solution:'spring', hint:'Tap the spring that keeps the chain alive.', status:'Choose one launcher.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4150, joints:[.21,.51,.8],
+      pieces:[
+        holder(20,23),
+        control('spring','spring',W.mechanisms.springPadSmall,49,50,12,'press',{z:29,label:'Spring pad'}),
+        control('decoyBumper','bumper',W.mechanisms.bumperTriangle,79,23,11,'press',{z:29,label:'Triangle bumper'}),
+        star(70,57), ...goal(81,74), ball(20,23)
+      ],
+      path:[{x:20,y:23},{x:29,y:30},{x:39,y:39},{x:48,y:49},{x:54,y:43},{x:62,y:48},{x:70,y:57},{x:81,y:74}],
+      events:[activate('spring',.47,49,50,'wood'),starEvent(.73,70,57),goalEvent(.96,81,74)]
+    }
   },
   {
-    id:'trapdoor', name:'Trapdoor', solution:'hatch', subtitle:'Drop at the right moment',
-    hint:'Open exactly one floor panel.',
-    entities:[ball(20,18,true), plank('upper',34,32,35,7), {id:'hatch',kind:'trapdoor',x:52,y:32,w:18,h:6,static:true,asset:A.trapdoor,interactive:true,action:'remove'}, block('decoy',73,32,9,9,true), slope('ramp',56,57,36,16), star(66,59), goal(84,73)]
+    id:'conveyor', name:'Carry', subtitle:'Power the belt with one move', icon:W.mechanisms.conveyor,
+    solution:'beltButton', hint:'Start the belt.', status:'One control powers the route.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4200, joints:[.22,.5,.82],
+      pieces:[
+        holder(20,22),
+        control('beltButton','button',W.mechanisms.buttonYellow,20,77,11,'press',{z:30,label:'Belt button'}),
+        control('redLever','lever',W.mechanisms.leverRed,80,23,11,'flip',{z:30,label:'Red lever'}),
+        p('belt','conveyor',W.mechanisms.conveyor,53,56,18,{z:25}),
+        star(69,61), ...goal(81,73), ball(20,22)
+      ],
+      path:[{x:20,y:22},{x:28,y:31},{x:38,y:41},{x:47,y:52},{x:56,y:57},{x:66,y:59},{x:72,y:63},{x:81,y:73}],
+      events:[activate('belt',.5,53,56),starEvent(.76,69,61),goalEvent(.96,81,73)]
+    }
   },
   {
-    id:'fan', name:'Air Line', solution:'stopper', subtitle:'Open the airflow',
-    hint:'The fan only needs a clear shot.',
-    entities:[ball(19,22), block('stopper',19,35,9,9,true), {id:'fan',kind:'fan',x:43,y:49,w:15,h:15,static:true,sensor:true,asset:A.fan,effect:'boost',force:{x:.018,y:-.011}}, plank('floor',63,69,52,0), star(66,50), goal(85,55)]
+    id:'magnet', name:'Magnetic', subtitle:'Guide the steel ball', icon:W.mechanisms.magnet,
+    solution:'blueLever', hint:'Power the magnet.', status:'Metal follows the right field.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4300, joints:[.2,.46,.77],
+      pieces:[
+        holder(20,75),
+        control('blueLever','lever',W.mechanisms.leverBlue,20,22,11,'flip',{z:30,label:'Blue lever'}),
+        control('redLever','lever',W.mechanisms.leverRed,80,77,11,'flip',{z:30,label:'Red lever'}),
+        p('magnet','magnet',W.mechanisms.magnet,56,43,16,{z:25}),
+        star(69,45), ...goal(81,27), ball(20,75,true)
+      ],
+      path:[{x:20,y:75},{x:28,y:67},{x:38,y:58},{x:49,y:49},{x:56,y:43},{x:64,y:45},{x:70,y:43},{x:81,y:27}],
+      events:[activate('magnet',.51,56,43),starEvent(.76,69,45),goalEvent(.96,81,27)]
+    }
   },
   {
-    id:'portal', name:'Shortcut', solution:'release', subtitle:'Enter the impossible route',
-    hint:'A portal turns one fall into two places.',
-    entities:[ball(18,18), block('release',18,31,9,9,true), slope('ramp',34,46,30,18), {id:'portalA',kind:'portal',x:54,y:62,w:14,h:14,static:true,sensor:true,asset:A.portal,effect:'portal',target:'portalB'}, {id:'portalB',kind:'portal',x:72,y:30,w:14,h:14,static:true,sensor:true,asset:A.portal,effect:'portalExit'}, star(74,45), goal(86,60)]
+    id:'fan', name:'Air Line', subtitle:'Start the airflow', icon:W.mechanisms.fan,
+    solution:'greenButton', hint:'Start the fan.', status:'One button wakes the airflow.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4100, joints:[.21,.5,.78],
+      pieces:[
+        holder(20,22),
+        control('greenButton','button',W.mechanisms.buttonGreen,21,77,11,'press',{z:30,label:'Green button'}),
+        control('yellowButton','button',W.mechanisms.buttonYellow,79,22,11,'press',{z:30,label:'Yellow button'}),
+        p('fan','fan',W.mechanisms.fan,51,51,15,{z:25}),
+        star(65,62), ...goal(80,75), ball(20,22)
+      ],
+      path:[{x:20,y:22},{x:28,y:30},{x:38,y:39},{x:48,y:49},{x:54,y:54},{x:63,y:61},{x:70,y:66},{x:80,y:75}],
+      events:[activate('fan',.5,51,51),starEvent(.73,65,62),goalEvent(.96,80,75)]
+    }
   },
   {
-    id:'key', name:'Key Run', solution:'release', subtitle:'Let the ball unlock itself',
-    hint:'Release the route through the key.',
-    entities:[ball(18,19,true), block('release',18,32,9,9,true), slope('ramp',37,46,38,15), {id:'key',kind:'key',x:54,y:55,w:10,h:10,static:true,sensor:true,asset:A.key,effect:'key',target:'lock'}, {id:'lock',kind:'gate',x:68,y:59,w:10,h:21,static:true,asset:A.lockedGate}, plank('floor',76,72,35,0), star(78,60), goal(89,76)]
+    id:'hammer', name:'Strike Once', subtitle:'Set the hammer in motion', icon:W.mechanisms.hammerStriker,
+    solution:'crank', hint:'Turn the crank.', status:'One turn starts the strike.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4250, joints:[.22,.52,.78],
+      pieces:[
+        holder(20,75),
+        control('crank','crank',W.mechanisms.crankHandle,21,22,12,'turn',{z:30,label:'Crank handle'}),
+        control('button','button',W.mechanisms.buttonYellow,80,76,11,'press',{z:30,label:'Yellow button'}),
+        p('hammer','hammer',W.mechanisms.hammerStriker,51,49,15,{z:26}),
+        star(67,40), ...goal(81,25), ball(20,75)
+      ],
+      path:[{x:20,y:75},{x:29,y:67},{x:39,y:58},{x:49,y:50},{x:56,y:46},{x:66,y:40},{x:72,y:34},{x:81,y:25}],
+      events:[activate('hammer',.5,51,49,'wood'),starEvent(.74,67,40),goalEvent(.96,81,25)]
+    }
   },
   {
-    id:'conveyor', name:'Carry', solution:'release', subtitle:'Start the chain',
-    hint:'The belt can finish what gravity starts.',
-    entities:[ball(19,18), block('release',19,31,9,9,true), slope('ramp',35,44,30,20), {id:'belt',kind:'conveyor',x:59,y:61,w:35,h:9,static:true,asset:A.conveyor,effect:'conveyor',force:{x:.012,y:0}}, star(66,51), goal(86,66)]
+    id:'pulley', name:'Lift the Line', subtitle:'Choose the pulley that opens the way', icon:W.mechanisms.pulleySingle,
+    solution:'singlePulley', hint:'Turn the correct pulley.', status:'Choose one pulley.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4300, joints:[.2,.46,.76],
+      pieces:[
+        holder(20,22),
+        control('singlePulley','pulley',W.mechanisms.pulleySingle,21,76,12,'turn',{z:30,label:'Single pulley'}),
+        control('doublePulley','pulley',W.mechanisms.pulleyDouble,80,23,13,'turn',{z:30,label:'Double pulley'}),
+        p('gate','gate',W.mechanisms.gateSlider,53,49,13,{z:25}),
+        decor('chain',W.hardware.chainShort,57,32,10,{rotation:90}),
+        star(68,61), ...goal(81,74), ball(20,22)
+      ],
+      path:[{x:20,y:22},{x:28,y:30},{x:38,y:38},{x:48,y:46},{x:54,y:50},{x:61,y:56},{x:69,y:62},{x:81,y:74}],
+      events:[activate('singlePulley',.28,21,76),activate('gate',.47,53,49),starEvent(.75,68,61),goalEvent(.96,81,74)]
+    }
   },
   {
-    id:'magnet', name:'Magnetic', solution:'release', subtitle:'Free the steel ball',
-    hint:'Metal has a different idea of straight.',
-    entities:[ball(18,18,true), block('release',18,31,9,9,true), slope('ramp',34,44,31,18), {id:'magnet',kind:'magnet',x:64,y:47,w:18,h:18,static:true,sensor:true,asset:A.magnet,effect:'magnet'}, star(72,48), goal(86,62)]
+    id:'double-gate', name:'Clean Exit', subtitle:'Open only the useful gate', icon:W.mechanisms.gateLockedRound,
+    solution:'blueLever', hint:'Choose the lever that opens the lower gate.', status:'Two controls. One clean route.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:4300, joints:[.19,.43,.7,.84],
+      pieces:[
+        holder(20,21),
+        control('blueLever','lever',W.mechanisms.leverBlue,20,77,11,'flip',{z:31,label:'Blue lever'}),
+        control('redLever','lever',W.mechanisms.leverRed,80,22,11,'flip',{z:31,label:'Red lever'}),
+        p('lowerGate','gate',W.mechanisms.gateSlider,57,57,13,{z:25}),
+        decor('upperGate',W.mechanisms.gateLockedRound,67,32,11),
+        star(69,64), ...goal(81,76), ball(20,21)
+      ],
+      path:[{x:20,y:21},{x:29,y:29},{x:39,y:38},{x:49,y:48},{x:57,y:57},{x:64,y:62},{x:70,y:66},{x:81,y:76}],
+      events:[activate('lowerGate',.52,57,57),starEvent(.76,69,64),goalEvent(.96,81,76)]
+    }
   },
   {
-    id:'finale', name:'One Machine', solution:'release', subtitle:'Everything you learned',
-    hint:'One support starts the whole machine.',
-    entities:[ball(14,17,true), block('release',14,30,9,9,true), slope('ramp1',30,43,28,20), bumper('bumper',49,58), {id:'fan',kind:'fan',x:59,y:50,w:14,h:14,static:true,sensor:true,asset:A.fan,effect:'boost',force:{x:.014,y:-.009}}, {id:'portalA',kind:'portal',x:69,y:65,w:13,h:13,static:true,sensor:true,asset:A.portal,effect:'portal',target:'portalB'}, {id:'portalB',kind:'portal',x:79,y:31,w:13,h:13,static:true,sensor:true,asset:A.portal,effect:'portalExit'}, star(83,45), goal(89,62)]
+    id:'finale', name:'One Machine', subtitle:'Everything works from one decision', icon:W.mechanisms.wheelValve,
+    solution:'valve', hint:'Find the one control that wakes the whole machine.', status:'One move. Full chain.',
+    scene:{
+      board:W.base.boardWorkshopBase, duration:5000, joints:[.15,.34,.56,.78],
+      pieces:[
+        holder(18,75),
+        control('valve','wheel',W.mechanisms.wheelValve,20,21,12,'turn',{z:32,label:'Valve wheel'}),
+        control('redLever','lever',W.mechanisms.leverRed,80,76,11,'flip',{z:32,label:'Red lever'}),
+        control('yellowButton','button',W.mechanisms.buttonYellow,79,22,10,'press',{z:32,label:'Yellow button'}),
+        p('gear','gear',W.mechanisms.gear,39,58,12,{z:25}),
+        p('spring','spring',W.mechanisms.springPadSmall,51,48,11,{z:25}),
+        p('fan','fan',W.mechanisms.fan,62,40,13,{z:25}),
+        p('gate','gate',W.mechanisms.gateSlider,70,32,12,{z:25}),
+        star(70,29), ...goal(82,20), ball(18,75,true)
+      ],
+      path:[{x:18,y:75},{x:28,y:68},{x:39,y:58},{x:49,y:49},{x:56,y:45},{x:63,y:39},{x:70,y:32},{x:76,y:26},{x:82,y:20}],
+      events:[
+        activate('gear',.30,39,58),activate('spring',.48,51,48,'wood'),activate('fan',.63,62,40),activate('gate',.78,70,32),starEvent(.82,70,29),goalEvent(.97,82,20)
+      ]
+    }
   }
 ];
-
-export { A };
