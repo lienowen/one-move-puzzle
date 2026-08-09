@@ -63,27 +63,47 @@ jobs:
           })().catch(err => { console.error(err); process.exit(1); });
           NODE
 
-      - name: Build compact visual review maps
+      - name: Build visual review snapshots
         run: |
           python3 -m pip install --quiet pillow
           python3 <<'PY'
           from PIL import Image
           import json
 
-          alphabet = '0123456789abcdefghijklmnopqrstuv'
+          alphabet32 = '0123456789abcdefghijklmnopqrstuv'
+          xpm_keys = list('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./:;<=>?@[]^_{|}~')
 
-          def build(src, dst):
+          def build_json(src, dst):
               img = Image.open(src).convert('RGB').resize((48,104))
               q = img.quantize(colors=32, method=Image.Quantize.MEDIANCUT)
               raw = q.getpalette()[:96]
               palette = ['#%02x%02x%02x' % tuple(raw[i:i+3]) for i in range(0,96,3)]
               px = list(q.getdata())
-              rows = [''.join(alphabet[v] for v in px[y*48:(y+1)*48]) for y in range(104)]
+              rows = [''.join(alphabet32[v] for v in px[y*48:(y+1)*48]) for y in range(104)]
               with open(dst,'w') as f:
                   json.dump({'width':48,'height':104,'palette':palette,'rows':rows},f,separators=(',',':'))
 
-          build('.visual-check/home-mobile.jpg','.visual-check/review-home.json')
-          build('.visual-check/level1-mobile.jpg','.visual-check/review-level.json')
+          def build_xpm(src, dst):
+              img = Image.open(src).convert('RGB').resize((32,69), Image.Resampling.LANCZOS)
+              q = img.quantize(colors=32, method=Image.Quantize.MEDIANCUT)
+              raw = q.getpalette()[:96]
+              colors = [tuple(raw[i:i+3]) for i in range(0,96,3)]
+              px = list(q.getdata())
+              with open(dst,'w') as f:
+                  f.write('/* XPM */\nstatic char * review[] = {\n')
+                  f.write(f'"32 69 {len(colors)} 1",\n')
+                  for i,(r,g,b) in enumerate(colors):
+                      f.write(f'"{xpm_keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
+                  for y in range(69):
+                      row = ''.join(xpm_keys[v] for v in px[y*32:(y+1)*32])
+                      comma = ',' if y < 68 else ''
+                      f.write(f'"{row}"{comma}\n')
+                  f.write('};\n')
+
+          build_json('.visual-check/home-mobile.jpg','.visual-check/review-home.json')
+          build_json('.visual-check/level1-mobile.jpg','.visual-check/review-level.json')
+          build_xpm('.visual-check/home-mobile.jpg','.visual-check/review-home.xpm')
+          build_xpm('.visual-check/level1-mobile.jpg','.visual-check/review-level.xpm')
           PY
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
