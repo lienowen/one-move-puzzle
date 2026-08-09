@@ -28,71 +28,31 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-      - name: Install browser for visual check
+      - name: Build compact visual review map
         run: |
-          npm install --no-save playwright@1.54.2
-          npx playwright install --with-deps chromium
-
-      - name: Capture visual snapshots
-        run: |
-          mkdir -p .visual-check
-          npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/one-move-preview.log 2>&1 &
-          for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
-            sleep 1
-          done
-          node <<'NODE'
-          const { chromium } = require('playwright');
-          (async () => {
-            const browser = await chromium.launch({headless:true});
-            const cases = [
-              {name:'mobile', width:390, height:844, quality:58},
-              {name:'desktop', width:620, height:900, quality:58},
-            ];
-            for (const item of cases) {
-              const context = await browser.newContext({
-                viewport:{width:item.width,height:item.height},
-                deviceScaleFactor:1,
-                reducedMotion:'reduce',
-              });
-              const page = await context.newPage();
-              await page.goto('http://127.0.0.1:4173', {waitUntil:'networkidle'});
-              await page.screenshot({path:`.visual-check/home-${item.name}.jpg`, type:'jpeg', quality:52, fullPage:false});
-              await page.click('#playBtn');
-              await page.waitForTimeout(500);
-              await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`, type:'jpeg', quality:item.quality, fullPage:false});
-              await context.close();
-            }
-
-            const thumbContext = await browser.newContext({
-              viewport:{width:195,height:422},
-              deviceScaleFactor:1,
-              reducedMotion:'reduce',
-            });
-            const thumb = await thumbContext.newPage();
-            await thumb.goto('http://127.0.0.1:4173', {waitUntil:'networkidle'});
-            await thumb.click('#playBtn');
-            await thumb.waitForTimeout(500);
-            await thumb.screenshot({path:'.visual-check/level1-thumb.jpg', type:'jpeg', quality:34, fullPage:false});
-            await thumbContext.close();
-            await browser.close();
-          })().catch(err => { console.error(err); process.exit(1); });
-          NODE
+          python3 -m pip install --quiet pillow
+          python3 <<'PY'
+          from PIL import Image
+          import json
+          p = '.visual-check/level1-mobile.jpg'
+          img = Image.open(p).convert('RGB').resize((48,104))
+          q = img.quantize(colors=16, method=Image.Quantize.MEDIANCUT)
+          pal_raw = q.getpalette()[:48]
+          palette = ['#%02x%02x%02x' % tuple(pal_raw[i:i+3]) for i in range(0,48,3)]
+          px = list(q.getdata())
+          alphabet = '0123456789abcdef'
+          rows = [''.join(alphabet[v] for v in px[y*48:(y+1)*48]) for y in range(104)]
+          with open('.visual-check/review-map.json','w') as f:
+              json.dump({'width':48,'height':104,'palette':palette,'rows':rows},f,separators=(',',':'))
+          PY
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
-      - name: Upload visual snapshots
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-check
-          path: .visual-check/*.jpg
-          retention-days: 7
-
-      - name: Publish latest visual snapshot metadata
+      - name: Publish visual review map
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .visual-check
+          git add .visual-check/review-map.json .visual-check/run-id.txt
           if ! git diff --cached --quiet; then
-            git commit -m 'chore: refresh visual snapshots [skip ci]'
+            git commit -m 'chore: refresh visual review map [skip ci]'
             git push
           fi
