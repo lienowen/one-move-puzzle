@@ -41,34 +41,33 @@ export const levels = [
     scene:{
       board:W.base.boardWorkshopBase,
       ballId:'ball',
-      duration:4650,
+      duration:4200,
       pieces:[
-        {id:'holder',kind:'holder',asset:W.pins.ballHolder,x:17,y:17,w:22,z:10},
-        {id:'trackA',kind:'track',asset:W.tracks.trackCurveRight,x:27,y:28,w:26,rotation:88,z:6},
-        {id:'trackB',kind:'track',asset:W.tracks.trackSCurve,x:43,y:43,w:38,rotation:12,z:6},
-        {id:'trackC',kind:'track',asset:W.tracks.trackCurveWideLeft,x:54,y:58,w:28,rotation:84,z:6},
-        {id:'trackD',kind:'track',asset:W.tracks.trackCurveRight,x:67,y:68,w:27,rotation:5,z:6},
-        {id:'trackE',kind:'track',asset:W.tracks.trackHalfStraight,x:77,y:75,w:25,rotation:12,z:6},
-        {id:'bell',kind:'bell',asset:W.mechanisms.bell,x:49,y:36,w:17,z:12},
-        {id:'gear',kind:'gear',asset:W.mechanisms.gear,x:78,y:20,w:18,z:9},
-        {id:'starSocket',kind:'star-socket',asset:W.goals.starSocket,x:57,y:61,w:15,z:7},
-        {id:'star',kind:'star',asset:W.goals.star,x:57,y:61,w:11,z:14},
-        {id:'goalSocket',kind:'goal-socket',asset:W.goals.goalSocket,x:83,y:81,w:21,z:8},
-        {id:'goal',kind:'goal',asset:W.goals.goalYellow,x:83,y:81,w:14,z:11},
-        {id:'pinSocket',kind:'pin-socket',asset:W.pins.pinSocket,x:16,y:31,w:15,z:11},
-        {id:'pin',kind:'pin',asset:W.pins.pinBlue,x:15,y:31,w:31,z:16,interactive:true,label:'Pull the blue pin'},
-        {id:'ball',kind:'ball',asset:W.goals.ballBlue,x:17,y:17,w:12,z:20}
+        {id:'holder',kind:'holder',asset:W.pins.ballHolder,x:20,y:20,w:21,z:10},
+        {id:'pinSocket',kind:'pin-socket',asset:W.pins.pinSocket,x:20,y:31,w:12,z:11},
+        {id:'pin',kind:'pin',asset:W.pins.pinBlue,x:17,y:31,w:28,z:16,interactive:true,label:'Pull the blue pin'},
+
+        {id:'trackA',kind:'track',asset:W.tracks.trackCurveRight,x:31,y:33,w:28,rotation:88,z:6},
+        {id:'trackB',kind:'track',asset:W.tracks.trackSCurve,x:50,y:52,w:42,rotation:8,z:6},
+        {id:'trackC',kind:'track',asset:W.tracks.trackCurveWideLeft,x:70,y:71,w:31,rotation:82,z:6},
+
+        {id:'bell',kind:'bell',asset:W.mechanisms.bell,x:48,y:31,w:12,z:8},
+        {id:'gear',kind:'gear',asset:W.mechanisms.gear,x:80,y:19,w:13,z:7},
+
+        {id:'star',kind:'star',asset:W.goals.star,x:57,y:59,w:10,z:14},
+        {id:'goalSocket',kind:'goal-socket',asset:W.goals.goalSocket,x:82,y:80,w:18,z:8},
+        {id:'goal',kind:'goal',asset:W.goals.goalYellow,x:82,y:80,w:12,z:11},
+        {id:'ball',kind:'ball',asset:W.goals.ballBlue,x:20,y:20,w:11,z:20}
       ],
       path:[
-        {x:17,y:17},{x:18,y:23},{x:22,y:29},{x:31,y:34},{x:40,y:39},
-        {x:48,y:45},{x:52,y:52},{x:50,y:58},{x:55,y:63},{x:64,y:67},
-        {x:71,y:71},{x:77,y:76},{x:83,y:81}
+        {x:20,y:20},{x:21,y:25},{x:26,y:31},{x:35,y:35},{x:43,y:41},
+        {x:49,y:49},{x:53,y:56},{x:58,y:61},{x:66,y:66},{x:74,y:72},{x:82,y:80}
       ],
       events:[
-        {type:'bell',id:'bell',at:.34,x:48,y:43},
-        {type:'gear',id:'gear',at:.46,x:78,y:20},
-        {type:'star',id:'star',at:.69,x:57,y:61},
-        {type:'goal',id:'goal',at:.94,x:83,y:81}
+        {type:'bell',id:'bell',at:.38,x:48,y:36},
+        {type:'gear',id:'gear',at:.50,x:80,y:19},
+        {type:'star',id:'star',at:.65,x:57,y:59},
+        {type:'goal',id:'goal',at:.94,x:82,y:80}
       ]
     }
   },
