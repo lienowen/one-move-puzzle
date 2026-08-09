@@ -57,6 +57,9 @@ jobs:
               await page.click('#playBtn');
               await page.waitForTimeout(500);
               await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`,type:'jpeg',quality:62,fullPage:false});
+              if (item.name === 'mobile') {
+                await page.locator('.machine-board').screenshot({path:'.visual-check/board-mobile.jpg',type:'jpeg',quality:72});
+              }
               await context.close();
             }
             await browser.close();
@@ -73,9 +76,12 @@ jobs:
           alphabet32 = '0123456789abcdefghijklmnopqrstuv'
           xpm_keys = list('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./:;<=>?@[]^_{|}~')
 
+          def quant(src, size, colors=32):
+              img = Image.open(src).convert('RGB').resize(size, Image.Resampling.LANCZOS)
+              return img.quantize(colors=colors, method=Image.Quantize.MEDIANCUT)
+
           def build_json(src, dst):
-              img = Image.open(src).convert('RGB').resize((48,104))
-              q = img.quantize(colors=32, method=Image.Quantize.MEDIANCUT)
+              q = quant(src,(48,104),32)
               raw = q.getpalette()[:96]
               palette = ['#%02x%02x%02x' % tuple(raw[i:i+3]) for i in range(0,96,3)]
               px = list(q.getdata())
@@ -83,27 +89,27 @@ jobs:
               with open(dst,'w') as f:
                   json.dump({'width':48,'height':104,'palette':palette,'rows':rows},f,separators=(',',':'))
 
-          def build_xpm(src, dst):
-              img = Image.open(src).convert('RGB').resize((32,69), Image.Resampling.LANCZOS)
-              q = img.quantize(colors=32, method=Image.Quantize.MEDIANCUT)
-              raw = q.getpalette()[:96]
-              colors = [tuple(raw[i:i+3]) for i in range(0,96,3)]
+          def build_xpm(src, dst, w, h, colors=32):
+              q = quant(src,(w,h),colors)
+              raw = q.getpalette()[:colors*3]
+              palette = [tuple(raw[i:i+3]) for i in range(0,colors*3,3)]
               px = list(q.getdata())
               with open(dst,'w') as f:
                   f.write('/* XPM */\nstatic char * review[] = {\n')
-                  f.write(f'"32 69 {len(colors)} 1",\n')
-                  for i,(r,g,b) in enumerate(colors):
+                  f.write(f'"{w} {h} {len(palette)} 1",\n')
+                  for i,(r,g,b) in enumerate(palette):
                       f.write(f'"{xpm_keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
-                  for y in range(69):
-                      row = ''.join(xpm_keys[v] for v in px[y*32:(y+1)*32])
-                      comma = ',' if y < 68 else ''
+                  for y in range(h):
+                      row = ''.join(xpm_keys[v] for v in px[y*w:(y+1)*w])
+                      comma = ',' if y < h-1 else ''
                       f.write(f'"{row}"{comma}\n')
                   f.write('};\n')
 
           build_json('.visual-check/home-mobile.jpg','.visual-check/review-home.json')
           build_json('.visual-check/level1-mobile.jpg','.visual-check/review-level.json')
-          build_xpm('.visual-check/home-mobile.jpg','.visual-check/review-home.xpm')
-          build_xpm('.visual-check/level1-mobile.jpg','.visual-check/review-level.xpm')
+          build_xpm('.visual-check/home-mobile.jpg','.visual-check/review-home.xpm',32,69)
+          build_xpm('.visual-check/level1-mobile.jpg','.visual-check/review-level.xpm',32,69)
+          build_xpm('.visual-check/board-mobile.jpg','.visual-check/review-board.xpm',48,48,48)
           PY
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
