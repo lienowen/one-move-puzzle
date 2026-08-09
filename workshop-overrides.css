@@ -1,14 +1,28 @@
-/* Clean commercial workshop presentation: the machine is the hero. */
+/* Level 1 commercial presentation: one machine, one route, one action. */
+.stage[data-board="workshop"] {
+  width: min(100%, 560px, calc(100dvh - 205px));
+  min-width: 290px;
+  aspect-ratio: 1 / 1;
+  min-height: 0 !important;
+  max-height: none !important;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(104,68,38,.18), transparent 60%),
+    linear-gradient(180deg,#24170f 0%,#160e0a 100%);
+  box-shadow:
+    0 22px 46px rgba(62,38,19,.22),
+    inset 0 1px rgba(255,255,255,.04);
+}
+
+/* The wooden board already has a frame. Remove every duplicate frame/grid layer. */
+.stage[data-board="workshop"]::before,
+.stage[data-board="workshop"]::after,
+.stage[data-board="workshop"] .stage-grid,
+.stage[data-board="workshop"] .stage-border,
 .stage[data-board="workshop"] .machine-plate,
 .stage[data-board="workshop"] .pull-coach,
 .stage[data-board="workshop"] .board-plaque {
   display: none !important;
-}
-
-.stage[data-board="workshop"] .stage-border {
-  inset: 7px;
-  z-index: 3;
-  opacity: .42;
 }
 
 .stage[data-board="workshop"] .workshop-world {
@@ -16,53 +30,72 @@
 }
 
 .stage[data-board="workshop"] .workshop-board {
-  top: 49.5%;
-  width: 94%;
+  left: 50%;
+  top: 50%;
+  width: 97%;
+  transform: translate(-50%,-50%);
 }
 
-/* Keep the route dominant and everything else secondary. */
+/* Main route is the strongest visual structure after ball/pin/goal. */
 .stage[data-board="workshop"] .piece-track {
-  z-index: 6 !important;
-  filter: drop-shadow(0 6px 4px rgba(38,20,8,.22));
+  z-index: 7 !important;
+  filter: drop-shadow(0 7px 5px rgba(31,15,6,.24));
 }
 
 .stage[data-board="workshop"] .piece-holder,
-.stage[data-board="workshop"] .piece-pin,
-.stage[data-board="workshop"] .piece-pin-socket,
-.stage[data-board="workshop"] .piece-ball {
-  z-index: 16 !important;
+.stage[data-board="workshop"] .piece-pin-socket {
+  z-index: 12 !important;
+  filter: drop-shadow(0 7px 5px rgba(31,15,6,.22));
 }
 
-.stage[data-board="workshop"] .piece-bell,
+.stage[data-board="workshop"] .piece-pin,
+.stage[data-board="workshop"] .piece-ball {
+  z-index: 20 !important;
+}
+
+.stage[data-board="workshop"] .piece-ball {
+  filter:
+    drop-shadow(0 6px 5px rgba(19,35,65,.32))
+    drop-shadow(0 0 6px rgba(48,113,214,.12));
+}
+
+/* Decorative gear should be discovered after the route, never before it. */
 .stage[data-board="workshop"] .piece-gear {
-  opacity: .58;
-  filter: saturate(.82) brightness(.92) drop-shadow(0 5px 4px rgba(38,20,8,.16));
+  z-index: 5 !important;
+  opacity: .30;
+  filter: saturate(.72) brightness(.88) drop-shadow(0 4px 3px rgba(31,15,6,.12));
 }
 
 .stage[data-board="workshop"] .piece-star {
   z-index: 18 !important;
+  filter:
+    drop-shadow(0 4px 3px rgba(91,50,2,.24))
+    drop-shadow(0 0 10px rgba(255,191,31,.42));
 }
 
 .stage[data-board="workshop"] .piece-goal,
 .stage[data-board="workshop"] .piece-goal-socket {
-  z-index: 14 !important;
+  z-index: 16 !important;
 }
 
-/* The pin itself is the tutorial. No extra floating instruction card. */
+/* The blue pin itself is the tutorial. A restrained glow is enough. */
 .stage[data-board="workshop"] .piece-pin.interactive::after {
-  inset: 29% 7%;
+  inset: 31% 8%;
   border-width: 2px;
+  border-color: rgba(96,166,255,.72);
   box-shadow:
-    0 0 0 6px rgba(52,119,220,.08),
-    0 0 22px rgba(50,127,255,.34);
+    0 0 0 5px rgba(52,119,220,.07),
+    0 0 18px rgba(50,127,255,.30);
 }
 
-.stage[data-board="workshop"] .piece-ball {
-  filter: drop-shadow(0 6px 5px rgba(19,35,65,.28));
+@media (max-height: 680px) {
+  .stage[data-board="workshop"] {
+    width: min(100%, 500px, calc(100dvh - 170px));
+  }
 }
 
 @media (max-width: 390px) {
   .stage[data-board="workshop"] .workshop-board {
-    width: 96%;
+    width: 99%;
   }
 }
