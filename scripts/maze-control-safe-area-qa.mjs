@@ -7,5 +7,6 @@ try{
   async function inside(name,el){const b=await el.boundingBox();if(!b)throw new Error(`${name}: no bounding box`);const margin=3;if(b.x<margin||b.y<margin||b.x+b.width>390-margin||b.y+b.height>844-margin)throw new Error(`${name}: control leaves mobile safe area ${JSON.stringify(b)}`);if(b.width<44||b.height<44)throw new Error(`${name}: touch target is below 44px ${JSON.stringify(b)}`);}
   await inside('Level 6 slide row',await open(6,'[data-id="slideRow"]'));
   await inside('Level 7 magnet dial',await open(7,'[data-id="magnetDial"]'));
+  await inside('Level 8 fan dial',await open(8,'[data-id="fanDial"]'));
   await context.close();
 }finally{await browser.close();}
