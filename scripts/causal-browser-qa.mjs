@@ -7,16 +7,6 @@ function movement(a,b) {
   return Math.hypot(b.x-a.x,b.y-a.y);
 }
 
-async function pullPin(page) {
-  const pin = page.locator('[data-id="pin"]');
-  const box = await pin.boundingBox();
-  if (!box) throw new Error('Pull pin has no bounding box');
-  await page.mouse.move(box.x + box.width*.72,box.y + box.height*.5);
-  await page.mouse.down();
-  await page.mouse.move(box.x + box.width*.10,box.y + box.height*.5,{steps:10});
-  await page.mouse.up();
-}
-
 async function expectResult(page, expected) {
   await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:7000});
   const title = await page.locator('#resultTitle').textContent() || '';
@@ -25,16 +15,27 @@ async function expectResult(page, expected) {
 }
 
 async function testLevel1(page) {
-  await page.locator('.machine-board').screenshot({path:'.visual-check/board-mobile.jpg',type:'jpeg',quality:78});
-  await pullPin(page);
-  await page.locator('.piece-logic-trigger.logic-active').waitFor({state:'visible',timeout:3500});
-  await page.screenshot({path:'.visual-check/level1-trigger-mobile.jpg',type:'jpeg',quality:70,fullPage:false});
-  await page.locator('.machine-board.waiting-gate').waitFor({state:'attached',timeout:3500});
-  await page.screenshot({path:'.visual-check/level1-gate-wait-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-  await page.locator('.piece-logic-gate.logic-gate-open').waitFor({state:'attached',timeout:3500});
-  await page.locator('.machine-board.goal-powered').waitFor({state:'attached',timeout:5200});
-  await page.screenshot({path:'.visual-check/level1-powered-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-  await page.locator('.machine-board.machine-complete').waitFor({state:'attached',timeout:6500});
+  await page.locator('.maze-board').waitFor({state:'visible',timeout:2500});
+  const pivot = page.locator('[data-id="pivot"]');
+  if (await pivot.count() !== 1) throw new Error('Level 1 must expose exactly one rotatable maze tile');
+  if (await page.locator('.maze-pit-badge').count() !== 1) throw new Error('Level 1 needs a visible failure route');
+  await page.locator('.maze-board').screenshot({path:'.visual-check/board-mobile.jpg',type:'jpeg',quality:78});
+
+  // Wrong one-move state: clockwise rotation does not connect the incoming rail.
+  await pivot.focus();
+  await page.keyboard.press('ArrowRight');
+  await page.screenshot({path:'.visual-check/level1-wrong-turn-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+  await expectResult(page,'wrong');
+
+  // Retry and rotate counter-clockwise: west -> south connects the complete maze.
+  await page.click('#nextBtn');
+  await page.locator('.maze-board').waitFor({state:'visible',timeout:2000});
+  const retryPivot = page.locator('[data-id="pivot"]');
+  await retryPivot.focus();
+  await page.keyboard.press('ArrowLeft');
+  await page.waitForTimeout(180);
+  await page.screenshot({path:'.visual-check/level1-aligned-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+  await page.locator('.maze-board.maze-solved').waitFor({state:'attached',timeout:6000});
   await page.screenshot({path:'.visual-check/level1-complete-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
   await expectResult(page,'success');
   await page.screenshot({path:'.visual-check/level1-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
