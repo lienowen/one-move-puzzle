@@ -26,7 +26,9 @@ export function mountMazeAirflowRuntime({world,stage,level,onMove,onStar,onGoal,
     const slot=document.createElement('div');slot.className='maze-slot';slot.style.gridColumn=x+1;slot.style.gridRow=y+1;
     slot.innerHTML=`<img class="maze-slot-base" src="${A.tiles.baseSteelDark}" alt="">`;grid.appendChild(slot);nodes.set(`${x},${y}`,slot);
   }
-  const well=document.createElement('div');well.className='maze-airwell';well.style.gridColumn=`${air.well.minX+1} / ${air.well.maxX+2}`;well.style.gridRow=`${air.well.minY+1} / ${air.well.maxY+2}`;grid.appendChild(well);
+  const well=document.createElement('div');well.className='maze-airwell';
+  well.style.left=`${air.well.minX/maze.cols*100}%`;well.style.top=`${air.well.minY/maze.rows*100}%`;
+  well.style.width=`${(air.well.maxX-air.well.minX+1)/maze.cols*100}%`;well.style.height=`${(air.well.maxY-air.well.minY+1)/maze.rows*100}%`;grid.appendChild(well);
   const stream=document.createElement('img');stream.className='maze-air-stream';stream.src=A.fx.fanWind;stream.alt='';well.appendChild(stream);
 
   for(const cell of maze.cells)render(cell);
