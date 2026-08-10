@@ -32,8 +32,10 @@ try {
   const report = [];
 
   for (let index = 0; index < count; index += 1) {
+    await page.locator('.levels-screen.active').waitFor({ state:'visible' });
     const card = page.locator('.level-card').nth(index);
     await card.click();
+    await page.locator('.game-screen.active').waitFor({ state:'visible' });
     await page.waitForTimeout(220);
 
     const info = await page.evaluate(() => {
@@ -78,7 +80,8 @@ try {
     });
 
     await page.click('#gameBackBtn');
-    await page.waitForTimeout(100);
+    await page.locator('.home-screen.active').waitFor({ state:'visible' });
+    await page.click('#levelsBtn');
   }
 
   const { writeFileSync } = await import('node:fs');
