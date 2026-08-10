@@ -399,51 +399,39 @@
     ],
     "important": [
       {
-        "id": "blueLever",
-        "interactive": true,
-        "kind": "piece-lever",
+        "id": "star-0",
+        "interactive": false,
+        "kind": "maze-star-art",
         "visibleRatio": 1,
         "rect": [
-          5,
-          287,
-          64,
-          346
-        ]
-      },
-      {
-        "id": "redLever",
-        "interactive": true,
-        "kind": "piece-lever",
-        "visibleRatio": 1,
-        "rect": [
-          326,
-          582,
-          385,
-          641
+          244,
+          376,
+          272,
+          405
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          318,
-          387,
-          368
+          298,
+          368,
+          343,
+          413
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          578,
-          57,
-          623
+          55,
+          439,
+          84,
+          468
         ]
       }
     ],
