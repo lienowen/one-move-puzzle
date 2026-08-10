@@ -85,39 +85,49 @@
 @keyframes gatePreload{45%{transform:translate(-50%,-54%) rotate(8deg)}to{transform:translate(-50%,-58%) rotate(8deg)}}
 .piece-logic-gate.logic-gate-open{animation:marketGateOpen .52s cubic-bezier(.15,.8,.2,1) forwards!important}
 @keyframes marketGateOpen{0%{transform:translate(-50%,-58%) rotate(8deg);opacity:1}55%{transform:translate(-50%,-87%) rotate(8deg);opacity:.82}100%{transform:translate(-50%,-108%) rotate(8deg);opacity:.42}}
-.piece-logic-lamp{opacity:.28!important}
-.piece-logic-lamp.logic-active{opacity:1!important;filter:saturate(1.08) brightness(1.16) drop-shadow(0 0 11px rgba(78,238,139,.55))!important}
-.tutorial-drive-gear{left:62%!important;top:39%!important;width:9.5%!important;opacity:.34!important}
-.tutorial-drive-gear.drive-live{opacity:.88!important}.tutorial-drive-gear.drive-live img{animation:marketGearLoop .72s linear infinite!important}
+.piece-logic-lamp{opacity:.28!important}.piece-logic-lamp.logic-active{opacity:1!important;filter:saturate(1.08) brightness(1.16) drop-shadow(0 0 11px rgba(78,238,139,.55))!important}
+.tutorial-drive-gear{left:62%!important;top:39%!important;width:9.5%!important;opacity:.34!important}.tutorial-drive-gear.drive-live{opacity:.88!important}.tutorial-drive-gear.drive-live img{animation:marketGearLoop .72s linear infinite!important}
 @keyframes marketGearLoop{to{transform:rotate(360deg)}}
 .tutorial-drive-gear.drive-coast{opacity:.72!important}.tutorial-drive-gear.drive-coast img{animation:marketGearCoast .78s cubic-bezier(.12,.7,.22,1) forwards!important}
 @keyframes marketGearCoast{0%{transform:rotate(0deg)}55%{transform:rotate(112deg)}100%{transform:rotate(154deg)}}
-.waiting-gate .piece-ball{filter:drop-shadow(0 8px 6px rgba(18,31,52,.34)) drop-shadow(0 0 11px rgba(70,148,244,.25))!important}
-.waiting-gate .piece-ball::before{animation:gateWaitBall .32s ease-in-out infinite alternate}.waiting-gate .piece-ball::after{animation:gateWaitRoll .38s ease-in-out infinite alternate}
+.waiting-gate .piece-ball{filter:drop-shadow(0 8px 6px rgba(18,31,52,.34)) drop-shadow(0 0 11px rgba(70,148,244,.25))!important}.waiting-gate .piece-ball::before{animation:gateWaitBall .32s ease-in-out infinite alternate}.waiting-gate .piece-ball::after{animation:gateWaitRoll .38s ease-in-out infinite alternate}
 @keyframes gateWaitBall{to{transform:scale(.98,1.02) translateY(-1px)}}@keyframes gateWaitRoll{to{transform:rotate(calc(var(--roll-angle,0deg) + 8deg))}}
 .route-open .piece-logic-lamp{animation:routeOpenLamp .4s ease both}@keyframes routeOpenLamp{45%{transform:translate(-50%,-50%) scale(1.14)}to{transform:translate(-50%,-50%) scale(1)}}
 
 /* ---------- Level 2 readable linkage puzzle ---------- */
 .choice-gate-deck{position:absolute;left:12%;top:11%;width:77%;height:79%;z-index:3;border-radius:22px;background:linear-gradient(145deg,rgba(65,45,32,.29),rgba(31,23,18,.23));border:1px solid rgba(48,31,20,.24);box-shadow:inset 0 1px rgba(255,235,201,.06),inset 0 0 22px rgba(12,7,4,.08);pointer-events:none}
 .choice-link{position:absolute;height:5px;z-index:18;transform:translateY(-50%) rotate(var(--link-angle));transform-origin:left center;border-radius:999px;background:linear-gradient(180deg,#9b8b78,#554a3f 58%,#29231e);box-shadow:0 3px 5px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.22);opacity:.72;pointer-events:none}
-.choice-link::before,.choice-link::after{content:"";position:absolute;top:50%;width:9px;height:9px;border-radius:50%;transform:translateY(-50%);background:#312a24;box-shadow:inset 0 1px rgba(255,255,255,.17)}
-.choice-link::before{left:-3px}.choice-link::after{right:-3px}
-.decoy-link{opacity:.50;filter:saturate(.6)}
-.correct-link.link-live{opacity:1;animation:linkEngage .42s ease both;box-shadow:0 3px 5px rgba(0,0,0,.25),0 0 10px rgba(100,175,247,.22),inset 0 1px rgba(255,255,255,.25)}
+.choice-link::before,.choice-link::after{content:"";position:absolute;top:50%;width:9px;height:9px;border-radius:50%;transform:translateY(-50%);background:#312a24;box-shadow:inset 0 1px rgba(255,255,255,.17)}.choice-link::before{left:-3px}.choice-link::after{right:-3px}
+.decoy-link{opacity:.50;filter:saturate(.6)}.correct-link.link-live{opacity:1;animation:linkEngage .42s ease both;box-shadow:0 3px 5px rgba(0,0,0,.25),0 0 10px rgba(100,175,247,.22),inset 0 1px rgba(255,255,255,.25)}
 @keyframes linkEngage{35%{filter:brightness(1.4);transform:translateY(-50%) rotate(var(--link-angle)) scaleX(1.018)}to{filter:none}}
-.decoy-link.link-wrong{animation:deadLinkHit .38s ease both}
-@keyframes deadLinkHit{25%{filter:brightness(1.08);margin-left:-3px}55%{margin-left:3px}to{margin-left:0;opacity:.38}}
-.piece-choice-dead-stop{opacity:.72;filter:saturate(.55) brightness(.83) drop-shadow(0 5px 4px rgba(0,0,0,.24))}
-.piece-choice-dead-stop.dead-stop-hit{animation:deadStopHit .42s ease}
-@keyframes deadStopHit{25%,65%{transform:translate(-53%,-50%) rotate(22deg)}45%,85%{transform:translate(-47%,-50%) rotate(22deg)}}
+.decoy-link.link-wrong{animation:deadLinkHit .38s ease both}@keyframes deadLinkHit{25%{filter:brightness(1.08);margin-left:-3px}55%{margin-left:3px}to{margin-left:0;opacity:.38}}
+.piece-choice-dead-stop{opacity:.72;filter:saturate(.55) brightness(.83) drop-shadow(0 5px 4px rgba(0,0,0,.24))}.piece-choice-dead-stop.dead-stop-hit{animation:deadStopHit .42s ease}@keyframes deadStopHit{25%,65%{transform:translate(-53%,-50%) rotate(22deg)}45%,85%{transform:translate(-47%,-50%) rotate(22deg)}}
 .piece-choice-lamp{opacity:.25;filter:saturate(.55) brightness(.7)}.piece-choice-lamp.logic-active{opacity:1;filter:saturate(1.1) brightness(1.12) drop-shadow(0 0 11px rgba(78,238,139,.5));animation:routeOpenLamp .4s ease both}
-.choice-gate-machine .piece-gate{filter:saturate(.9) brightness(.9) drop-shadow(0 6px 5px rgba(0,0,0,.26))}
-.choice-gate-machine .piece-gate.choice-gate-preload{animation:choiceGatePreload .3s cubic-bezier(.18,.78,.2,1) both}
-@keyframes choiceGatePreload{45%{transform:translate(-50%,-56%) scale(.98)}to{transform:translate(-50%,-61%) scale(.98)}}
-.choice-gate-machine .piece-gate.choice-gate-open{animation:choiceGateOpen .55s cubic-bezier(.16,.82,.2,1) forwards!important}
-@keyframes choiceGateOpen{0%{transform:translate(-50%,-61%)}60%{transform:translate(-50%,-95%)}to{transform:translate(-50%,-112%);opacity:.46}}
-.choice-correct .correct-link{filter:brightness(1.08)}
-.choice-complete .correct-link{opacity:.66}.choice-complete .piece-choice-lamp{opacity:.58}
+.choice-gate-machine .piece-gate{filter:saturate(.9) brightness(.9) drop-shadow(0 6px 5px rgba(0,0,0,.26))}.choice-gate-machine .piece-gate.choice-gate-preload{animation:choiceGatePreload .3s cubic-bezier(.18,.78,.2,1) both}@keyframes choiceGatePreload{45%{transform:translate(-50%,-56%) scale(.98)}to{transform:translate(-50%,-61%) scale(.98)}}
+.choice-gate-machine .piece-gate.choice-gate-open{animation:choiceGateOpen .55s cubic-bezier(.16,.82,.2,1) forwards!important}@keyframes choiceGateOpen{0%{transform:translate(-50%,-61%)}60%{transform:translate(-50%,-95%)}to{transform:translate(-50%,-112%);opacity:.46}}
+.choice-correct .correct-link{filter:brightness(1.08)}.choice-complete .correct-link{opacity:.66}.choice-complete .piece-choice-lamp{opacity:.58}
+
+/* ---------- Level 3 route alignment puzzle ---------- */
+.route-align-deck{position:absolute;left:11.5%;top:10.5%;width:78%;height:79%;z-index:3;border-radius:22px;background:linear-gradient(145deg,rgba(61,45,35,.27),rgba(29,23,19,.24));border:1px solid rgba(46,31,22,.25);box-shadow:inset 0 1px rgba(255,238,210,.055),inset 0 0 24px rgba(10,6,4,.08);pointer-events:none}
+.align-shaft{position:absolute;height:4px;z-index:17;transform:translateY(-50%) rotate(var(--link-angle));transform-origin:left center;border-radius:999px;background:linear-gradient(180deg,#948777,#51483e 58%,#29231e);box-shadow:0 3px 4px rgba(0,0,0,.23),inset 0 1px rgba(255,255,255,.18);opacity:.66;pointer-events:none}
+.align-shaft::before,.align-shaft::after{content:"";position:absolute;top:50%;width:8px;height:8px;border-radius:50%;transform:translateY(-50%);background:#302a24;box-shadow:inset 0 1px rgba(255,255,255,.15)}.align-shaft::before{left:-3px}.align-shaft::after{right:-3px}
+.align-shaft.shaft-live{opacity:1;animation:shaftTorque .46s ease both;box-shadow:0 3px 4px rgba(0,0,0,.23),0 0 9px rgba(102,178,247,.18),inset 0 1px rgba(255,255,255,.2)}
+@keyframes shaftTorque{30%{filter:brightness(1.35);transform:translateY(-50%) rotate(var(--link-angle)) scaleX(1.02)}62%{transform:translateY(-50%) rotate(var(--link-angle)) scaleX(.993)}to{filter:none}}
+.valve-shaft{opacity:.46;filter:saturate(.55)}.valve-shaft.valve-live{animation:valveShaftTurn .55s ease both}@keyframes valveShaftTurn{35%{filter:brightness(1.15)}to{filter:saturate(.48);opacity:.36}}
+.piece-align-valve-stop{opacity:.55;filter:saturate(.6) brightness(.82) drop-shadow(0 5px 4px rgba(0,0,0,.2))}.piece-align-valve-stop.valve-spinning img{animation:valveDeadSpin .62s cubic-bezier(.16,.68,.22,1) both}@keyframes valveDeadSpin{to{transform:rotate(145deg)}}
+.piece-align-lamp{opacity:.24;filter:saturate(.5) brightness(.68)}.piece-align-lamp.logic-active{opacity:1;filter:saturate(1.05) brightness(1.13) drop-shadow(0 0 10px rgba(80,235,142,.48));animation:routeOpenLamp .4s ease both}
+.route-gap{position:absolute;z-index:20;width:15.5%;aspect-ratio:1.4/1;transform:translate(-50%,-50%) rotate(-3deg);border-radius:12px;background:radial-gradient(ellipse at center,rgba(24,18,14,.96) 0 35%,rgba(49,35,25,.96) 68%,rgba(65,44,29,.86));box-shadow:inset 0 0 0 1px rgba(23,15,10,.48),inset 0 5px 12px rgba(0,0,0,.28),0 3px 6px rgba(20,11,5,.17);pointer-events:none;transition:opacity .3s ease,transform .45s ease}
+.route-gap::before,.route-gap::after{content:"";position:absolute;top:50%;width:28%;height:9px;border-radius:7px;background:linear-gradient(#b77a42,#7c4827 54%,#4d2a18);box-shadow:inset 0 1px rgba(255,220,169,.22),0 3px 3px rgba(0,0,0,.22)}
+.route-gap::before{left:-13%;transform:translateY(-50%) rotate(8deg)}.route-gap::after{right:-13%;transform:translateY(-50%) rotate(8deg)}
+.route-gap.gap-closed{opacity:.08;transform:translate(-50%,-50%) scale(.72);transition-delay:.12s}
+.route-align-machine .route-bridge{z-index:29!important;filter:drop-shadow(0 7px 6px rgba(0,0,0,.30)) saturate(.9)}
+.route-align-machine .route-bridge.bridge-misaligned{transform:translate(-50%,-50%) rotate(38deg)!important}
+.route-align-machine .route-bridge.bridge-aligning{animation:bridgeAlign .48s cubic-bezier(.16,.82,.2,1) forwards!important}
+@keyframes bridgeAlign{0%{transform:translate(-50%,-50%) rotate(38deg)}52%{transform:translate(-50%,-50%) rotate(-4deg)}76%{transform:translate(-50%,-50%) rotate(2deg)}100%{transform:translate(-50%,-50%) rotate(0)}}
+.route-align-machine .route-bridge.bridge-aligned{transform:translate(-50%,-50%) rotate(0)!important;filter:drop-shadow(0 7px 6px rgba(0,0,0,.28)) brightness(1.05)}
+.route-align-machine.route-aligned .route-channel{filter:drop-shadow(0 0 2px rgba(255,202,109,.18))}
+.route-align-machine .bridge-control{filter:drop-shadow(0 6px 5px rgba(0,0,0,.25))}.route-align-machine .valve-control{opacity:.82;filter:saturate(.72) brightness(.9) drop-shadow(0 5px 4px rgba(0,0,0,.2))}
+.align-correct .align-shaft{opacity:1}.align-complete .align-shaft{opacity:.6}.align-complete .piece-align-lamp{opacity:.58}
 
 /* ---------- Pull interaction ---------- */
 .polished-tutorial .polish-pin::before{display:none!important}
@@ -125,23 +135,16 @@
 .pull-cue i{width:8px;height:8px;border-left:2px solid #8fc7ff;border-bottom:2px solid #8fc7ff;transform:rotate(45deg);opacity:.38}.pull-cue i:nth-child(2){opacity:.62}.pull-cue i:nth-child(3){opacity:.94}
 @keyframes marketPullCue{50%{transform:translate(calc(-100% - 6px),-50%);opacity:.52}}
 .machine-running .pull-cue,.is-dragging .pull-cue{opacity:0!important;animation:none!important}
-.polished-tutorial .polish-pin{filter:drop-shadow(0 8px 7px rgba(9,30,66,.34))!important}
-.polished-tutorial .polish-pin.interactive::after{border-color:rgba(109,183,255,.68)!important;box-shadow:0 0 0 6px rgba(47,121,219,.055),0 0 22px rgba(47,121,219,.28)!important}.polished-tutorial .polish-pin.is-dragging::after{opacity:.22!important}
+.polished-tutorial .polish-pin{filter:drop-shadow(0 8px 7px rgba(9,30,66,.34))!important}.polished-tutorial .polish-pin.interactive::after{border-color:rgba(109,183,255,.68)!important;box-shadow:0 0 0 6px rgba(47,121,219,.055),0 0 22px rgba(47,121,219,.28)!important}.polished-tutorial .polish-pin.is-dragging::after{opacity:.22!important}
 
 /* ---------- Reward / receiver ---------- */
 .polished-tutorial .polish-star{filter:drop-shadow(0 5px 4px rgba(75,39,2,.23)) drop-shadow(0 0 10px rgba(255,187,37,.32))!important}
-.star-secured .chassis-goal{box-shadow:inset 0 1px rgba(255,235,199,.11),inset 0 -6px 16px rgba(10,6,4,.14),0 0 12px rgba(224,159,51,.09)!important}
-.goal-powered .polish-goal{filter:drop-shadow(0 7px 7px rgba(47,23,5,.28)) drop-shadow(0 0 8px rgba(255,174,34,.18))!important}
-.goal-powered .chassis-goal::after{content:"";position:absolute;inset:13%;border-radius:50%;border:1px solid rgba(255,193,75,.11);box-shadow:0 0 12px rgba(255,177,36,.08)}
+.star-secured .chassis-goal{box-shadow:inset 0 1px rgba(255,235,199,.11),inset 0 -6px 16px rgba(10,6,4,.14),0 0 12px rgba(224,159,51,.09)!important}.goal-powered .polish-goal{filter:drop-shadow(0 7px 7px rgba(47,23,5,.28)) drop-shadow(0 0 8px rgba(255,174,34,.18))!important}.goal-powered .chassis-goal::after{content:"";position:absolute;inset:13%;border-radius:50%;border:1px solid rgba(255,193,75,.11);box-shadow:0 0 12px rgba(255,177,36,.08)}
 .focus-goal .chassis-goal{animation:receiverBreath .82s ease-in-out infinite alternate}@keyframes receiverBreath{to{box-shadow:inset 0 1px rgba(255,235,199,.13),inset 0 -6px 16px rgba(10,6,4,.12),0 0 18px rgba(235,166,49,.13)}}
-.focus-goal .polish-goal{filter:drop-shadow(0 8px 8px rgba(47,23,5,.28)) drop-shadow(0 0 16px rgba(255,179,36,.30))!important}
-.machine-complete .chassis-start,.machine-complete .chassis-drive,.machine-complete .chassis-goal{filter:brightness(1.06)}.machine-complete .machine-deck{box-shadow:inset 0 1px rgba(255,235,201,.12),inset 0 0 28px rgba(17,10,6,.08),0 0 20px rgba(255,184,61,.08)}.machine-complete .power-bus::after{animation:none;opacity:.28;left:82%}
+.focus-goal .polish-goal{filter:drop-shadow(0 8px 8px rgba(47,23,5,.28)) drop-shadow(0 0 16px rgba(255,179,36,.30))!important}.machine-complete .chassis-start,.machine-complete .chassis-drive,.machine-complete .chassis-goal{filter:brightness(1.06)}.machine-complete .machine-deck{box-shadow:inset 0 1px rgba(255,235,201,.12),inset 0 0 28px rgba(17,10,6,.08),0 0 20px rgba(255,184,61,.08)}.machine-complete .power-bus::after{animation:none;opacity:.28;left:82%}
 
-/* Force the visible sphere itself to shrink into the receiver, independent of container transform priorities. */
-.piece-ball.at-goal::before{animation:marketBallCoreSink .52s cubic-bezier(.23,.79,.26,1) forwards!important}
-.piece-ball.at-goal::after{animation:marketBallDetailSink .52s cubic-bezier(.23,.79,.26,1) forwards!important}
-@keyframes marketBallCoreSink{0%{transform:scale(1);opacity:1}34%{transform:scale(1.07,.91);opacity:1}65%{transform:scale(.62);opacity:.82}100%{transform:scale(.08);opacity:0}}
-@keyframes marketBallDetailSink{0%{transform:rotate(var(--roll-angle,0deg)) scale(1);opacity:.72}100%{transform:rotate(calc(var(--roll-angle,0deg) + 75deg)) scale(.06);opacity:0}}
+.piece-ball.at-goal::before{animation:marketBallCoreSink .52s cubic-bezier(.23,.79,.26,1) forwards!important}.piece-ball.at-goal::after{animation:marketBallDetailSink .52s cubic-bezier(.23,.79,.26,1) forwards!important}
+@keyframes marketBallCoreSink{0%{transform:scale(1);opacity:1}34%{transform:scale(1.07,.91);opacity:1}65%{transform:scale(.62);opacity:.82}100%{transform:scale(.08);opacity:0}}@keyframes marketBallDetailSink{0%{transform:rotate(var(--roll-angle,0deg)) scale(1);opacity:.72}100%{transform:rotate(calc(var(--roll-angle,0deg) + 75deg)) scale(.06);opacity:0}}
 
 /* ---------- Impacts / climax ---------- */
 .release-impact{animation:machineReleaseImpact .32s cubic-bezier(.2,.8,.2,1)}@keyframes machineReleaseImpact{35%{filter:drop-shadow(0 27px 30px rgba(0,0,0,.46)) brightness(1.025)}to{filter:drop-shadow(0 26px 30px rgba(0,0,0,.46))}}
@@ -154,18 +157,15 @@
 /* ---------- Result sheet ---------- */
 .game-screen + .modal .result-card,.result-card{background:radial-gradient(circle at 50% 0,rgba(255,228,178,.16),transparent 35%),linear-gradient(160deg,#3a281d,#211710 72%,#160f0b)!important;border-color:rgba(255,219,169,.13)!important;color:#fff1d7;box-shadow:0 30px 90px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.08)!important}
 .modal:not([hidden]) .result-card{animation:marketSheetIn .4s cubic-bezier(.16,.82,.2,1.04) both}@keyframes marketSheetIn{from{opacity:0;transform:translateY(28px) scale(.965)}65%{opacity:1}to{transform:none}}
-.result-card .modal-kicker{color:#d89c4b!important}.result-card h2{color:#fff1d7}.result-card p{color:#cfb89b!important}
-.result-card .ghost-btn{background:rgba(255,241,216,.075)!important;border-color:rgba(255,225,181,.12)!important;color:#ead5b8;box-shadow:inset 0 1px rgba(255,255,255,.05)!important}.result-card .primary-btn{box-shadow:0 13px 28px rgba(20,64,134,.34),inset 0 1px rgba(255,255,255,.25)!important}.result-card .primary-btn:active,.result-card .ghost-btn:active{transform:translateY(2px) scale(.99)}
+.result-card .modal-kicker{color:#d89c4b!important}.result-card h2{color:#fff1d7}.result-card p{color:#cfb89b!important}.result-card .ghost-btn{background:rgba(255,241,216,.075)!important;border-color:rgba(255,225,181,.12)!important;color:#ead5b8;box-shadow:inset 0 1px rgba(255,255,255,.05)!important}.result-card .primary-btn{box-shadow:0 13px 28px rgba(20,64,134,.34),inset 0 1px rgba(255,255,255,.25)!important}.result-card .primary-btn:active,.result-card .ghost-btn:active{transform:translateY(2px) scale(.99)}
 
 @media(max-width:500px){
   .brand-logo-art{width:min(76vw,300px)}.home-machine-board{inset:-6% -4%;width:108%;height:112%}
   .polished-tutorial.focus-start{transform:translate(-49%,-50.2%) scale(1.01)}.polished-tutorial.focus-route{transform:translate(-49.5%,-50%) scale(1.012)}.polished-tutorial.focus-drive{transform:translate(-50%,-49.8%) scale(1.018)}.polished-tutorial.focus-goal{transform:translate(-50.5%,-49.4%) scale(1.024)}.polished-tutorial.focus-complete{transform:translate(-49.7%,-49.8%) scale(1.012)}
   .machine-deck{left:11.5%;width:78%}
-  .polished-tutorial .polish-pin{width:22.5%!important}
-  .polished-tutorial .polish-goal{width:13.5%!important}
-  .polished-tutorial .polish-star{width:9%!important}
-  .pull-cue{left:18%;top:2px;transform:translate(0,-100%)}
-  @keyframes marketPullCue{50%{transform:translate(-5px,-100%);opacity:.52}}
+  .polished-tutorial .polish-pin{width:22.5%!important}.polished-tutorial .polish-goal{width:13.5%!important}.polished-tutorial .polish-star{width:9%!important}
+  .pull-cue{left:18%;top:2px;transform:translate(0,-100%)}@keyframes marketPullCue{50%{transform:translate(-5px,-100%);opacity:.52}}
+  .route-align-machine .route-gap{width:13.5%}.route-align-machine .route-bridge{width:11.5%!important}
 }
 
 @media(prefers-reduced-motion:reduce){.machine-board{transition:none!important}.pull-cue,.power-bus,.completion-wave,.tutorial-drive-gear img,.home-preview-gear,.home-preview-star,.home-preview-cue{animation:none!important}}
