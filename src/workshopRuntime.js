@@ -9,6 +9,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   const logic = getMachineLogic(level.id);
   const polishedTutorial = Boolean(logic?.archetype === 'release-chain');
   const choiceGate = Boolean(logic?.archetype === 'choice-gate');
+  const routeAlign = Boolean(logic?.archetype === 'route-align');
   const checkpoints = logic?.checkpoints || { triggerAt:.34, gateHoldAt:.486, goalWakeAt:.83 };
   const timings = logic?.timings || { driveDelay:90, gatePreloadDelay:250, gateOpenDelay:760, resultDelay:620 };
   const copy = logic?.copy || {};
@@ -29,6 +30,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     drive:false,
     gateOpening:false,
     gateOpen:!(polishedTutorial || choiceGate),
+    routeAligned:!routeAlign,
     star:false,
     goalPowered:!polishedTutorial,
     goalAwake:false,
@@ -45,7 +47,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   world.innerHTML = '';
 
   const board = document.createElement('div');
-  board.className = `machine-board${polishedTutorial ? ` polished-tutorial focus-${focus.initial || 'start'}` : ''}${choiceGate ? ' choice-gate-machine' : ''}`;
+  board.className = `machine-board${polishedTutorial ? ` polished-tutorial focus-${focus.initial || 'start'}` : ''}${choiceGate ? ' choice-gate-machine' : ''}${routeAlign ? ' route-align-machine' : ''}`;
   board.setAttribute('aria-label', `${level.name} machine`);
   board.innerHTML = `
     <img class="machine-board-base" src="${scene.board}" alt="" draggable="false">
@@ -61,6 +63,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       </div>
     ` : ''}
     ${choiceGate ? '<div class="choice-gate-deck" aria-hidden="true"></div>' : ''}
+    ${routeAlign ? '<div class="route-align-deck" aria-hidden="true"></div>' : ''}
     <svg class="machine-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path class="route-shadow"></path>
       <path class="route-bed"></path>
@@ -82,6 +85,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   renderRouteJoints(piecesRoot, scene.joints || [.25,.52,.78], sampledPath);
   if (polishedTutorial) renderTutorialMachine(piecesRoot);
   if (choiceGate) renderChoiceGateMachine(piecesRoot);
+  if (routeAlign) renderRouteAlignMachine(piecesRoot);
 
   scene.pieces.forEach(piece => {
     const node = document.createElement(piece.interactive ? 'button' : 'div');
@@ -96,6 +100,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     node.innerHTML = `<img src="${piece.asset}" alt="" draggable="false">`;
 
     if (polishedTutorial) applyTutorialArt(node, piece);
+    if (routeAlign) applyRouteAlignArt(node, piece);
 
     if (piece.interactive) {
       node.setAttribute('aria-label', piece.label || 'Use this control');
@@ -113,7 +118,6 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   function renderTutorialMachine(root) {
     const triggerPoint = pointOnSampledPath(sampledPath, checkpoints.triggerAt);
     const gatePoint = pointOnSampledPath(sampledPath, .50);
-
     addMachinePart(root, { id:'logicTrigger', kind:'logic-trigger', asset:W.mechanisms.checkpointRing, x:triggerPoint.x, y:triggerPoint.y, w:10.5, z:21 });
     addMachinePart(root, { id:'logicGate', kind:'logic-gate', asset:W.mechanisms.gateSlider, x:gatePoint.x, y:gatePoint.y, w:12.5, z:28, rotation:8 });
     addMachinePart(root, { id:'logicLamp', kind:'logic-lamp', asset:W.mechanisms.lampIndicatorGreen, x:64.5, y:44.0, w:5.6, z:20 });
@@ -130,11 +134,32 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     if (!correct || !decoy || !target) return;
 
     addMachineLink(root, 'correctLink', correct, target, 'choice-link correct-link');
-
     const deadStop = {x:67,y:31};
     addMachineLink(root, 'decoyLink', decoy, deadStop, 'choice-link decoy-link');
     addMachinePart(root, {id:'choiceDeadStop',kind:'choice-dead-stop',asset:W.hardware.bracketU,x:deadStop.x,y:deadStop.y,w:7.2,z:19,rotation:22});
     addMachinePart(root, {id:'choiceLamp',kind:'choice-lamp',asset:W.mechanisms.lampIndicatorGreen,x:61,y:56,w:5.6,z:19});
+  }
+
+  function renderRouteAlignMachine(root) {
+    const controls = logic?.controls || {};
+    const correct = pieces.get(controls.correct);
+    const decoy = pieces.get(controls.decoy);
+    const target = pieces.get(controls.target);
+    if (!correct || !decoy || !target) return;
+
+    addMachineLink(root, 'alignShaft', correct, target, 'align-shaft');
+    const valveNode = {x:68,y:64};
+    addMachineLink(root, 'valveLink', decoy, valveNode, 'align-shaft valve-shaft');
+    addMachinePart(root, {id:'valveStop',kind:'align-valve-stop',asset:W.mechanisms.wheelValve,x:valveNode.x,y:valveNode.y,w:7.4,z:18});
+    addMachinePart(root, {id:'alignLamp',kind:'align-lamp',asset:W.mechanisms.lampIndicatorGreen,x:59.5,y:43,w:5.4,z:19});
+
+    const gap = document.createElement('div');
+    gap.className = 'route-gap';
+    gap.dataset.id = 'routeGap';
+    gap.style.left = `${target.x}%`;
+    gap.style.top = `${target.y}%`;
+    root.appendChild(gap);
+    nodes.set('routeGap',gap);
   }
 
   function addMachineLink(root, id, from, to, className) {
@@ -193,6 +218,13 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       return;
     }
     if (piece.id === 'gear') node.classList.add('tutorial-drive-gear');
+  }
+
+  function applyRouteAlignArt(node, piece) {
+    const controls = logic?.controls || {};
+    if (piece.id === controls.target) node.classList.add('route-bridge','bridge-misaligned');
+    if (piece.id === controls.correct) node.classList.add('bridge-control');
+    if (piece.id === controls.decoy) node.classList.add('valve-control');
   }
 
   function wirePullPin(node, piece) {
@@ -304,6 +336,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     node.classList.add(`action-${piece.action || 'press'}`);
 
     if (choiceGate) return commitChoiceGate(id,node);
+    if (routeAlign) return commitRouteAlign(id,node);
 
     if (polishedTutorial && id === 'pin') {
       node.style.transform = '';
@@ -382,6 +415,51 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     return {accepted:true,correct:true,effectHandled:true};
   }
 
+  function commitRouteAlign(id,node) {
+    const controls = logic.controls;
+    if (id !== controls.correct) {
+      node.classList.add('action-wrong');
+      nodes.get('valveLink')?.classList.add('valve-live','link-wrong');
+      nodes.get('valveStop')?.classList.add('valve-spinning');
+      board.classList.add('align-wrong');
+      onEffect?.('metal');
+      onStatus?.(copy.wrong || 'Valve turned. The bridge is still misaligned.');
+      failTimer = window.setTimeout(() => {
+        if (!destroyed) onFail?.(copy.wrong || 'The bridge is still misaligned.');
+      }, 760);
+      return {accepted:true,correct:false,effectHandled:true};
+    }
+
+    board.classList.add('align-correct');
+    nodes.get('alignShaft')?.classList.add('shaft-live');
+    onStatus?.(copy.correct || 'Crank driving the bridge.');
+    onEffect?.('drive');
+
+    later(() => {
+      nodes.get(controls.target)?.classList.add('bridge-aligning');
+      onEffect?.('gate-preload');
+    }, timings.shaftDelay);
+
+    later(() => {
+      machine.routeAligned = true;
+      const bridge = nodes.get(controls.target);
+      bridge?.classList.remove('bridge-misaligned','bridge-aligning');
+      bridge?.classList.add('bridge-aligned','activated');
+      nodes.get('routeGap')?.classList.add('gap-closed');
+      nodes.get('alignLamp')?.classList.add('logic-active');
+      board.classList.add('route-aligned');
+      onStatus?.(copy.aligned || 'Bridge aligned. Route restored.');
+      onEffect?.('gate-open');
+      sparkAtNode(bridge,5);
+    }, timings.alignDelay);
+
+    startTimer = window.setTimeout(() => {
+      if (!destroyed) runBall();
+    }, timings.ballReleaseDelay);
+
+    return {accepted:true,correct:true,effectHandled:true};
+  }
+
   function runBall() {
     const duration = scene.duration || 4200;
     const start = performance.now();
@@ -392,7 +470,6 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
     const tick = now => {
       if (destroyed) return;
-
       let elapsed = Math.max(0, now - start - pausedForGate);
       let raw = Math.min(1, elapsed / duration);
       let motion = motionAt(scene.motion, raw);
@@ -400,7 +477,6 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
       if (polishedTutorial) {
         fireTutorialMachineLogic(t);
-
         if (!machine.gateOpen && t >= checkpoints.gateHoldAt) {
           if (!gateHoldStarted) {
             gateHoldStarted = now;
@@ -449,7 +525,6 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
   function fireTutorialMachineLogic(t) {
     if (machine.trigger || t < checkpoints.triggerAt) return;
-
     machine.trigger = true;
     const trigger = nodes.get('logicTrigger');
     trigger?.classList.add('logic-active');
@@ -563,6 +638,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     }
 
     if (choiceGate) board.classList.add('choice-complete');
+    if (routeAlign) board.classList.add('align-complete');
 
     later(() => {
       if (!destroyed) onGoal?.();
@@ -576,7 +652,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       const node = nodes.get(event.id);
 
       if (event.type === 'activate') {
-        if (choiceGate && event.id === logic?.controls?.target) return;
+        if ((choiceGate || routeAlign) && event.id === logic?.controls?.target) return;
         node?.classList.add('activated');
         onEffect?.(event.sound || 'metal');
         sparkAt(event.x, event.y, event.sound === 'wood' ? 4 : 5);
