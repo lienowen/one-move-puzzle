@@ -1,0 +1,69 @@
+.signal-match-machine .signal-match-deck{
+  position:absolute;left:11.5%;top:10.5%;width:78%;height:79%;z-index:3;border-radius:22px;pointer-events:none;
+  background:linear-gradient(145deg,rgba(61,45,35,.28),rgba(28,22,18,.25));
+  border:1px solid rgba(46,31,22,.25);
+  box-shadow:inset 0 1px rgba(255,238,210,.055),inset 0 0 24px rgba(10,6,4,.08);
+}
+.signal-match-machine .signal-layer{position:absolute;inset:0;z-index:17;pointer-events:none}
+.signal-receiver{
+  position:absolute;width:15%;aspect-ratio:1.5/1;transform:translate(-50%,-50%);border-radius:13px;
+  display:grid;place-items:center;background:linear-gradient(155deg,#544b40,#2d2822 64%,#201c18);
+  border:1px solid rgba(25,20,16,.68);box-shadow:0 6px 8px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.20),inset 0 -5px 11px rgba(0,0,0,.18);
+  transition:filter .18s ease,box-shadow .18s ease,transform .22s ease;
+}
+.signal-receiver-label{position:absolute;left:50%;top:8%;transform:translateX(-50%);font:800 5px/1 system-ui,sans-serif;letter-spacing:.18em;color:rgba(236,220,196,.52)}
+.signal-glyph{display:block;position:relative;width:26%;aspect-ratio:1}
+.signal-glyph.glyph-circle{border:2px solid #9bcfae;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(35,57,42,.42),0 0 6px rgba(104,206,139,.12)}
+.signal-glyph.glyph-triangle{width:0;height:0;aspect-ratio:auto;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:13px solid #d7ad59;filter:drop-shadow(0 2px 1px rgba(35,22,8,.42))}
+.signal-terminal{
+  position:absolute;width:7.3%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(145deg,rgba(87,76,64,.94),rgba(43,38,32,.95));border:1px solid rgba(30,24,19,.62);
+  box-shadow:0 4px 6px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.17);transition:.18s ease;
+}
+.signal-terminal .signal-glyph{width:45%}
+.signal-terminal.terminal-circle .signal-glyph.glyph-circle{border-color:#9bcfae}
+.signal-terminal.terminal-triangle .signal-glyph.glyph-triangle{border-left-width:5px;border-right-width:5px;border-bottom-width:9px}
+.signal-channel{
+  position:absolute;height:5px;transform:translateY(-50%) rotate(var(--signal-angle));transform-origin:left center;border-radius:999px;
+  background:linear-gradient(180deg,#776d60,#484038 58%,#29241f);box-shadow:0 3px 4px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.16);
+  opacity:.58;overflow:visible;transition:opacity .18s ease,filter .18s ease;
+}
+.signal-channel b{position:absolute;top:50%;width:7px;height:7px;border-radius:50%;transform:translate(-50%,-50%);background:#2d2823;box-shadow:inset 0 1px rgba(255,255,255,.13)}
+.signal-channel b:nth-child(1){left:18%}.signal-channel b:nth-child(2){left:50%}.signal-channel b:nth-child(3){left:82%}
+.signal-channel span{
+  position:absolute;left:0;top:50%;width:15%;height:9px;border-radius:999px;transform:translate(-20%,-50%);opacity:0;
+  background:radial-gradient(ellipse,rgba(255,245,197,.95),rgba(125,206,153,.70) 42%,transparent 72%);filter:blur(.2px);
+}
+.signal-channel.signal-live{opacity:.94;filter:brightness(1.08)}
+.signal-channel.signal-live span{animation:signalPacket .52s cubic-bezier(.16,.74,.2,1) 2 both}
+.decoy-signal.signal-live span{background:radial-gradient(ellipse,rgba(255,239,181,.95),rgba(222,167,71,.72) 42%,transparent 72%)}
+@keyframes signalPacket{0%{left:0;opacity:0}16%{opacity:.9}76%{opacity:.82}100%{left:94%;opacity:0}}
+.signal-terminal.terminal-live{filter:brightness(1.22);box-shadow:0 4px 6px rgba(0,0,0,.20),0 0 12px rgba(137,209,159,.22),inset 0 1px rgba(255,255,255,.18)}
+.terminal-triangle.terminal-live{box-shadow:0 4px 6px rgba(0,0,0,.20),0 0 12px rgba(222,167,71,.22),inset 0 1px rgba(255,255,255,.18)}
+.signal-receiver.receiver-match{
+  transform:translate(-50%,-50%) scale(1.06);filter:brightness(1.15);
+  box-shadow:0 6px 8px rgba(0,0,0,.25),0 0 17px rgba(87,218,132,.42),inset 0 1px rgba(255,255,255,.22);
+}
+.signal-receiver.receiver-match .glyph-circle{border-color:#8af0ae;box-shadow:0 0 10px rgba(96,237,144,.55),inset 0 0 0 2px rgba(35,57,42,.32)}
+.signal-receiver.receiver-reject{animation:receiverReject .42s ease;filter:brightness(.9) saturate(.8);box-shadow:0 6px 8px rgba(0,0,0,.25),0 0 12px rgba(210,79,61,.38),inset 0 1px rgba(255,255,255,.16)}
+.signal-receiver.receiver-reject::after{content:"×";position:absolute;right:8%;top:50%;transform:translateY(-50%);color:#e66d5c;font:900 14px/1 system-ui,sans-serif;text-shadow:0 0 7px rgba(205,70,54,.35)}
+@keyframes receiverReject{20%,60%{margin-left:-3px}40%,80%{margin-left:3px}}
+.signal-match-machine .piece-gate{filter:saturate(.88) brightness(.88) drop-shadow(0 6px 5px rgba(0,0,0,.26))}
+.signal-match-machine .piece-gate.signal-gate-open{animation:signalGateOpen .56s cubic-bezier(.16,.82,.2,1) forwards!important}
+@keyframes signalGateOpen{0%{transform:translate(-50%,-50%)}38%{transform:translate(-50%,-57%) scale(.98)}75%{transform:translate(-50%,-98%) scale(.96)}100%{transform:translate(-50%,-112%) scale(.94);opacity:.46}}
+.signal-match-machine.signal-matched .correct-signal{opacity:1;box-shadow:0 3px 4px rgba(0,0,0,.22),0 0 7px rgba(107,210,142,.18),inset 0 1px rgba(255,255,255,.18)}
+.signal-match-machine.signal-route-open .route-light{filter:drop-shadow(0 0 3px rgba(255,210,123,.22))}
+.signal-match-machine.signal-complete .signal-receiver{opacity:.72;filter:brightness(1.08)}
+.signal-match-machine.signal-complete .correct-signal{opacity:.62}
+.signal-match-machine.signal-rejecting .decoy-signal{animation:rejectedWire .48s ease}
+@keyframes rejectedWire{45%{filter:brightness(1.2) saturate(.65)}to{filter:brightness(.85) saturate(.5)}}
+
+@media(max-width:500px){
+  .signal-receiver{width:13.5%}
+  .signal-terminal{width:6.6%}
+  .signal-receiver-label{font-size:4px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .signal-channel.signal-live span,.signal-receiver.receiver-reject{animation:none!important}
+}
