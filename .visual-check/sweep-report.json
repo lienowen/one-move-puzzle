@@ -228,63 +228,51 @@
     ],
     "important": [
       {
-        "id": "greenButton",
+        "id": "pivot",
         "interactive": true,
-        "kind": "piece-button",
+        "kind": "maze-rotator",
         "visibleRatio": 1,
         "rect": [
-          10,
-          587,
-          69,
-          646
+          165,
+          486,
+          225,
+          547
         ]
       },
       {
-        "id": "yellowButton",
-        "interactive": true,
-        "kind": "piece-button",
-        "visibleRatio": 1,
-        "rect": [
-          321,
-          287,
-          380,
-          346
-        ]
-      },
-      {
-        "id": "gate",
+        "id": "star-1",
         "interactive": false,
-        "kind": "piece-gate",
+        "kind": "maze-star-art",
         "visibleRatio": 1,
         "rect": [
-          179,
-          424,
-          254,
-          499
+          181,
+          376,
+          209,
+          405
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          570,
-          387,
-          621
+          298,
+          368,
+          343,
+          413
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          288,
-          57,
-          334
+          180,
+          565,
+          210,
+          594
         ]
       }
     ],
