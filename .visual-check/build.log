@@ -1,17 +1,18 @@
 
-> one-move-puzzle@0.6.0 build
+> one-move-puzzle@0.7.0 build
 > npm run check:logic && vite build
 
 
-> one-move-puzzle@0.6.0 check:logic
-> node scripts/check-machine-logic.mjs && node scripts/check-field-logic.mjs && node scripts/check-airflow-logic.mjs && node scripts/check-oneway-logic.mjs
+> one-move-puzzle@0.7.0 check:logic
+> node scripts/check-machine-logic.mjs && node scripts/check-field-logic.mjs && node scripts/check-airflow-logic.mjs && node scripts/check-oneway-logic.mjs && node scripts/check-portal-logic.mjs
 
 Machine logic check passed: Levels 1-6 have unique one-move solutions across rotate, vector and row-slide mechanics.
 Field logic check passed: Magnetic Fork has exactly one one-move field solution.
 Airflow logic check passed: Crosswind Drop has one safe landing vector across a real air well.
 One-way logic check passed: 22-node loop reaches the valve at step 19, with one valid return direction (N).
+Portal logic check passed: shortcut hits the locked gate; detour teleports -> pad -> star -> same gate -> goal.
 [36mvite v8.2.1 [32mbuilding client environment for production...[36m[39m
-[2Ktransforming...✓ 262 modules transformed.
+[2Ktransforming...✓ 264 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                                                4.76 kB │ gzip:  1.48 kB
@@ -246,7 +247,7 @@ dist/assets/ui_logo-CstV8EDv.png                             163.29 kB
 dist/assets/fx_success_burst-TOQJaVR1.png                    231.79 kB
 dist/assets/fx_trail_soft-B-2DF2VJ.png                       254.65 kB
 dist/assets/board_workshop_base--T8LUU1e.png                 570.56 kB
-dist/assets/index-K8u432Dx.css                                74.54 kB │ gzip: 17.04 kB
-dist/assets/index-DW2WEJ0t.js                                150.55 kB │ gzip: 36.80 kB
+dist/assets/index-BpYHASA1.css                                77.81 kB │ gzip: 17.54 kB
+dist/assets/index-BMuxhT5U.js                                160.05 kB │ gzip: 38.39 kB
 
-[32m✓ built in 179ms[39m
+[32m✓ built in 165ms[39m

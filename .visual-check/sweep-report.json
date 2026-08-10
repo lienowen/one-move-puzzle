@@ -534,63 +534,27 @@
     ],
     "important": [
       {
-        "id": "singlePulley",
-        "interactive": true,
-        "kind": "piece-pulley",
-        "visibleRatio": 1,
-        "rect": [
-          7,
-          574,
-          72,
-          638
-        ]
-      },
-      {
-        "id": "doublePulley",
-        "interactive": true,
-        "kind": "piece-pulley",
-        "visibleRatio": 0.988,
-        "rect": [
-          321,
-          287,
-          391,
-          357
-        ]
-      },
-      {
-        "id": "gate",
-        "interactive": false,
-        "kind": "piece-gate",
-        "visibleRatio": 1,
-        "rect": [
-          176,
-          426,
-          246,
-          496
-        ]
-      },
-      {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          570,
-          387,
-          621
+          298,
+          368,
+          343,
+          413
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          294,
-          57,
-          339
+          55,
+          565,
+          84,
+          594
         ]
       }
     ],
