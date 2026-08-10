@@ -39,6 +39,7 @@ jobs:
           node scripts/causal-browser-qa.mjs
           node scripts/level6-slide-qa.mjs
           node scripts/level7-magnet-qa.mjs
+          node scripts/level8-airflow-qa.mjs
           node scripts/maze-control-safe-area-qa.mjs
           node scripts/visual-sweep.mjs
       - name: Build review thumbnails
@@ -68,6 +69,7 @@ jobs:
             'review-level5.xpm':'level5-initial-mobile.jpg','review-level5-wrong.xpm':'level5-wrong-mobile.jpg','review-level5-airborne.xpm':'level5-airborne-mobile.jpg','review-level5-result.xpm':'level5-result-mobile.jpg',
             'review-level6.xpm':'level6-initial-mobile.jpg','review-level6-wrong.xpm':'level6-wrong-mobile.jpg','review-level6-shifted.xpm':'level6-shifted-mobile.jpg','review-level6-result.xpm':'level6-result-mobile.jpg',
             'review-level7.xpm':'level7-initial-mobile.jpg','review-level7-wrong-field.xpm':'level7-wrong-field-mobile.jpg','review-level7-captured.xpm':'level7-captured-mobile.jpg','review-level7-result.xpm':'level7-result-mobile.jpg',
+            'review-level8.xpm':'level8-initial-mobile.jpg','review-level8-wrong-air.xpm':'level8-wrong-airborne-mobile.jpg','review-level8-carry.xpm':'level8-carry-mobile.jpg','review-level8-landed.xpm':'level8-landed-mobile.jpg','review-level8-result.xpm':'level8-result-mobile.jpg',
             'review-desktop.xpm':'level1-desktop.jpg'
           }
           for dst,src in shots.items(): xpm('.visual-check/'+src,'.visual-check/'+dst)
