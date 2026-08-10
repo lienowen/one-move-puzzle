@@ -61,11 +61,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
     if (piece.interactive) {
       node.setAttribute('aria-label', piece.label || 'Use this control');
-      if (polishedTutorial && piece.id === 'pin') {
-        wirePullPin(node, piece);
-      } else {
-        node.addEventListener('click', ev => onMove?.(piece.id, ev));
-      }
+      if (polishedTutorial && piece.id === 'pin') wirePullPin(node, piece);
+      else node.addEventListener('click', ev => onMove?.(piece.id, ev));
     }
 
     piecesRoot.appendChild(node);
@@ -127,7 +124,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       node.setPointerCapture?.(pointerId);
       setNodeImage(node, P.interaction.pinBluePull);
       onEffect?.('pin-grab');
-      playPolishFx(P.fx.fxClickRing, piece.x, piece.y, 'fx-click', 360);
+      const point = nodePoint(node);
+      playPolishFx(P.fx.fxClickRing, point.x, point.y, 'fx-click', 360);
       ev.preventDefault();
     });
     node.addEventListener('pointermove', ev => {
@@ -201,7 +199,11 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       node.style.transform = '';
       setNodeImage(node, P.interaction.pinBluePull);
       onEffect?.('pin-release');
-      playPolishFx(P.fx.fxMetalSparkSmall, piece.x + 6, piece.y, 'fx-metal', 460);
+      const point = nodePoint(node);
+      playPolishFx(P.fx.fxMetalSparkSmall, point.x + 4, point.y, 'fx-metal', 460);
+      nodes.get('holder')?.classList.add('releasing');
+      nodes.get('gear')?.classList.add('tutorial-gear-active');
+      ball.classList.add('release-ready');
       later(() => setNodeImage(node, P.interaction.pinBlueReleased), 210);
     } else {
       onEffect?.(piece.action === 'press' ? 'tap' : 'metal');
@@ -227,6 +229,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   function runBall() {
     const duration = scene.duration || 4200;
     const start = performance.now();
+    ball.classList.remove('release-ready');
     ball.classList.add('running');
     onEffect?.('roll-start');
 
@@ -251,11 +254,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       fireJointFeedback(t);
       fireTimeline(t);
 
-      if (raw < 1) {
-        frameId = requestAnimationFrame(tick);
-      } else {
-        finishGoal();
-      }
+      if (raw < 1) frameId = requestAnimationFrame(tick);
+      else finishGoal();
     };
 
     frameId = requestAnimationFrame(tick);
@@ -352,6 +352,17 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       node.disabled = true;
       node.classList.remove('interactive');
     });
+  }
+
+  function nodePoint(node) {
+    if (!node) return {x:50,y:50};
+    const boardRect = board.getBoundingClientRect();
+    const nodeRect = node.getBoundingClientRect();
+    if (!boardRect.width || !boardRect.height) return {x:50,y:50};
+    return {
+      x: ((nodeRect.left + nodeRect.width * .5 - boardRect.left) / boardRect.width) * 100,
+      y: ((nodeRect.top + nodeRect.height * .5 - boardRect.top) / boardRect.height) * 100,
+    };
   }
 
   function playPolishFx(asset, x, y, className, life) {
