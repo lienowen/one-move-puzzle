@@ -9,5 +9,6 @@ try{
   await inside('Level 7 magnet dial',await open(7,'[data-id="magnetDial"]'));
   await inside('Level 8 fan dial',await open(8,'[data-id="fanDial"]'));
   await inside('Level 9 one-way valve',await open(9,'[data-id="oneWayValve"]'));
+  await inside('Level 10 exit portal',await open(10,'[data-id="exitPortal"]'));
   await context.close();
 }finally{await browser.close();}
