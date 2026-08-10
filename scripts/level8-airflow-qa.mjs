@@ -11,7 +11,8 @@ try{
   await page.goto(BASE,{waitUntil:'networkidle'});await page.evaluate(([k,v])=>localStorage.setItem(k,v),[SAVE_KEY,JSON.stringify({unlocked:8,stars:{},sound:false,haptics:false,attempts:{}})]);await page.reload({waitUntil:'networkidle'});await page.click('#playBtn');
   let board=page.locator('.maze-air-board[data-maze-level="fan"]');await board.waitFor({state:'visible',timeout:2500});
   if(await board.locator('.maze-air-control').count()!==1)throw new Error('Level 8 must expose one fan direction control');
-  if(await board.locator('.maze-airwell').count()!==1)throw new Error('Level 8 must visibly expose one open air well');
+  const well=board.locator('.maze-airwell');if(await well.count()!==1)throw new Error('Level 8 must visibly expose one open air well');
+  const wellBox=await well.boundingBox();if(!wellBox||wellBox.width<140||wellBox.height<140)throw new Error(`Level 8 air well is not visually large enough ${JSON.stringify(wellBox)}`);
   if(await board.locator('.maze-pit-art').count()!==1)throw new Error('Level 8 must expose a visible bad landing pit');
   await page.screenshot({path:'.visual-check/level8-initial-mobile.jpg',type:'jpeg',quality:75,fullPage:false});
 
