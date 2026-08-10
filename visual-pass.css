@@ -38,12 +38,42 @@
 }
 
 /* Gameplay pieces need to read before the frame at phone scale. */
-.piece-ball img{transform:scale(1.28);filter:saturate(1.20) brightness(1.08)}
 .piece-holder img{transform:scale(1.10)}
 .piece-pin img{transform:scale(1.22);filter:saturate(1.18) brightness(1.08)}
 .piece-star img{transform:scale(1.18);filter:saturate(1.12) brightness(1.08)}
 .piece-goal img{transform:scale(1.13);filter:saturate(1.10) brightness(1.07)}
 .piece-goal-socket img{transform:scale(1.07)}
+
+/* The source ball PNG has loose/irregular transparent canvas. Render a true sphere instead
+   so the ball is always complete at every zoom level and while rotating on the route. */
+.piece-ball img{opacity:0!important}
+.piece-ball::before{
+  content:"";
+  position:absolute;
+  inset:4%;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 31% 25%,rgba(255,255,255,.94) 0 4%,rgba(164,214,255,.88) 5% 9%,transparent 15%),
+    radial-gradient(circle at 35% 31%,#65adf5 0 12%,#2f7ed5 29%,#15539f 58%,#0b326c 78%,#071d41 100%);
+  box-shadow:
+    inset 5px 5px 8px rgba(255,255,255,.12),
+    inset -7px -9px 12px rgba(3,16,41,.42),
+    0 7px 9px rgba(4,14,30,.34),
+    0 0 8px rgba(51,135,232,.20);
+}
+
+/* Steel-ball levels keep the same geometry but use a neutral metallic material. */
+.piece-ball:has(img[src*="steel"])::before{
+  background:
+    radial-gradient(circle at 30% 24%,rgba(255,255,255,.98) 0 5%,rgba(240,246,249,.90) 6% 11%,transparent 18%),
+    radial-gradient(circle at 37% 33%,#d7e0e5 0 12%,#9aa7ae 34%,#657079 60%,#394148 82%,#1d2226 100%);
+  box-shadow:
+    inset 5px 5px 8px rgba(255,255,255,.20),
+    inset -7px -9px 12px rgba(10,14,17,.38),
+    0 7px 9px rgba(0,0,0,.34),
+    0 0 7px rgba(198,220,233,.16);
+}
 
 .piece-pin.interactive::after{
   inset:35% -2%;
