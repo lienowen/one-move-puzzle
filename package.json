@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
+    "check:logic": "node scripts/check-machine-logic.mjs",
+    "build": "npm run check:logic && vite build",
     "preview": "vite preview --host 0.0.0.0"
   },
   "devDependencies": {
