@@ -1,0 +1,27 @@
+/* Portal Relay: orientation transfer + stateful return gate. */
+.maze-portal-entry-art,.maze-portal-exit-art{position:absolute;z-index:13;inset:5%;width:90%;height:90%;object-fit:contain;pointer-events:none;filter:drop-shadow(0 0 10px rgba(85,151,255,.3))}
+.maze-portal-exit-control{position:absolute;inset:4%;width:92%;height:92%;z-index:24;border:0;padding:0;background:transparent;appearance:none;-webkit-appearance:none;touch-action:none;cursor:grab}
+.maze-portal-exit-control:active{cursor:grabbing}
+.maze-portal-dial,.maze-portal-exit-control .maze-portal-exit-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;transition:transform 210ms cubic-bezier(.2,.82,.2,1),filter 180ms}
+.maze-portal-dial{z-index:1;filter:drop-shadow(0 0 9px rgba(125,104,255,.24))}
+.maze-portal-exit-control .maze-portal-exit-art{z-index:2;inset:11%;left:11%;top:11%;width:78%;height:78%}
+.maze-portal-arrow{position:absolute;z-index:25;left:50%;top:-7%;width:8px;height:26%;transform-origin:50% 120%;transform:translateX(-50%) rotate(var(--portal-angle,0deg));pointer-events:none}
+.maze-portal-arrow::before{content:"";position:absolute;left:3px;top:5px;width:2px;height:75%;background:#d1b5ff;box-shadow:0 0 8px rgba(151,119,255,.72)}
+.maze-portal-arrow::after{content:"";position:absolute;left:0;top:0;width:8px;height:8px;border-left:2px solid #eadcff;border-top:2px solid #eadcff;transform:rotate(45deg)}
+.maze-portal-exit-control.dragging .maze-portal-exit-art{transition:none;filter:brightness(1.13) drop-shadow(0 0 15px rgba(144,109,255,.55))}
+.maze-portal-exit-control.snapped .maze-portal-exit-art{filter:brightness(1.16) drop-shadow(0 0 17px rgba(151,116,255,.65))}
+.maze-portal-board.portal-live .maze-portal-entry-art,.maze-portal-board.portal-live .maze-portal-exit-art{animation:mazePortalPulse .55s ease-in-out infinite alternate}
+.maze-portal-board .maze-ball.portal-out{animation:mazePortalOut 220ms ease-in both}
+.maze-portal-board .maze-ball.portal-in{animation:mazePortalIn 240ms ease-out both}
+.maze-relay-pad,.maze-relay-gate{position:absolute;z-index:14;pointer-events:none;object-fit:contain}
+.maze-relay-pad{inset:17%;width:66%;height:66%}
+.maze-relay-gate{inset:6%;width:88%;height:88%}
+.maze-portal-board.relay-pad-pressed .maze-relay-pad{filter:brightness(1.12) drop-shadow(0 0 10px rgba(87,211,255,.42))}
+.maze-portal-board.relay-gate-open .maze-relay-gate{filter:brightness(1.08) drop-shadow(0 0 12px rgba(120,226,255,.35))}
+.maze-portal-board.relay-gate-blocked .maze-relay-gate{animation:mazeRelayGateHit 330ms ease-out}
+.maze-portal-board .maze-ball.relay-hit{animation:mazeRelayBallHit 340ms ease-out}
+@keyframes mazePortalPulse{to{filter:brightness(1.22) drop-shadow(0 0 18px rgba(125,119,255,.62))}}
+@keyframes mazePortalOut{to{transform:translate(-50%,-50%) scale(.2);opacity:0;filter:brightness(1.45) blur(2px)}}
+@keyframes mazePortalIn{0%{transform:translate(-50%,-50%) scale(.2);opacity:0;filter:brightness(1.5) blur(2px)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes mazeRelayGateHit{40%{transform:translateX(-4px)}70%{transform:translateX(3px)}100%{transform:translateX(0)}}
+@keyframes mazeRelayBallHit{40%{transform:translate(-50%,-50%) scale(.88)}70%{transform:translate(-50%,-50%) translateY(-4px) scale(.94)}100%{transform:translate(-50%,-50%) scale(1)}}
