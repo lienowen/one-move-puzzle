@@ -289,51 +289,51 @@
     ],
     "important": [
       {
-        "id": "spring",
+        "id": "springPivot",
         "interactive": true,
-        "kind": "piece-spring",
+        "kind": "maze-rotator",
         "visibleRatio": 1,
         "rect": [
-          157,
-          434,
-          222,
-          499
+          102,
+          486,
+          162,
+          547
         ]
       },
       {
-        "id": "decoyBumper",
-        "interactive": true,
-        "kind": "piece-bumper",
+        "id": "star-1",
+        "interactive": false,
+        "kind": "maze-star-art",
         "visibleRatio": 1,
         "rect": [
-          321,
-          292,
-          380,
-          351
+          244,
+          502,
+          272,
+          531
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          570,
-          387,
-          621
+          298,
+          494,
+          343,
+          539
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          299,
-          57,
-          344
+          55,
+          502,
+          84,
+          531
         ]
       }
     ],
