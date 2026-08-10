@@ -7,28 +7,12 @@ import { POLISH_ASSETS as P } from './polishAssets.js';
 const $ = selector => document.querySelector(selector);
 
 const dom = {
-  home: $('#homeScreen'),
-  levels: $('#levelsScreen'),
-  game: $('#gameScreen'),
-  world: $('#world'),
-  stage: $('#stage'),
-  grid: $('#levelGrid'),
-  result: $('#resultSheet'),
-  settings: $('#settingsSheet'),
-  levelNumber: $('#levelNumber'),
-  levelTitle: $('#levelTitle'),
-  hint: $('#levelHint'),
-  status: $('#statusText'),
-  move: $('#moveToken'),
-  resultTitle: $('#resultTitle'),
-  resultCopy: $('#resultCopy'),
-  resultStars: $('#resultStars'),
-  resultBadge: $('#resultBadge'),
-  homeStars: $('#homeStars'),
-  levelStars: $('#levelStars'),
-  continueLabel: $('#continueLabel'),
-  miniProgress: $('#miniProgress'),
-  tapFx: $('#tapFx'),
+  home: $('#homeScreen'), levels: $('#levelsScreen'), game: $('#gameScreen'), world: $('#world'),
+  stage: $('#stage'), grid: $('#levelGrid'), result: $('#resultSheet'), settings: $('#settingsSheet'),
+  levelNumber: $('#levelNumber'), levelTitle: $('#levelTitle'), hint: $('#levelHint'), status: $('#statusText'),
+  move: $('#moveToken'), resultTitle: $('#resultTitle'), resultCopy: $('#resultCopy'), resultStars: $('#resultStars'),
+  resultBadge: $('#resultBadge'), homeStars: $('#homeStars'), levelStars: $('#levelStars'),
+  continueLabel: $('#continueLabel'), miniProgress: $('#miniProgress'), tapFx: $('#tapFx'),
 };
 
 let save = loadSave();
@@ -41,7 +25,7 @@ let bonusStar = false;
 function installPolishUi() {
   const brand = $('.brand-lockup');
   if (brand && P.ui.uiLogo) {
-    brand.innerHTML = `<img class="brand-logo-image" src="${P.ui.uiLogo}" alt="" draggable="false">`;
+    brand.innerHTML = `<img src="${P.ui.uiLogo}" alt="" draggable="false" style="display:block;width:min(78vw,320px);max-width:100%;height:auto;filter:drop-shadow(0 12px 14px rgba(56,31,13,.18))">`;
   }
 }
 
@@ -148,7 +132,6 @@ function useMove(id, event) {
   dom.move.classList.add('used');
   dom.move.querySelector('strong').textContent = '0';
   dom.stage.classList.add('running');
-
   if (!outcome.effectHandled) {
     sfx.tap(save.sound);
     haptic(save.haptics,12);
@@ -157,75 +140,30 @@ function useMove(id, event) {
 }
 
 function playEffect(type) {
-  if (type === 'pin-grab') {
-    sfx.grab(save.sound);
-    haptic(save.haptics,5);
-    return;
-  }
-  if (type === 'pin-detent') {
-    sfx.detent(save.sound);
-    haptic(save.haptics,8);
-    return;
-  }
-  if (type === 'pin-reset') {
-    sfx.tap(save.sound);
-    return;
-  }
-  if (type === 'pin-release') {
-    sfx.release(save.sound);
-    haptic(save.haptics,[12,18,8]);
-    return;
-  }
-  if (type === 'roll-start') {
-    sfx.roll(save.sound);
-    return;
-  }
-  if (type === 'track-tick') {
-    sfx.track(save.sound);
-    haptic(save.haptics,4);
-    return;
-  }
-  if (type === 'wood') {
-    sfx.wood(save.sound);
-    haptic(save.haptics,7);
-    return;
-  }
-  if (type === 'metal') {
-    sfx.metal(save.sound);
-    haptic(save.haptics,7);
-    return;
-  }
-  if (type === 'goal-warmup') {
-    sfx.goal(save.sound);
-    haptic(save.haptics,5);
-    return;
-  }
-  if (type === 'goal') {
-    sfx.goal(save.sound);
-    haptic(save.haptics,[6,16,7]);
-    return;
-  }
-  if (type === 'goal-sink') {
-    sfx.sink(save.sound);
-    haptic(save.haptics,[11,18,23]);
-    return;
-  }
-  if (type === 'tap') {
-    sfx.tap(save.sound);
-    haptic(save.haptics,7);
-    return;
-  }
-  if (type === 'fail-soft') {
-    sfx.wood(save.sound);
-    haptic(save.haptics,24);
-  }
+  if (type === 'pin-grab') { sfx.grab(save.sound); haptic(save.haptics,5); return; }
+  if (type === 'pin-detent') { sfx.detent(save.sound); haptic(save.haptics,8); return; }
+  if (type === 'pin-reset') { sfx.tap(save.sound); return; }
+  if (type === 'pin-release') { sfx.release(save.sound); haptic(save.haptics,[12,18,8]); return; }
+  if (type === 'roll-start') { sfx.roll(save.sound); return; }
+  if (type === 'track-tick') { sfx.track(save.sound); haptic(save.haptics,4); return; }
+  if (type === 'wood') { sfx.wood(save.sound); haptic(save.haptics,7); return; }
+  if (type === 'metal') { sfx.metal(save.sound); haptic(save.haptics,7); return; }
+  if (type === 'goal-warmup') { sfx.goal(save.sound); haptic(save.haptics,5); return; }
+  if (type === 'goal') { sfx.goal(save.sound); haptic(save.haptics,[6,16,7]); return; }
+  if (type === 'goal-sink') { sfx.sink(save.sound); haptic(save.haptics,[11,18,23]); return; }
+  if (type === 'tap') { sfx.tap(save.sound); haptic(save.haptics,7); return; }
+  if (type === 'fail-soft') { sfx.wood(save.sound); haptic(save.haptics,24); }
 }
 
 function renderResultStars(stars) {
   dom.resultStars.innerHTML = [0,1,2].map(index => {
     const asset = index < stars ? P.ui.uiStarFull : P.ui.uiStarEmpty;
-    return `<img src="${asset}" alt="" draggable="false">`;
+    return `<img src="${asset}" alt="" draggable="false" style="width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 5px 5px rgba(83,45,5,.16))">`;
   }).join('');
+  dom.resultStars.style.display = 'flex';
+  dom.resultStars.style.alignItems = 'center';
+  dom.resultStars.style.justifyContent = 'center';
+  dom.resultStars.style.gap = '5px';
 }
 
 function winLevel() {
@@ -239,7 +177,9 @@ function winLevel() {
   haptic(save.haptics,[10,22,14,28,24]);
 
   window.setTimeout(() => {
-    dom.resultBadge.innerHTML = P.ui.uiStarFull ? `<img src="${P.ui.uiStarFull}" alt="" draggable="false">` : '★';
+    dom.resultBadge.innerHTML = P.ui.uiStarFull
+      ? `<img src="${P.ui.uiStarFull}" alt="" draggable="false" style="width:48px;height:48px;object-fit:contain">`
+      : '★';
     dom.resultTitle.textContent = stars === 3 ? 'Perfect machine' : 'Machine solved';
     renderResultStars(stars);
     dom.resultCopy.textContent = stars === 3 ? 'One move. Clean route. Star collected.' : 'Solved in one move.';
@@ -248,7 +188,6 @@ function winLevel() {
       $('#nextBtn span').textContent = 'WORKSHOP';
       $('#nextBtn small').textContent = 'ALL MACHINES';
     }
-
     dom.result.hidden = false;
     refreshMeta();
   },520);
@@ -277,17 +216,8 @@ function nextAction() {
   if (!resolved) return;
   const cleared = Number(save.stars[levels[current].id] || 0) > 0;
   dom.result.hidden = true;
-
-  if (!cleared) {
-    buildLevel();
-    return;
-  }
-
-  if (current < levels.length - 1) {
-    startLevel(current + 1);
-    return;
-  }
-
+  if (!cleared) { buildLevel(); return; }
+  if (current < levels.length - 1) { startLevel(current + 1); return; }
   destroyRuntime();
   renderLevelGrid();
   showScreen('levels');
@@ -350,8 +280,7 @@ $('#hapticsToggle').addEventListener('click', () => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) return;
-  refreshMeta();
+  if (!document.hidden) refreshMeta();
 });
 
 installPolishUi();
