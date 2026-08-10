@@ -39,6 +39,7 @@ jobs:
           node scripts/causal-browser-qa.mjs
           node scripts/level6-slide-qa.mjs
           node scripts/level7-magnet-qa.mjs
+          node scripts/maze-control-safe-area-qa.mjs
           node scripts/visual-sweep.mjs
       - name: Build review thumbnails
         run: |
