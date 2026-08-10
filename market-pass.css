@@ -36,38 +36,21 @@
 @keyframes homePullCue{50%{transform:translateX(-6px);opacity:.52}}
 
 /* ---------- Camera / board ---------- */
-.machine-board{
-  transition:transform .62s cubic-bezier(.2,.72,.2,1),filter .46s ease;
-  transform-origin:center;
-  will-change:transform,filter;
-}
+.machine-board{transition:transform .62s cubic-bezier(.2,.72,.2,1),filter .46s ease;transform-origin:center;will-change:transform,filter}
 .polished-tutorial.focus-start{transform:translate(-49.4%,-50.2%) scale(1.015)}
 .polished-tutorial.focus-route{transform:translate(-50%,-50%) scale(1.02)}
 .polished-tutorial.focus-drive{transform:translate(-50.6%,-49.8%) scale(1.026)}
 .polished-tutorial.focus-goal{transform:translate(-51.1%,-49.3%) scale(1.034)}
 .polished-tutorial.focus-complete{transform:translate(-50%,-50%) scale(1.015);filter:drop-shadow(0 26px 32px rgba(0,0,0,.44)) brightness(1.035)}
 
-/* One inner deck underneath all functional zones. */
-.machine-deck{
-  position:absolute;
-  left:10.5%;top:9%;width:80%;height:82%;
-  border-radius:24px;
-  background:
-    linear-gradient(145deg,rgba(76,50,32,.36),rgba(35,24,17,.27)),
-    repeating-linear-gradient(0deg,rgba(255,228,185,.018) 0 1px,transparent 1px 17px);
-  border:1px solid rgba(43,27,16,.34);
-  box-shadow:inset 0 1px rgba(255,235,201,.08),inset 0 0 28px rgba(17,10,6,.10);
-}
+.machine-deck{position:absolute;left:10.5%;top:9%;width:80%;height:82%;border-radius:24px;background:linear-gradient(145deg,rgba(76,50,32,.36),rgba(35,24,17,.27)),repeating-linear-gradient(0deg,rgba(255,228,185,.018) 0 1px,transparent 1px 17px);border:1px solid rgba(43,27,16,.34);box-shadow:inset 0 1px rgba(255,235,201,.08),inset 0 0 28px rgba(17,10,6,.10)}
 .machine-deck::after{content:"";position:absolute;inset:8px;border-radius:18px;border:1px solid rgba(210,151,81,.07);pointer-events:none}
-
-/* Functional bays should read as parts of the deck, not three floating cards. */
 .chassis-module{background:linear-gradient(145deg,rgba(67,48,36,.48),rgba(36,28,22,.44))!important;border-color:rgba(37,24,16,.40)!important;box-shadow:inset 0 1px rgba(255,235,199,.09),inset 0 -7px 16px rgba(10,6,4,.13),0 5px 9px rgba(26,13,6,.10)!important}
 .chassis-module::before{border-color:rgba(202,143,73,.11)!important}
 .chassis-start{left:13.5%!important;top:11.5%!important;width:25.5%!important;height:25.5%!important;border-radius:18px!important}
 .chassis-drive{left:39.5%!important;top:30.5%!important;width:38.5%!important;height:34%!important;border-radius:21px!important}
 .chassis-goal{right:10.8%!important;bottom:9.2%!important;width:26.5%!important;height:25.5%!important}
 
-/* Transmission spine visually connects drive bay to receiver bay. */
 .drive-link{left:55.5%!important;top:43.2%!important;width:25%!important;height:4px!important;opacity:.52!important}
 .drive-live .drive-link{opacity:.92!important;box-shadow:0 3px 5px rgba(0,0,0,.28),0 0 8px rgba(151,203,255,.14),inset 0 1px rgba(255,255,255,.24)!important}
 .power-bus{position:absolute;left:57%;top:57%;width:23%;height:3px;border-radius:999px;transform:rotate(33deg);transform-origin:left center;background:linear-gradient(90deg,#514437,#70604f 52%,#574838);box-shadow:0 2px 4px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.12);opacity:.46;overflow:visible}
@@ -92,7 +75,7 @@
 .machine-complete .route-progress{opacity:.72!important}
 .route-joint{opacity:.86;transform-origin:center}
 
-/* ---------- Causal mechanism ---------- */
+/* ---------- Level 1 causal mechanism ---------- */
 .piece-logic-plate{opacity:.38!important;filter:saturate(.48) brightness(.74) drop-shadow(0 5px 4px rgba(0,0,0,.18))!important}
 .piece-logic-bracket{opacity:.58!important}
 .piece-logic-trigger{filter:saturate(.82) brightness(.88) drop-shadow(0 5px 4px rgba(0,0,0,.23))!important}
@@ -105,82 +88,84 @@
 .piece-logic-lamp{opacity:.28!important}
 .piece-logic-lamp.logic-active{opacity:1!important;filter:saturate(1.08) brightness(1.16) drop-shadow(0 0 11px rgba(78,238,139,.55))!important}
 .tutorial-drive-gear{left:62%!important;top:39%!important;width:9.5%!important;opacity:.34!important}
-.tutorial-drive-gear.drive-live{opacity:.88!important}
-.tutorial-drive-gear.drive-live img{animation:marketGearLoop .72s linear infinite!important}
+.tutorial-drive-gear.drive-live{opacity:.88!important}.tutorial-drive-gear.drive-live img{animation:marketGearLoop .72s linear infinite!important}
 @keyframes marketGearLoop{to{transform:rotate(360deg)}}
-.tutorial-drive-gear.drive-coast{opacity:.72!important}
-.tutorial-drive-gear.drive-coast img{animation:marketGearCoast .78s cubic-bezier(.12,.7,.22,1) forwards!important}
+.tutorial-drive-gear.drive-coast{opacity:.72!important}.tutorial-drive-gear.drive-coast img{animation:marketGearCoast .78s cubic-bezier(.12,.7,.22,1) forwards!important}
 @keyframes marketGearCoast{0%{transform:rotate(0deg)}55%{transform:rotate(112deg)}100%{transform:rotate(154deg)}}
-
 .waiting-gate .piece-ball{filter:drop-shadow(0 8px 6px rgba(18,31,52,.34)) drop-shadow(0 0 11px rgba(70,148,244,.25))!important}
-.waiting-gate .piece-ball::before{animation:gateWaitBall .32s ease-in-out infinite alternate}
-.waiting-gate .piece-ball::after{animation:gateWaitRoll .38s ease-in-out infinite alternate}
-@keyframes gateWaitBall{to{transform:scale(.98,1.02) translateY(-1px)}}
-@keyframes gateWaitRoll{to{transform:rotate(calc(var(--roll-angle,0deg) + 8deg))}}
-.route-open .piece-logic-lamp{animation:routeOpenLamp .4s ease both}
-@keyframes routeOpenLamp{45%{transform:translate(-50%,-50%) scale(1.14)}to{transform:translate(-50%,-50%) scale(1)}}
+.waiting-gate .piece-ball::before{animation:gateWaitBall .32s ease-in-out infinite alternate}.waiting-gate .piece-ball::after{animation:gateWaitRoll .38s ease-in-out infinite alternate}
+@keyframes gateWaitBall{to{transform:scale(.98,1.02) translateY(-1px)}}@keyframes gateWaitRoll{to{transform:rotate(calc(var(--roll-angle,0deg) + 8deg))}}
+.route-open .piece-logic-lamp{animation:routeOpenLamp .4s ease both}@keyframes routeOpenLamp{45%{transform:translate(-50%,-50%) scale(1.14)}to{transform:translate(-50%,-50%) scale(1)}}
+
+/* ---------- Level 2 readable linkage puzzle ---------- */
+.choice-gate-deck{position:absolute;left:12%;top:11%;width:77%;height:79%;z-index:3;border-radius:22px;background:linear-gradient(145deg,rgba(65,45,32,.29),rgba(31,23,18,.23));border:1px solid rgba(48,31,20,.24);box-shadow:inset 0 1px rgba(255,235,201,.06),inset 0 0 22px rgba(12,7,4,.08);pointer-events:none}
+.choice-link{position:absolute;height:5px;z-index:18;transform:translateY(-50%) rotate(var(--link-angle));transform-origin:left center;border-radius:999px;background:linear-gradient(180deg,#9b8b78,#554a3f 58%,#29231e);box-shadow:0 3px 5px rgba(0,0,0,.25),inset 0 1px rgba(255,255,255,.22);opacity:.72;pointer-events:none}
+.choice-link::before,.choice-link::after{content:"";position:absolute;top:50%;width:9px;height:9px;border-radius:50%;transform:translateY(-50%);background:#312a24;box-shadow:inset 0 1px rgba(255,255,255,.17)}
+.choice-link::before{left:-3px}.choice-link::after{right:-3px}
+.decoy-link{opacity:.50;filter:saturate(.6)}
+.correct-link.link-live{opacity:1;animation:linkEngage .42s ease both;box-shadow:0 3px 5px rgba(0,0,0,.25),0 0 10px rgba(100,175,247,.22),inset 0 1px rgba(255,255,255,.25)}
+@keyframes linkEngage{35%{filter:brightness(1.4);transform:translateY(-50%) rotate(var(--link-angle)) scaleX(1.018)}to{filter:none}}
+.decoy-link.link-wrong{animation:deadLinkHit .38s ease both}
+@keyframes deadLinkHit{25%{filter:brightness(1.08);margin-left:-3px}55%{margin-left:3px}to{margin-left:0;opacity:.38}}
+.piece-choice-dead-stop{opacity:.72;filter:saturate(.55) brightness(.83) drop-shadow(0 5px 4px rgba(0,0,0,.24))}
+.piece-choice-dead-stop.dead-stop-hit{animation:deadStopHit .42s ease}
+@keyframes deadStopHit{25%,65%{transform:translate(-53%,-50%) rotate(22deg)}45%,85%{transform:translate(-47%,-50%) rotate(22deg)}}
+.piece-choice-lamp{opacity:.25;filter:saturate(.55) brightness(.7)}.piece-choice-lamp.logic-active{opacity:1;filter:saturate(1.1) brightness(1.12) drop-shadow(0 0 11px rgba(78,238,139,.5));animation:routeOpenLamp .4s ease both}
+.choice-gate-machine .piece-gate{filter:saturate(.9) brightness(.9) drop-shadow(0 6px 5px rgba(0,0,0,.26))}
+.choice-gate-machine .piece-gate.choice-gate-preload{animation:choiceGatePreload .3s cubic-bezier(.18,.78,.2,1) both}
+@keyframes choiceGatePreload{45%{transform:translate(-50%,-56%) scale(.98)}to{transform:translate(-50%,-61%) scale(.98)}}
+.choice-gate-machine .piece-gate.choice-gate-open{animation:choiceGateOpen .55s cubic-bezier(.16,.82,.2,1) forwards!important}
+@keyframes choiceGateOpen{0%{transform:translate(-50%,-61%)}60%{transform:translate(-50%,-95%)}to{transform:translate(-50%,-112%);opacity:.46}}
+.choice-correct .correct-link{filter:brightness(1.08)}
+.choice-complete .correct-link{opacity:.66}.choice-complete .piece-choice-lamp{opacity:.58}
 
 /* ---------- Pull interaction ---------- */
 .polished-tutorial .polish-pin::before{display:none!important}
 .pull-cue{position:absolute;left:-18px;top:50%;width:28px;height:24px;transform:translate(-100%,-50%);display:flex;align-items:center;justify-content:flex-end;gap:1px;pointer-events:none;filter:drop-shadow(0 0 7px rgba(78,157,255,.45));animation:marketPullCue 1.05s ease-in-out infinite}
-.pull-cue i{width:8px;height:8px;border-left:2px solid #8fc7ff;border-bottom:2px solid #8fc7ff;transform:rotate(45deg);opacity:.38}
-.pull-cue i:nth-child(2){opacity:.62}.pull-cue i:nth-child(3){opacity:.94}
+.pull-cue i{width:8px;height:8px;border-left:2px solid #8fc7ff;border-bottom:2px solid #8fc7ff;transform:rotate(45deg);opacity:.38}.pull-cue i:nth-child(2){opacity:.62}.pull-cue i:nth-child(3){opacity:.94}
 @keyframes marketPullCue{50%{transform:translate(calc(-100% - 6px),-50%);opacity:.52}}
 .machine-running .pull-cue,.is-dragging .pull-cue{opacity:0!important;animation:none!important}
 .polished-tutorial .polish-pin{filter:drop-shadow(0 8px 7px rgba(9,30,66,.34))!important}
-.polished-tutorial .polish-pin.interactive::after{border-color:rgba(109,183,255,.68)!important;box-shadow:0 0 0 6px rgba(47,121,219,.055),0 0 22px rgba(47,121,219,.28)!important}
-.polished-tutorial .polish-pin.is-dragging::after{opacity:.22!important}
+.polished-tutorial .polish-pin.interactive::after{border-color:rgba(109,183,255,.68)!important;box-shadow:0 0 0 6px rgba(47,121,219,.055),0 0 22px rgba(47,121,219,.28)!important}.polished-tutorial .polish-pin.is-dragging::after{opacity:.22!important}
 
 /* ---------- Reward / receiver ---------- */
 .polished-tutorial .polish-star{filter:drop-shadow(0 5px 4px rgba(75,39,2,.23)) drop-shadow(0 0 10px rgba(255,187,37,.32))!important}
 .star-secured .chassis-goal{box-shadow:inset 0 1px rgba(255,235,199,.11),inset 0 -6px 16px rgba(10,6,4,.14),0 0 12px rgba(224,159,51,.09)!important}
 .goal-powered .polish-goal{filter:drop-shadow(0 7px 7px rgba(47,23,5,.28)) drop-shadow(0 0 8px rgba(255,174,34,.18))!important}
 .goal-powered .chassis-goal::after{content:"";position:absolute;inset:13%;border-radius:50%;border:1px solid rgba(255,193,75,.11);box-shadow:0 0 12px rgba(255,177,36,.08)}
-.focus-goal .chassis-goal{animation:receiverBreath .82s ease-in-out infinite alternate}
-@keyframes receiverBreath{to{box-shadow:inset 0 1px rgba(255,235,199,.13),inset 0 -6px 16px rgba(10,6,4,.12),0 0 18px rgba(235,166,49,.13)}}
+.focus-goal .chassis-goal{animation:receiverBreath .82s ease-in-out infinite alternate}@keyframes receiverBreath{to{box-shadow:inset 0 1px rgba(255,235,199,.13),inset 0 -6px 16px rgba(10,6,4,.12),0 0 18px rgba(235,166,49,.13)}}
 .focus-goal .polish-goal{filter:drop-shadow(0 8px 8px rgba(47,23,5,.28)) drop-shadow(0 0 16px rgba(255,179,36,.30))!important}
-.machine-complete .chassis-start,.machine-complete .chassis-drive,.machine-complete .chassis-goal{filter:brightness(1.06)}
-.machine-complete .machine-deck{box-shadow:inset 0 1px rgba(255,235,201,.12),inset 0 0 28px rgba(17,10,6,.08),0 0 20px rgba(255,184,61,.08)}
-.machine-complete .power-bus::after{animation:none;opacity:.28;left:82%}
+.machine-complete .chassis-start,.machine-complete .chassis-drive,.machine-complete .chassis-goal{filter:brightness(1.06)}.machine-complete .machine-deck{box-shadow:inset 0 1px rgba(255,235,201,.12),inset 0 0 28px rgba(17,10,6,.08),0 0 20px rgba(255,184,61,.08)}.machine-complete .power-bus::after{animation:none;opacity:.28;left:82%}
+
+/* Force the visible sphere itself to shrink into the receiver, independent of container transform priorities. */
+.piece-ball.at-goal::before{animation:marketBallCoreSink .52s cubic-bezier(.23,.79,.26,1) forwards!important}
+.piece-ball.at-goal::after{animation:marketBallDetailSink .52s cubic-bezier(.23,.79,.26,1) forwards!important}
+@keyframes marketBallCoreSink{0%{transform:scale(1);opacity:1}34%{transform:scale(1.07,.91);opacity:1}65%{transform:scale(.62);opacity:.82}100%{transform:scale(.08);opacity:0}}
+@keyframes marketBallDetailSink{0%{transform:rotate(var(--roll-angle,0deg)) scale(1);opacity:.72}100%{transform:rotate(calc(var(--roll-angle,0deg) + 75deg)) scale(.06);opacity:0}}
 
 /* ---------- Impacts / climax ---------- */
-.release-impact{animation:machineReleaseImpact .32s cubic-bezier(.2,.8,.2,1)}
-@keyframes machineReleaseImpact{35%{filter:drop-shadow(0 27px 30px rgba(0,0,0,.46)) brightness(1.025)}to{filter:drop-shadow(0 26px 30px rgba(0,0,0,.46))}}
-.logic-impact .chassis-drive{animation:driveImpact .34s ease}
-@keyframes driveImpact{45%{filter:brightness(1.13)}to{filter:none}}
-.gate-impact .chassis-drive{animation:driveImpact .34s ease}
-.star-impact .chassis-goal{animation:rewardImpact .4s ease}
-@keyframes rewardImpact{42%{filter:brightness(1.14)}to{filter:none}}
-.goal-impact{animation:goalMachineImpact .5s cubic-bezier(.18,.76,.2,1)}
-@keyframes goalMachineImpact{35%{filter:drop-shadow(0 26px 35px rgba(0,0,0,.48)) brightness(1.07)}to{filter:drop-shadow(0 26px 30px rgba(0,0,0,.46))}}
-.completion-wave{position:absolute;width:10%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,219,132,.88);transform:translate(-50%,-50%);box-shadow:0 0 18px rgba(255,184,58,.45);animation:completionWaveMarket .86s cubic-bezier(.18,.72,.2,1) forwards}
-@keyframes completionWaveMarket{0%{opacity:.9;transform:translate(-50%,-50%) scale(.4)}100%{opacity:0;transform:translate(-50%,-50%) scale(7.2);border-width:.5px}}
-.machine-complete::after{content:"";position:absolute;inset:9%;z-index:55;border-radius:25px;pointer-events:none;background:radial-gradient(circle at 76% 78%,rgba(255,210,112,.19),transparent 24%);animation:completionBloom .8s ease both}
-@keyframes completionBloom{0%{opacity:0}35%{opacity:1}to{opacity:.28}}
+.release-impact{animation:machineReleaseImpact .32s cubic-bezier(.2,.8,.2,1)}@keyframes machineReleaseImpact{35%{filter:drop-shadow(0 27px 30px rgba(0,0,0,.46)) brightness(1.025)}to{filter:drop-shadow(0 26px 30px rgba(0,0,0,.46))}}
+.logic-impact .chassis-drive{animation:driveImpact .34s ease}@keyframes driveImpact{45%{filter:brightness(1.13)}to{filter:none}}
+.gate-impact .chassis-drive{animation:driveImpact .34s ease}.star-impact .chassis-goal{animation:rewardImpact .4s ease}@keyframes rewardImpact{42%{filter:brightness(1.14)}to{filter:none}}
+.goal-impact{animation:goalMachineImpact .5s cubic-bezier(.18,.76,.2,1)}@keyframes goalMachineImpact{35%{filter:drop-shadow(0 26px 35px rgba(0,0,0,.48)) brightness(1.07)}to{filter:drop-shadow(0 26px 30px rgba(0,0,0,.46))}}
+.completion-wave{position:absolute;width:10%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,219,132,.88);transform:translate(-50%,-50%);box-shadow:0 0 18px rgba(255,184,58,.45);animation:completionWaveMarket .86s cubic-bezier(.18,.72,.2,1) forwards}@keyframes completionWaveMarket{0%{opacity:.9;transform:translate(-50%,-50%) scale(.4)}100%{opacity:0;transform:translate(-50%,-50%) scale(7.2);border-width:.5px}}
+.machine-complete::after{content:"";position:absolute;inset:9%;z-index:55;border-radius:25px;pointer-events:none;background:radial-gradient(circle at 76% 78%,rgba(255,210,112,.19),transparent 24%);animation:completionBloom .8s ease both}@keyframes completionBloom{0%{opacity:0}35%{opacity:1}to{opacity:.28}}
 
-/* ---------- Result sheet: same product, not a generic webpage modal ---------- */
+/* ---------- Result sheet ---------- */
 .game-screen + .modal .result-card,.result-card{background:radial-gradient(circle at 50% 0,rgba(255,228,178,.16),transparent 35%),linear-gradient(160deg,#3a281d,#211710 72%,#160f0b)!important;border-color:rgba(255,219,169,.13)!important;color:#fff1d7;box-shadow:0 30px 90px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.08)!important}
-.modal:not([hidden]) .result-card{animation:marketSheetIn .4s cubic-bezier(.16,.82,.2,1.04) both}
-@keyframes marketSheetIn{from{opacity:0;transform:translateY(28px) scale(.965)}65%{opacity:1}to{transform:none}}
+.modal:not([hidden]) .result-card{animation:marketSheetIn .4s cubic-bezier(.16,.82,.2,1.04) both}@keyframes marketSheetIn{from{opacity:0;transform:translateY(28px) scale(.965)}65%{opacity:1}to{transform:none}}
 .result-card .modal-kicker{color:#d89c4b!important}.result-card h2{color:#fff1d7}.result-card p{color:#cfb89b!important}
-.result-card .ghost-btn{background:rgba(255,241,216,.075)!important;border-color:rgba(255,225,181,.12)!important;color:#ead5b8;box-shadow:inset 0 1px rgba(255,255,255,.05)!important}
-.result-card .primary-btn{box-shadow:0 13px 28px rgba(20,64,134,.34),inset 0 1px rgba(255,255,255,.25)!important}
-.result-card .primary-btn:active,.result-card .ghost-btn:active{transform:translateY(2px) scale(.99)}
+.result-card .ghost-btn{background:rgba(255,241,216,.075)!important;border-color:rgba(255,225,181,.12)!important;color:#ead5b8;box-shadow:inset 0 1px rgba(255,255,255,.05)!important}.result-card .primary-btn{box-shadow:0 13px 28px rgba(20,64,134,.34),inset 0 1px rgba(255,255,255,.25)!important}.result-card .primary-btn:active,.result-card .ghost-btn:active{transform:translateY(2px) scale(.99)}
 
 @media(max-width:500px){
-  .brand-logo-art{width:min(76vw,300px)}
-  .home-machine-board{inset:-6% -4%;width:108%;height:112%}
-  .polished-tutorial.focus-start{transform:translate(-49%,-50.2%) scale(1.01)}
-  .polished-tutorial.focus-route{transform:translate(-49.5%,-50%) scale(1.012)}
-  .polished-tutorial.focus-drive{transform:translate(-50%,-49.8%) scale(1.018)}
-  .polished-tutorial.focus-goal{transform:translate(-50.5%,-49.4%) scale(1.024)}
-  .polished-tutorial.focus-complete{transform:translate(-49.7%,-49.8%) scale(1.012)}
+  .brand-logo-art{width:min(76vw,300px)}.home-machine-board{inset:-6% -4%;width:108%;height:112%}
+  .polished-tutorial.focus-start{transform:translate(-49%,-50.2%) scale(1.01)}.polished-tutorial.focus-route{transform:translate(-49.5%,-50%) scale(1.012)}.polished-tutorial.focus-drive{transform:translate(-50%,-49.8%) scale(1.018)}.polished-tutorial.focus-goal{transform:translate(-50.5%,-49.4%) scale(1.024)}.polished-tutorial.focus-complete{transform:translate(-49.7%,-49.8%) scale(1.012)}
   .machine-deck{left:11.5%;width:78%}
-  .pull-cue{left:-12px;transform:translate(-85%,-50%)}
-  @keyframes marketPullCue{50%{transform:translate(calc(-85% - 5px),-50%);opacity:.52}}
+  .polished-tutorial .polish-pin{width:22.5%!important}
+  .polished-tutorial .polish-goal{width:13.5%!important}
+  .polished-tutorial .polish-star{width:9%!important}
+  .pull-cue{left:18%;top:2px;transform:translate(0,-100%)}
+  @keyframes marketPullCue{50%{transform:translate(-5px,-100%);opacity:.52}}
 }
 
-@media(prefers-reduced-motion:reduce){
-  .machine-board{transition:none!important}
-  .pull-cue,.power-bus,.completion-wave,.tutorial-drive-gear img,.home-preview-gear,.home-preview-star,.home-preview-cue{animation:none!important}
-}
+@media(prefers-reduced-motion:reduce){.machine-board{transition:none!important}.pull-cue,.power-bus,.completion-wave,.tutorial-drive-gear img,.home-preview-gear,.home-preview-star,.home-preview-cue{animation:none!important}}
