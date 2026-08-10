@@ -23,22 +23,22 @@ function requireDistinctControls(logic, scope, expected = {}) {
 function validateRelease() {
   const logic = MACHINE_LOGIC.release;
   if (!logic) return fail('release logic is missing');
-  if (logic.archetype !== 'release-chain') fail('release: archetype must be release-chain');
-  const { checkpoints = {}, timings = {}, requirements = {}, copy = {}, focus = {} } = logic;
+  if (logic.archetype !== 'maze-one-turn') fail('release: archetype must be maze-one-turn');
+  const maze = logic.maze || {};
+  if (!(Number.isInteger(maze.cols) && maze.cols >= 4)) fail('release: maze cols must be >= 4');
+  if (!(Number.isInteger(maze.rows) && maze.rows >= 4)) fail('release: maze rows must be >= 4');
+  if (!Array.isArray(maze.cells) || maze.cells.length < 6) fail('release: maze needs enough authored cells');
+  if (!maze.start || !Number.isInteger(maze.start.x) || !Number.isInteger(maze.start.y) || !['N','E','S','W'].includes(maze.start.dir)) fail('release: maze start is invalid');
+  if (!maze.pivot?.id) fail('release: maze needs one pivot id');
+  if (!Number.isInteger(maze.pivot?.initialRotation) || !Number.isInteger(maze.pivot?.targetRotation)) fail('release: pivot rotations must be integers');
+  if (maze.pivot?.initialRotation === maze.pivot?.targetRotation) fail('release: initial pivot state cannot already be solved');
 
-  for (const key of ['triggerAt','gateHoldAt','goalWakeAt']) {
-    const value = checkpoints[key];
-    if (!(Number.isFinite(value) && value > 0 && value < 1)) fail(`release: ${key} must be between 0 and 1`);
-  }
-  if (!(checkpoints.triggerAt < checkpoints.gateHoldAt && checkpoints.gateHoldAt < checkpoints.goalWakeAt)) fail('release: checkpoints must be ordered trigger -> gate hold -> goal wake');
-  if (!(timings.driveDelay < timings.gatePreloadDelay && timings.gatePreloadDelay < timings.gateOpenDelay)) fail('release: timings must be ordered drive -> gate preload -> gate open');
-  if (timings.gateOpenDelay - timings.gatePreloadDelay < 250) fail('release: gate needs a readable preload/open interval');
-  if (!(timings.resultDelay >= 450 && timings.resultDelay <= 900)) fail('release: result delay must preserve the completion beat');
-
-  if (!requirements.goal?.includes('star')) fail('release: goal must require star power');
-  for (const key of ['gateOpen','star','goalAwake']) if (!requirements.finish?.includes(key)) fail(`release: finish must require ${key}`);
-  requireStrings(copy,['latch','rolling','trigger','waitingGate','routeOpen','reward','goal','complete'],'release copy');
-  requireStrings(focus,['initial','release','trigger','goal','complete'],'release focus');
+  const pivotCells = (maze.cells || []).filter(cell => cell.id === maze.pivot?.id);
+  if (pivotCells.length !== 1) fail('release: maze must contain exactly one pivot cell');
+  if (!(maze.cells || []).some(cell => cell.goal)) fail('release: maze must contain a goal');
+  if (!(maze.cells || []).some(cell => cell.hazard)) fail('release: maze must contain a visible failure route');
+  if (!(maze.cells || []).some(cell => cell.star)) fail('release: maze must contain a reward star');
+  requireStrings(logic.copy,['ready','running','complete','pit','wrong'],'release copy');
 }
 
 function validateGate() {
@@ -82,4 +82,4 @@ if (errors.length) {
   process.exit(1);
 }
 
-console.log('Machine logic check passed: release, choice-gate and route-align causality are valid.');
+console.log('Machine logic check passed: maze-one-turn, choice-gate and route-align causality are valid.');
