@@ -321,7 +321,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
             ball.classList.add('waiting-at-gate');
             board.classList.add('waiting-gate');
             updateTutorialPhase(4, 'Drive opening the gate…');
-            onEffect?.('track-tick');
+            onEffect?.('roll-brake');
           }
           t = tutorialLogic.gateHoldAt;
         } else if (machine.gateOpen && gateHoldStarted) {
@@ -329,6 +329,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
           gateHoldStarted = 0;
           ball.classList.remove('waiting-at-gate');
           board.classList.remove('waiting-gate');
+          onEffect?.('roll-resume');
           elapsed = Math.max(0, now - start - pausedForGate);
           raw = Math.min(1, elapsed / duration);
           motion = motionAt(scene.motion, raw);
@@ -367,8 +368,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     const trigger = nodes.get('logicTrigger');
     trigger?.classList.add('logic-active');
     impact('logic-impact');
-    onEffect?.('metal');
-    sparkAtNode(trigger, 5);
+    onEffect?.('trigger');
+    sparkAtNode(trigger, 4);
     updateTutorialPhase(3, 'Pressure ring engaged.');
     setFocus('drive');
 
@@ -378,7 +379,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       nodes.get('gear')?.classList.add('tutorial-gear-active', 'drive-live');
       nodes.get('logicPlate')?.classList.add('logic-active');
       board.classList.add('drive-live');
-      onEffect?.('track-tick');
+      onEffect?.('drive');
     }, 90);
 
     later(() => {
@@ -386,7 +387,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       machine.gateOpening = true;
       nodes.get('logicGate')?.classList.add('logic-gate-opening');
       board.classList.add('gate-opening');
-      onEffect?.('metal');
+      onEffect?.('gate-preload');
     }, 250);
 
     later(() => {
@@ -399,8 +400,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       board.classList.remove('gate-opening');
       board.classList.add('route-open');
       impact('gate-impact');
-      onEffect?.('metal');
-      sparkAtNode(gate, 6);
+      onEffect?.('gate-open');
+      sparkAtNode(gate, 5);
       updateTutorialPhase(5, 'Route unlocked.');
     }, 760);
   }
@@ -425,7 +426,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     goal?.classList.add('activated', 'goal-awake');
     setNodeImage(goal, P.interaction.goalYellowActive);
     playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal-warmup', 900);
-    onEffect?.('goal-warmup');
+    onEffect?.('roll-goal');
+    later(() => onEffect?.('goal-warmup'), 70);
     updateTutorialPhase(7, 'Receiver charged.');
     setFocus('goal');
   }
@@ -460,9 +462,13 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     if (polishedTutorial) {
       machine.complete = true;
       const goal = nodes.get('goal');
+      const gear = nodes.get('gear');
+      gear?.classList.remove('drive-live');
+      gear?.classList.add('drive-coast');
+      board.classList.remove('drive-live');
+      board.classList.add('machine-complete');
       setNodeImage(goal, P.interaction.goalYellowSuccess);
       goal?.classList.add('goal-success');
-      board.classList.add('machine-complete');
       updateTutorialPhase(8, 'Machine complete.');
       setFocus('complete');
       playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal', 950);
@@ -501,11 +507,12 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
           later(() => node.classList.add('polish-collected'), 360);
           updateTutorialPhase(6, 'Energy captured.');
           pulsePowerBus();
+          later(() => onEffect?.('power'), 95);
         } else {
           node?.classList.add('collected');
         }
         onStar?.();
-        sparkAt(event.x, event.y, 7);
+        sparkAt(event.x, event.y, 6);
         impact('star-impact');
         return;
       }
@@ -518,10 +525,11 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
           machine.goalAwake = true;
           setNodeImage(goal, P.interaction.goalYellowActive);
           playPolishFx(P.fx.fxGoalGlow, event.x, event.y, 'fx-goal-warmup', 900);
+          onEffect?.('roll-goal');
           setFocus('goal');
         }
         onEffect?.('goal');
-        sparkAt(event.x, event.y, 8);
+        sparkAt(event.x, event.y, 7);
       }
     });
   }
