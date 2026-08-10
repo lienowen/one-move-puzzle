@@ -2,6 +2,7 @@ import { levels } from './levels.js';
 import { loadSave, storeSave, recordAttempt, recordClear } from './core/save.js';
 import { sfx, haptic } from './core/audio.js';
 import { mountWorkshopRuntime } from './workshopRuntime.js';
+import { getMachineLogic } from './machineLogic.js';
 import { POLISH_ASSETS as P } from './polishAssets.js';
 import { WORKSHOP_ASSETS as W } from './workshopAssets.js';
 
@@ -107,6 +108,7 @@ function startLevel(index) {
 function buildLevel() {
   destroyRuntime();
   const level = levels[current];
+  const logic = getMachineLogic(level.id);
   moveUsed = false;
   resolved = false;
   bonusStar = false;
@@ -119,8 +121,15 @@ function buildLevel() {
   dom.move.querySelector('strong').textContent = '1';
   dom.levelNumber.textContent = `LEVEL ${String(current + 1).padStart(2,'0')}`;
   dom.levelTitle.textContent = level.name;
-  dom.hint.textContent = level.hint;
-  dom.status.textContent = level.status || 'Choose one piece.';
+
+  if (logic?.archetype === 'choice-gate') {
+    dom.hint.textContent = 'Follow the linkage to the gate.';
+    dom.status.textContent = logic.copy?.ready || 'Trace the linkage.';
+  } else {
+    dom.hint.textContent = level.hint;
+    dom.status.textContent = level.status || 'Choose one piece.';
+  }
+
   resetResultButton();
   renderMiniProgress();
 
