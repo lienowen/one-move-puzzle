@@ -1,0 +1,20 @@
+/* One-Way Loop: delayed directional reasoning. */
+.maze-oneway-board .maze-loop-path{position:absolute;inset:0;pointer-events:none;z-index:3}
+.maze-oneway-control{position:absolute;inset:4%;width:92%;height:92%;z-index:18;border:0;padding:0;background:transparent;appearance:none;-webkit-appearance:none;touch-action:none;cursor:grab}
+.maze-oneway-control:active{cursor:grabbing}
+.maze-oneway-dial,.maze-oneway-rail{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;transition:transform 210ms cubic-bezier(.2,.82,.2,1),filter 160ms}
+.maze-oneway-dial{z-index:1;filter:drop-shadow(0 0 9px rgba(255,181,72,.22))}
+.maze-oneway-rail{z-index:2;inset:10%;left:10%;top:10%;width:80%;height:80%;filter:drop-shadow(0 5px 7px rgba(0,0,0,.32))}
+.maze-oneway-control.dragging .maze-oneway-rail{transition:none;filter:brightness(1.12) drop-shadow(0 0 13px rgba(255,189,88,.48))}
+.maze-oneway-control.snapped .maze-oneway-rail{filter:brightness(1.14) drop-shadow(0 0 15px rgba(255,192,84,.62))}
+.maze-oneway-glyph{position:absolute;z-index:22;left:50%;top:50%;width:30%;height:30%;transform:translate(-50%,-50%) rotate(var(--valve-angle,0deg));pointer-events:none}
+.maze-oneway-glyph::before{content:"";position:absolute;left:46%;top:5%;width:8%;height:72%;border-radius:99px;background:#ffd17c;box-shadow:0 0 8px rgba(255,184,75,.62)}
+.maze-oneway-glyph::after{content:"";position:absolute;left:31%;top:2%;width:30%;height:30%;border-left:3px solid #ffe1a5;border-top:3px solid #ffe1a5;transform:rotate(45deg)}
+.maze-oneway-board.valve-armed .maze-oneway-control{animation:mazeValveReady .7s ease-in-out infinite alternate}
+.maze-oneway-board.valve-blocked .maze-oneway-control{animation:mazeValveBlock 340ms ease-out}
+.maze-oneway-board.valve-open .maze-oneway-control{filter:brightness(1.08)}
+.maze-oneway-board .maze-ball.valve-hit{animation:mazeValveBallHit 360ms ease-out}
+.maze-oneway-board .maze-ball.valve-pass{filter:brightness(1.14) drop-shadow(0 0 11px rgba(255,198,93,.46)) drop-shadow(0 7px 7px rgba(0,0,0,.3))}
+@keyframes mazeValveReady{to{filter:drop-shadow(0 0 10px rgba(255,185,71,.28))}}
+@keyframes mazeValveBlock{35%{transform:scale(.95)}65%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes mazeValveBallHit{35%{transform:translate(-50%,-50%) scale(.86)}60%{transform:translate(-50%,-50%) translateY(5px) scale(.94)}100%{transform:translate(-50%,-50%) scale(1)}}
