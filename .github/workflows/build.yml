@@ -30,18 +30,42 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run causal gameplay and visual QA
         run: |
+          set +e
           mkdir -p .visual-check
           npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/one-move-preview.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
             sleep 1
           done
-          node scripts/causal-browser-qa.mjs
-          node scripts/level6-slide-qa.mjs
-          node scripts/level7-magnet-qa.mjs
-          node scripts/level8-airflow-qa.mjs
-          node scripts/maze-control-safe-area-qa.mjs
-          node scripts/visual-sweep.mjs
+          failed=0
+          for script in \
+            scripts/causal-browser-qa.mjs \
+            scripts/level6-slide-qa.mjs \
+            scripts/level7-magnet-qa.mjs \
+            scripts/level8-airflow-qa.mjs \
+            scripts/maze-control-safe-area-qa.mjs \
+            scripts/visual-sweep.mjs
+          do
+            name=$(basename "$script" .mjs)
+            echo "=== $script ===" | tee ".visual-check/qa-$name.log"
+            node "$script" >> ".visual-check/qa-$name.log" 2>&1
+            code=$?
+            echo "exit_code=$code" >> ".visual-check/qa-$name.log"
+            if [ "$code" -ne 0 ]; then failed=1; fi
+          done
+          cp /tmp/one-move-preview.log .visual-check/qa-preview.log || true
+          echo "$failed" > .visual-check/qa-failed.txt
+          exit "$failed"
+      - name: Publish QA failure diagnostics
+        if: failure()
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .visual-check/qa-*.log .visual-check/qa-failed.txt || true
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: publish QA failure diagnostics [skip ci]'
+            git push
+          fi
       - name: Build review thumbnails
         run: |
           python3 -m pip install --quiet pillow
