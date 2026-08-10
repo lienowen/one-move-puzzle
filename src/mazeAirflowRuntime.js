@@ -12,7 +12,7 @@ export function mountMazeAirflowRuntime({world,stage,level,onMove,onStar,onGoal,
   const logic=getMachineLogic(level.id),maze=logic?.maze,air=maze?.air;
   if(!maze||maze.mode!=='airflow-drop'||!air)throw new Error(`Level ${level.id} has no airflow-drop maze`);
   let destroyed=false,running=false,pending=null,rotation=air.initialRotation||0,raf=0;
-  const timers=new Set(),nodes=new Map(),cells=new Map(maze.cells.map(c=>[`${c.x},${c.y}`,c]));
+  const timers=new Set(),nodes=new Map();
 
   world.innerHTML='';
   const board=document.createElement('div');
@@ -83,9 +83,8 @@ export function mountMazeAirflowRuntime({world,stage,level,onMove,onStar,onGoal,
     moveBall(point(maze.start.x,maze.start.y),point(lip.x,lip.y),390,'roll',()=>fall(dir,target,safe));
   }
   function fall(dir,target,safe){
-    ball.classList.remove('running');ball.classList.add('airborne');
+    ball.classList.remove('running');ball.classList.add('airborne');onEffect?.('roll-brake');onEffect?.('drive');
     onStatus?.(dir===air.safeDirection?(logic.copy?.carry||'Crosswind is carrying the ball toward the landing rail.'):(logic.copy?.drift||'The crosswind is pushing the ball off the safe landing.'));
-    onEffect?.('air');
     const from=point(air.lip.x,air.lip.y),to=point(target.x,target.y),start=performance.now(),duration=880;
     const tick=now=>{
       if(destroyed)return;const t=Math.min(1,(now-start)/duration),fallT=t*t*(3-2*t),drift=1-Math.pow(1-t,2);
@@ -98,15 +97,15 @@ export function mountMazeAirflowRuntime({world,stage,level,onMove,onStar,onGoal,
     ball.classList.remove('airborne');ball.classList.add('air-landed');ball.style.transform='translate(-50%,-50%) rotate(var(--roll,0deg))';
     const slot=nodes.get(`${target.x},${target.y}`);onEffect?.('track-tick');
     if(!safe){const pit=slot?.querySelector('.maze-pit-art');if(pit)pit.src=A.tiles.pitFail;ball.classList.add('failed');onEffect?.('fail-soft');const msg=logic.copy?.pit||'The wind dropped the ball into the pit.';onStatus?.(msg);later(()=>onFail?.(msg),560);return;}
-    board.classList.add('air-correct');const fx=art(slot,'maze-air-landing',A.fx.springDust);later(()=>fx.remove(),650);
+    board.classList.add('air-correct');const fx=art(slot,'maze-air-landing',A.fx.springDust);later(()=>fx.remove(),650);onEffect?.('roll-resume');
     collect(target.x,target.y);onStatus?.(logic.copy?.landing||'Clean landing.');later(()=>rollToGoal(target),250);
   }
   function rollToGoal(fromCell){
     const goalCell=maze.cells.find(c=>c.goal);if(!goalCell)return finishSuccess();
     ball.classList.add('running');moveBall(point(fromCell.x,fromCell.y),point(goalCell.x,goalCell.y),420,'roll',finishSuccess);
   }
-  function collect(x,y){const star=nodes.get(`${x},${y}`)?.querySelector('.maze-star-art');if(!star||star.dataset.collected)return;star.dataset.collected='1';star.src=A.objects.starCollect;star.classList.add('collecting');onStar?.();onEffect?.('star');later(()=>star.remove(),260)}
-  function finishSuccess(){ball.classList.remove('running');board.classList.add('maze-solved');const goal=board.querySelector('.maze-goal-art');if(goal)goal.src=A.objects.goalSuccess;onStatus?.(logic.copy?.complete||'Crosswind landing solved.');onEffect?.('goal');later(()=>onGoal?.(),logic.timings?.resultDelay||620)}
+  function collect(x,y){const star=nodes.get(`${x},${y}`)?.querySelector('.maze-star-art');if(!star||star.dataset.collected)return;star.dataset.collected='1';star.src=A.objects.starCollect;star.classList.add('collecting');onStar?.();later(()=>star.remove(),260)}
+  function finishSuccess(){ball.classList.remove('running');board.classList.add('maze-solved');const goal=board.querySelector('.maze-goal-art');if(goal)goal.src=A.objects.goalSuccess;onStatus?.(logic.copy?.complete||'Crosswind landing solved.');onEffect?.('roll-goal');onEffect?.('goal');later(()=>onGoal?.(),logic.timings?.resultDelay||620)}
   function moveBall(from,to,duration,mode,done){const start=performance.now();const tick=now=>{if(destroyed)return;const t=Math.min(1,(now-start)/duration),e=1-Math.pow(1-t,3);ball.style.left=`${from.x+(to.x-from.x)*e}%`;ball.style.top=`${from.y+(to.y-from.y)*e}%`;if(mode==='roll')ball.style.setProperty('--roll',`${t*190}deg`);if(t<1)raf=requestAnimationFrame(tick);else done?.()};raf=requestAnimationFrame(tick)}
   function point(x,y){const br=board.getBoundingClientRect(),sr=nodes.get(`${x},${y}`)?.getBoundingClientRect();if(!br.width||!sr)return{x:10+(x+.5)*16,y:10+(y+.5)*16};return{x:(sr.left-br.left+sr.width/2)/br.width*100,y:(sr.top-br.top+sr.height/2)/br.height*100}}
   function place(x,y){const p=point(x,y);ball.style.left=`${p.x}%`;ball.style.top=`${p.y}%`}
