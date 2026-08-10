@@ -3,6 +3,7 @@ import { loadSave, storeSave, recordAttempt, recordClear } from './core/save.js'
 import { sfx, haptic } from './core/audio.js';
 import { mountWorkshopRuntime } from './workshopRuntime.js';
 import { POLISH_ASSETS as P } from './polishAssets.js';
+import { WORKSHOP_ASSETS as W } from './workshopAssets.js';
 
 const $ = selector => document.querySelector(selector);
 
@@ -25,7 +26,28 @@ let bonusStar = false;
 function installPolishUi() {
   const brand = $('.brand-lockup');
   if (brand && P.ui.uiLogo) {
-    brand.innerHTML = `<img src="${P.ui.uiLogo}" alt="" draggable="false" style="display:block;width:min(78vw,320px);max-width:100%;height:auto;filter:drop-shadow(0 12px 14px rgba(56,31,13,.18))">`;
+    brand.innerHTML = `<img src="${P.ui.uiLogo}" alt="One Move Puzzle" draggable="false" class="brand-logo-art">`;
+  }
+
+  const hero = $('.hero-board');
+  if (hero) {
+    hero.classList.add('hero-machine-preview');
+    hero.innerHTML = `
+      <div class="home-machine" aria-hidden="true">
+        <img class="home-machine-board" src="${W.base.boardWorkshopBase}" alt="" draggable="false">
+        <div class="home-machine-deck"></div>
+        <svg class="home-machine-route" viewBox="0 0 100 70" preserveAspectRatio="none">
+          <path d="M 19 18 C 30 18, 31 32, 43 34 S 58 48, 67 48 S 77 52, 83 58"></path>
+          <path class="home-route-light" d="M 19 18 C 30 18, 31 32, 43 34 S 58 48, 67 48 S 77 52, 83 58"></path>
+        </svg>
+        <div class="home-preview-ball"></div>
+        <img class="home-preview-pin" src="${P.interaction.pinBlueIdle}" alt="" draggable="false">
+        <img class="home-preview-gear" src="${W.mechanisms.gear}" alt="" draggable="false">
+        <img class="home-preview-star" src="${P.interaction.starIdle}" alt="" draggable="false">
+        <img class="home-preview-goal" src="${P.interaction.goalYellowIdle}" alt="" draggable="false">
+        <span class="home-preview-cue"><i></i><i></i><i></i></span>
+      </div>
+    `;
   }
 }
 
