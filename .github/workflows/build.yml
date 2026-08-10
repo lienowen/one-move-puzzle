@@ -42,6 +42,7 @@ jobs:
             sleep 1
           done
           node scripts/causal-browser-qa.mjs
+          node scripts/level6-slide-qa.mjs
           node scripts/visual-sweep.mjs
 
       - name: Build review thumbnails
@@ -52,43 +53,33 @@ jobs:
           import os
 
           keys = list('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./:;<=>?@[]^_{|}~')
-
-          def xpm(src, dst, w=40, h=86, colors=40):
+          def xpm(src,dst,w=40,h=86,colors=40):
               if not os.path.exists(src): return
-              img = Image.open(src).convert('RGB').resize((w,h), Image.Resampling.LANCZOS)
-              q = img.quantize(colors=colors, method=Image.Quantize.MEDIANCUT)
-              raw = q.getpalette()[:colors*3]
-              palette = [tuple(raw[i:i+3]) for i in range(0,colors*3,3)]
-              px = list(q.getdata())
+              img=Image.open(src).convert('RGB').resize((w,h),Image.Resampling.LANCZOS)
+              q=img.quantize(colors=colors,method=Image.Quantize.MEDIANCUT)
+              raw=q.getpalette()[:colors*3]
+              palette=[tuple(raw[i:i+3]) for i in range(0,colors*3,3)]
+              px=list(q.getdata())
               with open(dst,'w') as f:
                   f.write('/* XPM */\nstatic char * review[] = {\n')
                   f.write(f'"{w} {h} {len(palette)} 1",\n')
-                  for i,(r,g,b) in enumerate(palette):
-                      f.write(f'"{keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
+                  for i,(r,g,b) in enumerate(palette): f.write(f'"{keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
                   for y in range(h):
-                      row = ''.join(keys[v] for v in px[y*w:(y+1)*w])
-                      f.write(f'"{row}"{"," if y < h-1 else ""}\n')
+                      row=''.join(keys[v] for v in px[y*w:(y+1)*w])
+                      f.write(f'"{row}"{"," if y<h-1 else ""}\n')
                   f.write('};\n')
 
-          shots = {
+          shots={
             'review-home.xpm':'home-mobile.jpg',
-            'review-level1.xpm':'level1-mobile.jpg',
-            'review-level1-wrong.xpm':'level1-wrong-mobile.jpg',
-            'review-level1-complete.xpm':'level1-complete-mobile.jpg',
-            'review-level1-result.xpm':'level1-result-mobile.jpg',
-            'review-level2.xpm':'level2-initial-mobile.jpg',
-            'review-level2-wrong.xpm':'level2-wrong-mobile.jpg',
-            'review-level2-result.xpm':'level2-result-mobile.jpg',
-            'review-level3.xpm':'level3-initial-mobile.jpg',
-            'review-level3-blocked.xpm':'level3-gate-blocked-mobile.jpg',
-            'review-level3-pad-gate.xpm':'level3-pad-gate-mobile.jpg',
-            'review-level3-result.xpm':'level3-result-mobile.jpg',
-            'review-level4.xpm':'level4-initial-mobile.jpg',
-            'review-level4-result.xpm':'level4-result-mobile.jpg',
+            'review-level1.xpm':'level1-mobile.jpg','review-level1-wrong.xpm':'level1-wrong-mobile.jpg','review-level1-complete.xpm':'level1-complete-mobile.jpg','review-level1-result.xpm':'level1-result-mobile.jpg',
+            'review-level2.xpm':'level2-initial-mobile.jpg','review-level2-wrong.xpm':'level2-wrong-mobile.jpg','review-level2-result.xpm':'level2-result-mobile.jpg',
+            'review-level3.xpm':'level3-initial-mobile.jpg','review-level3-blocked.xpm':'level3-gate-blocked-mobile.jpg','review-level3-pad-gate.xpm':'level3-pad-gate-mobile.jpg','review-level3-result.xpm':'level3-result-mobile.jpg',
+            'review-level4.xpm':'level4-initial-mobile.jpg','review-level4-wrong.xpm':'level4-wrong-mobile.jpg','review-level4-complete.xpm':'level4-complete-mobile.jpg','review-level4-result.xpm':'level4-result-mobile.jpg',
+            'review-level5.xpm':'level5-initial-mobile.jpg','review-level5-wrong.xpm':'level5-wrong-mobile.jpg','review-level5-airborne.xpm':'level5-airborne-mobile.jpg','review-level5-result.xpm':'level5-result-mobile.jpg',
+            'review-level6.xpm':'level6-initial-mobile.jpg','review-level6-wrong.xpm':'level6-wrong-mobile.jpg','review-level6-shifted.xpm':'level6-shifted-mobile.jpg','review-level6-result.xpm':'level6-result-mobile.jpg',
             'review-desktop.xpm':'level1-desktop.jpg',
           }
-          for dst,src in shots.items():
-              xpm('.visual-check/'+src,'.visual-check/'+dst)
+          for dst,src in shots.items(): xpm('.visual-check/'+src,'.visual-check/'+dst)
           PY
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
