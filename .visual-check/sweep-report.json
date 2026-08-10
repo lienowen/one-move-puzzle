@@ -9,51 +9,51 @@
     ],
     "important": [
       {
-        "id": "pin",
+        "id": "pivot",
         "interactive": true,
-        "kind": "piece-pin",
+        "kind": "maze-rotator",
         "visibleRatio": 1,
         "rect": [
-          15,
-          335,
-          137,
-          380
+          102,
+          360,
+          162,
+          421
         ]
       },
       {
-        "id": "star",
+        "id": "star-1",
         "interactive": false,
-        "kind": "piece-star",
+        "kind": "maze-star-art",
         "visibleRatio": 1,
         "rect": [
-          171,
-          493,
-          219,
-          547
+          244,
+          502,
+          272,
+          531
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          310,
-          589,
-          383,
-          656
+          298,
+          494,
+          343,
+          539
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          31,
-          274,
-          77,
-          321
+          55,
+          376,
+          84,
+          405
         ]
       }
     ],
@@ -70,63 +70,63 @@
     ],
     "important": [
       {
-        "id": "blueLever",
+        "id": "pivotA",
         "interactive": true,
-        "kind": "piece-lever",
+        "kind": "maze-rotator",
         "visibleRatio": 1,
         "rect": [
-          2,
-          579,
-          66,
-          644
+          102,
+          423,
+          162,
+          484
         ]
       },
       {
-        "id": "redLever",
+        "id": "pivotB",
         "interactive": true,
-        "kind": "piece-lever",
+        "kind": "maze-rotator",
         "visibleRatio": 1,
         "rect": [
-          324,
-          295,
-          388,
-          359
+          228,
+          486,
+          288,
+          547
         ]
       },
       {
-        "id": "star",
+        "id": "star-2",
         "interactive": false,
-        "kind": "piece-star",
+        "kind": "maze-star-art",
         "visibleRatio": 1,
         "rect": [
-          259,
-          499,
-          302,
-          542
+          181,
+          502,
+          209,
+          531
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          570,
-          387,
-          621
+          298,
+          557,
+          343,
+          602
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          288,
-          57,
-          334
+          55,
+          439,
+          84,
+          468
         ]
       }
     ],
@@ -143,63 +143,75 @@
     ],
     "important": [
       {
-        "id": "crank",
+        "id": "pivot",
         "interactive": true,
-        "kind": "piece-crank",
+        "kind": "maze-rotator",
         "visibleRatio": 1,
         "rect": [
-          13,
-          284,
-          77,
-          349
+          102,
+          423,
+          162,
+          484
         ]
       },
       {
-        "id": "wheel",
-        "interactive": true,
-        "kind": "piece-wheel",
-        "visibleRatio": 1,
-        "rect": [
-          321,
-          582,
-          380,
-          641
-        ]
-      },
-      {
-        "id": "star",
+        "id": "mainGate",
         "interactive": false,
-        "kind": "piece-star",
+        "kind": "maze-feature-art",
         "visibleRatio": 1,
         "rect": [
-          265,
-          359,
-          308,
-          402
+          168,
+          426,
+          222,
+          481
+        ]
+      },
+      {
+        "id": "star-2",
+        "interactive": false,
+        "kind": "maze-star-art",
+        "visibleRatio": 1,
+        "rect": [
+          244,
+          439,
+          272,
+          468
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          296,
-          387,
-          347
+          298,
+          431,
+          343,
+          476
+        ]
+      },
+      {
+        "id": "pressure-pad",
+        "interactive": false,
+        "kind": "maze-feature-art",
+        "visibleRatio": 1,
+        "rect": [
+          175,
+          496,
+          215,
+          536
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          583,
-          57,
-          629
+          55,
+          439,
+          84,
+          468
         ]
       }
     ],
@@ -240,15 +252,15 @@
         ]
       },
       {
-        "id": "star",
+        "id": "gate",
         "interactive": false,
-        "kind": "piece-star",
+        "kind": "piece-gate",
         "visibleRatio": 1,
         "rect": [
-          281,
-          499,
-          324,
-          542
+          179,
+          424,
+          254,
+          499
         ]
       },
       {
@@ -313,18 +325,6 @@
         ]
       },
       {
-        "id": "star",
-        "interactive": false,
-        "kind": "piece-star",
-        "visibleRatio": 1,
-        "rect": [
-          281,
-          483,
-          324,
-          526
-        ]
-      },
-      {
         "id": "goal",
         "interactive": false,
         "kind": "piece-goal",
@@ -383,18 +383,6 @@
           292,
           385,
           351
-        ]
-      },
-      {
-        "id": "star",
-        "interactive": false,
-        "kind": "piece-star",
-        "visibleRatio": 1,
-        "rect": [
-          275,
-          504,
-          318,
-          547
         ]
       },
       {
@@ -459,18 +447,6 @@
         ]
       },
       {
-        "id": "star",
-        "interactive": false,
-        "kind": "piece-star",
-        "visibleRatio": 1,
-        "rect": [
-          275,
-          418,
-          318,
-          461
-        ]
-      },
-      {
         "id": "goal",
         "interactive": false,
         "kind": "piece-goal",
@@ -529,18 +505,6 @@
           287,
           380,
           346
-        ]
-      },
-      {
-        "id": "star",
-        "interactive": false,
-        "kind": "piece-star",
-        "visibleRatio": 1,
-        "rect": [
-          254,
-          509,
-          297,
-          552
         ]
       },
       {
@@ -605,18 +569,6 @@
         ]
       },
       {
-        "id": "star",
-        "interactive": false,
-        "kind": "piece-star",
-        "visibleRatio": 1,
-        "rect": [
-          265,
-          391,
-          308,
-          434
-        ]
-      },
-      {
         "id": "goal",
         "interactive": false,
         "kind": "piece-goal",
@@ -678,15 +630,15 @@
         ]
       },
       {
-        "id": "star",
+        "id": "gate",
         "interactive": false,
-        "kind": "piece-star",
+        "kind": "piece-gate",
         "visibleRatio": 1,
         "rect": [
-          270,
-          504,
-          313,
-          547
+          176,
+          426,
+          246,
+          496
         ]
       },
       {
@@ -748,18 +700,6 @@
           287,
           385,
           346
-        ]
-      },
-      {
-        "id": "star",
-        "interactive": false,
-        "kind": "piece-star",
-        "visibleRatio": 1,
-        "rect": [
-          275,
-          520,
-          318,
-          563
         ]
       },
       {
@@ -836,15 +776,15 @@
         ]
       },
       {
-        "id": "star",
+        "id": "gate",
         "interactive": false,
-        "kind": "piece-star",
+        "kind": "piece-gate",
         "visibleRatio": 1,
         "rect": [
-          281,
-          332,
-          324,
-          375
+          270,
+          338,
+          334,
+          402
         ]
       },
       {
