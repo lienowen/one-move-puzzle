@@ -1,6 +1,6 @@
 import './mazeRuntime.css';
 import { WORKSHOP_ASSETS as W } from './workshopAssets.js';
-import { POLISH_ASSETS as P } from './polishAssets.js';
+import { MAZE_ASSETS as A } from './mazeAssets.js';
 import { getMachineLogic } from './machineLogic.js';
 
 const DIRS = ['N','E','S','W'];
@@ -15,6 +15,14 @@ const BASE = {
   goal:['W'],
 };
 
+const TILE_ART = {
+  straight:A.tiles.railStraightV,
+  corner:A.tiles.railCornerNe,
+  tee:A.tiles.railTeeNes,
+  cross:A.tiles.railCross,
+  goal:A.tiles.deadEndW,
+};
+
 export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, onFail, onEffect, onStatus }) {
   const logic = getMachineLogic(level.id);
   const maze = logic?.maze;
@@ -24,6 +32,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
   let running = false;
   let pendingRotation = null;
   let currentRotation = maze.pivot.initialRotation;
+  let frameId = 0;
   const timers = new Set();
 
   world.innerHTML = '';
@@ -33,7 +42,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     <img class="machine-board-base" src="${W.base.boardWorkshopBase}" alt="" draggable="false">
     <div class="maze-deck"></div>
     <div class="maze-grid" style="--cols:${maze.cols};--rows:${maze.rows}"></div>
-    <div class="maze-ball" aria-hidden="true"></div>
+    <img class="maze-ball" src="${A.objects.ballBlue}" alt="" draggable="false" aria-hidden="true">
     <div class="maze-caption">ONE MOVE · ROTATE ONE TILE</div>
   `;
   world.appendChild(board);
@@ -51,6 +60,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       slot.style.gridRow = String(y+1);
       slot.dataset.x = String(x);
       slot.dataset.y = String(y);
+      slot.innerHTML = `<img class="maze-slot-base" src="${A.tiles.baseSteelDark}" alt="" draggable="false">`;
       grid.appendChild(slot);
       nodes.set(`${x},${y}`, slot);
     }
@@ -65,8 +75,11 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     if (!slot) return;
 
     if (cell.hazard) {
-      const pit = document.createElement('div');
-      pit.className = 'maze-pit-badge';
+      const pit = document.createElement('img');
+      pit.className = 'maze-pit-art';
+      pit.src = A.tiles.pitIdle;
+      pit.alt = '';
+      pit.draggable = false;
       slot.appendChild(pit);
       return;
     }
@@ -79,19 +92,29 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     tile.dataset.type = cell.type;
     tile.dataset.rotation = String(rotation);
     tile.style.setProperty('--angle', `${rotation * 90}deg`);
-    tile.innerHTML = tileMarkup(cell.type);
+
+    if (isPivot) {
+      tile.innerHTML = `
+        <img class="maze-rotator-art" src="${A.tiles.rotatableIdle}" alt="" draggable="false">
+        <img class="maze-rail-art" src="${tileAsset(cell.type)}" alt="" draggable="false">
+      `;
+    } else {
+      tile.innerHTML = `<img class="maze-rail-art" src="${tileAsset(cell.type)}" alt="" draggable="false">`;
+    }
     slot.appendChild(tile);
 
     if (cell.start) {
-      const badge = document.createElement('div');
-      badge.className = 'maze-start-badge';
-      badge.textContent = 'START';
-      slot.appendChild(badge);
+      const start = document.createElement('img');
+      start.className = 'maze-start-art';
+      start.src = A.tiles.startSocketIdle;
+      start.alt = '';
+      start.draggable = false;
+      slot.appendChild(start);
     }
     if (cell.goal) {
       const goal = document.createElement('img');
       goal.className = 'maze-goal-art';
-      goal.src = P.interaction.goalYellowIdle || W.goals.goalYellow;
+      goal.src = A.objects.goalIdle;
       goal.alt = '';
       goal.draggable = false;
       slot.appendChild(goal);
@@ -99,7 +122,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     if (cell.star) {
       const star = document.createElement('img');
       star.className = 'maze-star-art';
-      star.src = P.interaction.starIdle || W.goals.star;
+      star.src = A.objects.starIdle;
       star.alt = '';
       star.draggable = false;
       slot.appendChild(star);
@@ -108,9 +131,21 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     if (isPivot) installRotationGesture(tile);
   }
 
-  function tileMarkup(type) {
-    const arms = BASE[type] || [];
-    return `${arms.map(d => `<i class="maze-arm ${d.toLowerCase()}"></i>`).join('')}<i class="maze-hub"></i><i class="maze-track-groove"></i>`;
+  function tileAsset(type) {
+    return TILE_ART[type] || A.tiles.baseWood;
+  }
+
+  function setRotatorState(tile, state) {
+    const art = tile.querySelector('.maze-rotator-art');
+    if (!art) return;
+    const source = {
+      idle:A.tiles.rotatableIdle,
+      hover:A.tiles.rotatableHover,
+      rotating:A.tiles.rotatableRotating,
+      snapped:A.tiles.rotatableSnapped,
+    }[state];
+    if (source) art.src = source;
+    tile.dataset.state = state;
   }
 
   function installRotationGesture(tile) {
@@ -124,53 +159,62 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       const cy = rect.top + rect.height/2;
       return Math.atan2(event.clientY-cy,event.clientX-cx) * 180 / Math.PI;
     };
+    const angleDelta = (value, origin) => ((value - origin + 540) % 360) - 180;
+
+    tile.addEventListener('pointerenter', () => { if (!running && !dragging) setRotatorState(tile,'hover'); });
+    tile.addEventListener('pointerleave', () => { if (!running && !dragging) setRotatorState(tile,'idle'); });
 
     tile.addEventListener('pointerdown', event => {
       if (running) return;
       dragging = true;
       startAngle = angleAt(event);
       visualAngle = currentRotation * 90;
+      setRotatorState(tile,'rotating');
       tile.setPointerCapture?.(event.pointerId);
       onEffect?.('wood');
     });
 
     tile.addEventListener('pointermove', event => {
       if (!dragging || running) return;
-      const delta = angleAt(event) - startAngle;
-      tile.style.transition = 'none';
+      const delta = angleDelta(angleAt(event), startAngle);
+      tile.classList.add('dragging');
       tile.style.setProperty('--angle', `${visualAngle + delta}deg`);
     });
 
     const finish = event => {
       if (!dragging || running) return;
       dragging = false;
-      const delta = angleAt(event) - startAngle;
+      tile.classList.remove('dragging');
+      const delta = angleDelta(angleAt(event), startAngle);
       if (Math.abs(delta) < 22) {
-        tile.style.transition = '';
         tile.style.setProperty('--angle', `${currentRotation*90}deg`);
+        setRotatorState(tile,'idle');
         return;
       }
       const turns = Math.round(delta / 90);
       pendingRotation = norm(currentRotation + turns);
-      tile.style.transition = '';
       tile.style.setProperty('--angle', `${pendingRotation*90}deg`);
       tile.dataset.rotation = String(pendingRotation);
+      setRotatorState(tile,'snapped');
       onMove?.(maze.pivot.id, event);
     };
 
     tile.addEventListener('pointerup', finish);
     tile.addEventListener('pointercancel', () => {
       dragging = false;
-      tile.style.transition = '';
+      tile.classList.remove('dragging');
       tile.style.setProperty('--angle', `${currentRotation*90}deg`);
+      setRotatorState(tile,'idle');
     });
 
     tile.addEventListener('keydown', event => {
       if (running || !['ArrowLeft','ArrowRight','Enter',' '].includes(event.key)) return;
       event.preventDefault();
-      pendingRotation = norm(currentRotation + (event.key === 'ArrowRight' ? 1 : -1));
+      const delta = event.key === 'ArrowLeft' ? -1 : 1;
+      pendingRotation = norm(currentRotation + delta);
       tile.style.setProperty('--angle', `${pendingRotation*90}deg`);
       tile.dataset.rotation = String(pendingRotation);
+      setRotatorState(tile,'snapped');
       onMove?.(maze.pivot.id, event);
     });
   }
@@ -180,6 +224,9 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     running = true;
     currentRotation = pendingRotation;
     pendingRotation = null;
+    board.classList.add('maze-running');
+    const startArt = board.querySelector('.maze-start-art');
+    if (startArt) startArt.src = A.tiles.startSocketActive;
     onStatus?.(logic.copy?.running || 'Route set. Watch the machine.');
     onEffect?.('metal');
     later(runMaze, 420);
@@ -235,7 +282,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     const a = path[index];
     const b = path[index+1];
     const start = performance.now();
-    const duration = 360;
+    const duration = 330;
     const startP = cellPoint(a.x,a.y);
     const endP = cellPoint(b.x,b.y);
 
@@ -247,36 +294,68 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       const y = startP.y + (endP.y-startP.y)*e;
       ball.style.left = `${x}%`;
       ball.style.top = `${y}%`;
-      if (t < 1) requestAnimationFrame(tick);
+      ball.style.setProperty('--roll', `${(index + t) * 175}deg`);
+      if (t < 1) frameId = requestAnimationFrame(tick);
       else {
         const cell = maze.cells.find(c => c.x===b.x && c.y===b.y);
-        if (cell?.star) {
-          const star = nodes.get(`${b.x},${b.y}`)?.querySelector('.maze-star-art');
-          star?.remove();
-          onStar?.();
-        }
+        if (cell?.star) collectStar(b.x,b.y);
         onEffect?.('track-tick');
         animatePath(path,index+1,result);
       }
     };
-    requestAnimationFrame(tick);
+    frameId = requestAnimationFrame(tick);
+  }
+
+  function collectStar(x,y) {
+    const slot = nodes.get(`${x},${y}`);
+    const star = slot?.querySelector('.maze-star-art');
+    if (!star || star.dataset.collected === 'true') return;
+    star.dataset.collected = 'true';
+    star.src = A.objects.starCollect;
+    star.classList.add('collecting');
+    spawnFx(slot,A.fx.starBurst,'maze-star-burst');
+    onStar?.();
+    later(() => star.remove(),260);
   }
 
   function finishRun(result) {
     if (destroyed) return;
     ball.classList.remove('running');
+    board.classList.remove('maze-running');
     if (result.success) {
       board.classList.add('maze-solved');
+      const goal = board.querySelector('.maze-goal-art');
+      const goalSlot = goal?.closest('.maze-slot');
+      if (goal) goal.src = A.objects.goalSuccess;
+      if (goalSlot) spawnFx(goalSlot,A.fx.goalGlow,'maze-goal-glow');
       onStatus?.(logic.copy?.complete || 'Perfect route.');
       onEffect?.('goal');
       later(() => onGoal?.(), logic.timings?.resultDelay || 520);
     } else {
       ball.classList.add('failed');
+      if (result.reason === 'pit') {
+        const end = result.path[result.path.length-1];
+        const pitSlot = nodes.get(`${end.x},${end.y}`);
+        const pit = pitSlot?.querySelector('.maze-pit-art');
+        if (pit) pit.src = A.tiles.pitFail;
+        if (pitSlot) spawnFx(pitSlot,A.fx.failSplash,'maze-fail-splash');
+      }
       onEffect?.('fail-soft');
       const message = result.reason === 'pit' ? (logic.copy?.pit || 'The ball fell into the pit.') : (logic.copy?.wrong || 'That route does not connect.');
       onStatus?.(message);
       later(() => onFail?.(message), 520);
     }
+  }
+
+  function spawnFx(slot,src,className) {
+    if (!slot || !src) return;
+    const fx = document.createElement('img');
+    fx.className = `maze-fx ${className}`;
+    fx.src = src;
+    fx.alt = '';
+    fx.draggable = false;
+    slot.appendChild(fx);
+    later(() => fx.remove(),700);
   }
 
   function rotatedConnections(type, rotation) {
@@ -285,13 +364,13 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
 
   function cellPoint(x,y) {
     const boardRect = board.getBoundingClientRect();
-    const gridRect = grid.getBoundingClientRect();
-    if (!boardRect.width || !boardRect.height || !gridRect.width || !gridRect.height) {
+    const slotRect = nodes.get(`${x},${y}`)?.getBoundingClientRect();
+    if (!boardRect.width || !boardRect.height || !slotRect?.width || !slotRect?.height) {
       return { x: ((x+.5)/maze.cols)*80 + 10, y: ((y+.5)/maze.rows)*80 + 10 };
     }
     return {
-      x: ((gridRect.left - boardRect.left + ((x+.5)/maze.cols)*gridRect.width) / boardRect.width) * 100,
-      y: ((gridRect.top - boardRect.top + ((y+.5)/maze.rows)*gridRect.height) / boardRect.height) * 100,
+      x: ((slotRect.left - boardRect.left + slotRect.width/2) / boardRect.width) * 100,
+      y: ((slotRect.top - boardRect.top + slotRect.height/2) / boardRect.height) * 100,
     };
   }
 
@@ -308,6 +387,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
 
   function destroy() {
     destroyed = true;
+    if (frameId) cancelAnimationFrame(frameId);
     timers.forEach(clearTimeout);
     timers.clear();
     world.innerHTML = '';
