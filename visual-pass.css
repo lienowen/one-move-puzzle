@@ -1,246 +1,103 @@
-/* Visual review pass: tuned against real 390x844 and 620x900 browser captures. */
-
+/* Mature vertical-slice visual pass. The machine should read as one object, not loose sprites. */
 .game-screen.active{
   background:
-    radial-gradient(ellipse at 50% 50%,rgba(137,88,42,.20) 0 28%,rgba(57,35,21,.10) 51%,transparent 72%),
-    linear-gradient(180deg,#211710 0%,#120c08 54%,#0b0705 100%);
+    radial-gradient(ellipse at 50% 44%,rgba(160,101,46,.22) 0 24%,rgba(65,38,21,.11) 48%,transparent 72%),
+    linear-gradient(180deg,#211710 0%,#120c08 56%,#090604 100%);
 }
-
-.game-screen .icon-btn{
-  color:#f3dfbf;
-  background:rgba(68,43,27,.58);
-  border-color:rgba(255,222,177,.13);
-  box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.08);
-}
-
-.game-screen .game-title span{color:#d59a46}
-.game-screen .game-title h1{color:#fff0d5;text-shadow:0 2px 10px rgba(0,0,0,.22)}
-.game-screen .objective-bar p{color:#d5bea0}
+.game-screen .icon-btn{color:#f3dfbf;background:rgba(68,43,27,.58);border-color:rgba(255,222,177,.13);box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.08)}
+.game-screen .game-title span{color:#d59a46}.game-screen .game-title h1{color:#fff0d5;text-shadow:0 2px 10px rgba(0,0,0,.22)}.game-screen .objective-bar p{color:#d5bea0}
 
 .stage::before{
-  content:"";
-  position:absolute;
-  z-index:0;
-  left:50%;
-  top:52%;
-  width:145%;
-  height:90%;
-  transform:translate(-50%,-50%);
-  pointer-events:none;
-  background:radial-gradient(ellipse at center,rgba(158,102,49,.20) 0 30%,rgba(89,54,29,.08) 56%,transparent 76%);
-  filter:blur(3px);
+  content:"";position:absolute;z-index:0;left:50%;top:52%;width:150%;height:92%;transform:translate(-50%,-50%);pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(178,111,52,.22) 0 26%,rgba(82,48,25,.10) 55%,transparent 77%);filter:blur(4px)
 }
+.machine-board{top:51%;width:min(112%,620px,82dvh);filter:drop-shadow(0 26px 30px rgba(0,0,0,.46))}
 
-.machine-board{
-  top:51%;
-  width:min(112%,620px,82dvh);
-  filter:drop-shadow(0 25px 27px rgba(0,0,0,.43));
-}
-
-.machine-running .route-light{
-  stroke-dasharray:3 8;
-  animation:routeGlint 1.05s linear infinite;
-}
+/* A continuous route with a live progress trace behind the ball. */
+.machine-running .route-light{stroke-dasharray:3 8;animation:routeGlint 1.05s linear infinite}
 @keyframes routeGlint{to{stroke-dashoffset:-22}}
-.machine-board.micro-impact .machine-route{animation:routeImpact .16s ease-out}
-@keyframes routeImpact{45%{filter:brightness(1.08)}to{filter:brightness(1)}}
+.route-progress{fill:none;stroke:#ffd36b;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.0;filter:drop-shadow(0 0 4px rgba(255,189,58,.7));stroke-dasharray:0 100;transition:opacity .2s}
+.polished-tutorial.machine-running .route-progress{opacity:.52}
+.machine-complete .route-progress{opacity:.9;stroke:#ffe295;animation:routeCompleteGlow .7s ease-in-out infinite alternate}
+@keyframes routeCompleteGlow{to{filter:drop-shadow(0 0 9px rgba(255,204,92,.95));opacity:1}}
+.machine-board.micro-impact .machine-route{animation:routeImpact .16s ease-out}@keyframes routeImpact{45%{filter:brightness(1.09)}to{filter:brightness(1)}}
 
-.piece-holder img{transform:scale(1.10)}
-.piece-pin img{transform:scale(1.22);filter:saturate(1.18) brightness(1.08)}
-.piece-star img{transform:scale(1.18);filter:saturate(1.12) brightness(1.08)}
-.piece-goal img{transform:scale(1.13);filter:saturate(1.10) brightness(1.07)}
-.piece-goal-socket img{transform:scale(1.07)}
+/* Level 1 chassis: three functional zones turn the board into one authored machine. */
+.tutorial-chassis{position:absolute;inset:0;z-index:3;pointer-events:none}
+.chassis-module{position:absolute;border:1px solid rgba(35,22,14,.55);background:linear-gradient(145deg,rgba(83,56,37,.66),rgba(41,27,18,.62));box-shadow:inset 0 1px rgba(255,235,199,.12),inset 0 -8px 18px rgba(12,7,4,.22),0 8px 12px rgba(33,16,7,.15)}
+.chassis-module::before{content:"";position:absolute;inset:5px;border:1px solid rgba(202,143,73,.20);border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(31,18,10,.26)}
+.chassis-module i{position:absolute;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#a79885,#5b5146 55%,#29231e);box-shadow:0 1px 2px rgba(0,0,0,.45)}
+.chassis-module i:nth-child(1){left:8px;top:8px}.chassis-module i:nth-child(2){right:8px;top:8px}.chassis-module i:nth-child(3){left:8px;bottom:8px}.chassis-module i:nth-child(4){right:8px;bottom:8px}
+.chassis-start{left:12.5%;top:10.5%;width:27%;height:27%;border-radius:18px;transform:rotate(-1deg)}
+.chassis-drive{left:40%;top:30%;width:39%;height:34%;border-radius:22px;transform:rotate(1.5deg);background:linear-gradient(145deg,rgba(70,54,42,.70),rgba(31,27,23,.67))}
+.chassis-goal{right:10%;bottom:8%;width:28%;height:27%;border-radius:50% 42% 45% 48%;background:radial-gradient(circle at 62% 62%,rgba(126,80,33,.55),rgba(50,31,18,.72) 62%,rgba(25,17,12,.75))}
+.drive-link{position:absolute;left:57%;top:43%;width:23%;height:5px;border-radius:999px;background:linear-gradient(180deg,#9e8d76,#4b4035 60%,#28211b);box-shadow:0 3px 5px rgba(0,0,0,.28),inset 0 1px rgba(255,255,255,.22);transform:rotate(37deg);transform-origin:left center;opacity:.72}
+.drive-link::after{content:"";position:absolute;right:-4px;top:50%;width:9px;height:9px;border-radius:50%;transform:translateY(-50%);background:#2c2621;box-shadow:inset 0 1px rgba(255,255,255,.16)}
+.drive-live .drive-link{animation:linkPulse .32s ease}@keyframes linkPulse{45%{filter:brightness(1.6);transform:rotate(37deg) scaleX(1.035)}to{filter:none}}
 
-/* Stable procedural sphere: camera-fixed light, rotating inner detail. */
-.piece-ball{
-  transform:translate(-50%,-50%)!important;
-  transition:filter .12s ease;
-}
+/* Generated logic hardware. */
+.piece-logic-plate{opacity:.52;filter:saturate(.55) brightness(.8) drop-shadow(0 6px 5px rgba(0,0,0,.22))}
+.piece-logic-bracket{opacity:.75;filter:drop-shadow(0 4px 3px rgba(0,0,0,.25))}
+.piece-logic-trigger{filter:drop-shadow(0 5px 4px rgba(0,0,0,.25));transition:filter .2s,transform .2s}
+.piece-logic-trigger.logic-active{animation:triggerHit .42s cubic-bezier(.18,.78,.22,1) both;filter:drop-shadow(0 0 17px rgba(92,189,255,.72)) brightness(1.16)}
+@keyframes triggerHit{35%{transform:translate(-50%,-50%) scale(.86)}68%{transform:translate(-50%,-50%) scale(1.12)}to{transform:translate(-50%,-50%)}}
+.piece-logic-gate{filter:drop-shadow(0 6px 5px rgba(0,0,0,.3));transition:opacity .2s}
+.piece-logic-gate.logic-gate-open{animation:logicGateOpen .52s cubic-bezier(.17,.8,.22,1) forwards}
+@keyframes logicGateOpen{45%{transform:translate(-50%,-62%) rotate(7deg)}to{transform:translate(-50%,-103%) rotate(7deg);opacity:.50}}
+.piece-logic-lamp{opacity:.38;filter:saturate(.55) brightness(.72);transition:.22s}
+.piece-logic-lamp.logic-active{opacity:1;filter:saturate(1.18) brightness(1.18) drop-shadow(0 0 13px rgba(84,255,148,.72));animation:lampWake .38s ease both}
+@keyframes lampWake{45%{transform:translate(-50%,-50%) scale(1.18)}to{transform:translate(-50%,-50%) scale(1)}}
+.tutorial-drive-gear{opacity:.42!important;filter:saturate(.72) brightness(.88) drop-shadow(0 5px 4px rgba(0,0,0,.18))!important;transition:opacity .2s,filter .2s}
+.tutorial-drive-gear.drive-live{opacity:.92!important;filter:saturate(1) brightness(1.06) drop-shadow(0 7px 5px rgba(0,0,0,.25))!important}
+.tutorial-gear-active img{animation:tutorialGearSpin 1.4s cubic-bezier(.12,.62,.24,1) both}@keyframes tutorialGearSpin{to{transform:rotate(330deg)}}
+
+.piece-holder img{transform:scale(1.10)}.piece-pin img{transform:scale(1.22);filter:saturate(1.18) brightness(1.08)}.piece-star img{transform:scale(1.18);filter:saturate(1.12) brightness(1.08)}.piece-goal img{transform:scale(1.13);filter:saturate(1.10) brightness(1.07)}.piece-goal-socket img{transform:scale(1.07)}
+
+/* Stable 3D ball with fixed lighting and rotating internal detail. */
+.piece-ball{transform:translate(-50%,-50%)!important;transition:filter .12s ease}
 .piece-ball img{opacity:0!important}
-.piece-ball::before{
-  content:"";
-  position:absolute;
-  inset:4%;
-  border-radius:50%;
-  pointer-events:none;
-  background:
-    radial-gradient(circle at 31% 25%,rgba(255,255,255,.94) 0 4%,rgba(164,214,255,.88) 5% 9%,transparent 15%),
-    radial-gradient(circle at 35% 31%,#65adf5 0 12%,#2f7ed5 29%,#15539f 58%,#0b326c 78%,#071d41 100%);
-  box-shadow:
-    inset 5px 5px 8px rgba(255,255,255,.12),
-    inset -7px -9px 12px rgba(3,16,41,.42),
-    0 7px 9px rgba(4,14,30,.34),
-    0 0 8px rgba(51,135,232,.20);
-}
-.piece-ball::after{
-  content:"";
-  position:absolute;
-  inset:17%;
-  border-radius:50%;
-  border:1.2px solid rgba(147,204,255,.22);
-  border-right-color:transparent;
-  border-bottom-color:rgba(2,28,69,.24);
-  transform:rotate(var(--roll-angle,0deg));
-  pointer-events:none;
-}
-.piece-ball.release-ready::before{animation:ballReady .34s cubic-bezier(.2,.74,.25,1)}
-@keyframes ballReady{35%{transform:translateX(-3%) scale(.97,1.03)}70%{transform:translateX(2%) scale(1.02,.98)}to{transform:none}}
-.piece-ball.running{
-  filter:drop-shadow(0 7px 5px rgba(18,31,52,.34)) drop-shadow(0 0 8px rgba(53,128,231,.20));
-}
-.piece-ball.running::after{opacity:.72}
-.piece-ball.at-goal{animation:polishBallSink .5s cubic-bezier(.23,.79,.26,1) forwards!important}
-@keyframes polishBallSink{
-  0%{transform:translate(-50%,-50%) scale(1);opacity:1}
-  35%{transform:translate(-50%,-49%) scale(1.05,.92);opacity:1}
-  100%{transform:translate(-50%,-46%) scale(.12);opacity:.06;filter:brightness(1.2)}
-}
+.piece-ball::before{content:"";position:absolute;inset:4%;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 31% 25%,rgba(255,255,255,.94) 0 4%,rgba(164,214,255,.88) 5% 9%,transparent 15%),radial-gradient(circle at 35% 31%,#65adf5 0 12%,#2f7ed5 29%,#15539f 58%,#0b326c 78%,#071d41 100%);box-shadow:inset 5px 5px 8px rgba(255,255,255,.12),inset -7px -9px 12px rgba(3,16,41,.42),0 7px 9px rgba(4,14,30,.34),0 0 8px rgba(51,135,232,.20)}
+.piece-ball::after{content:"";position:absolute;inset:17%;border-radius:50%;border:1.2px solid rgba(147,204,255,.22);border-right-color:transparent;border-bottom-color:rgba(2,28,69,.24);transform:rotate(var(--roll-angle,0deg));pointer-events:none}
+.piece-ball.release-ready::before{animation:ballReady .34s cubic-bezier(.2,.74,.25,1)}@keyframes ballReady{35%{transform:translateX(-3%) scale(.97,1.03)}70%{transform:translateX(2%) scale(1.02,.98)}to{transform:none}}
+.piece-ball.running{filter:drop-shadow(0 7px 5px rgba(18,31,52,.34)) drop-shadow(0 0 8px rgba(53,128,231,.20))}.piece-ball.running::after{opacity:.72}
+.piece-ball.at-goal{animation:polishBallSink .52s cubic-bezier(.23,.79,.26,1) forwards!important}
+@keyframes polishBallSink{0%{transform:translate(-50%,-50%) scale(1);opacity:1}32%{transform:translate(-50%,-49%) scale(1.07,.90);opacity:1}58%{transform:translate(-50%,-47%) scale(.78);opacity:.92}100%{transform:translate(-50%,-45%) scale(.10);opacity:.04;filter:brightness(1.28)}}
+.piece-ball:has(img[src*="steel"])::before{background:radial-gradient(circle at 30% 24%,rgba(255,255,255,.98) 0 5%,rgba(240,246,249,.90) 6% 11%,transparent 18%),radial-gradient(circle at 37% 33%,#d7e0e5 0 12%,#9aa7ae 34%,#657079 60%,#394148 82%,#1d2226 100%);box-shadow:inset 5px 5px 8px rgba(255,255,255,.20),inset -7px -9px 12px rgba(10,14,17,.38),0 7px 9px rgba(0,0,0,.34),0 0 7px rgba(198,220,233,.16)}
 
-.piece-ball:has(img[src*="steel"])::before{
-  background:
-    radial-gradient(circle at 30% 24%,rgba(255,255,255,.98) 0 5%,rgba(240,246,249,.90) 6% 11%,transparent 18%),
-    radial-gradient(circle at 37% 33%,#d7e0e5 0 12%,#9aa7ae 34%,#657079 60%,#394148 82%,#1d2226 100%);
-  box-shadow:
-    inset 5px 5px 8px rgba(255,255,255,.20),
-    inset -7px -9px 12px rgba(10,14,17,.38),
-    0 7px 9px rgba(0,0,0,.34),
-    0 0 7px rgba(198,220,233,.16);
-}
-
-/* Level 1 authored interaction states. */
-.polished-tutorial .polish-state img{
-  transform:none!important;
-  filter:none!important;
-  width:100%;
-  height:100%;
-  object-fit:contain;
-}
+/* Authored interaction states. */
+.polished-tutorial .polish-state img{transform:none!important;filter:none!important;width:100%;height:100%;object-fit:contain}
 .polished-tutorial .polish-suppressed{opacity:0!important;pointer-events:none!important}
-.polished-tutorial .polish-pin{
-  aspect-ratio:2.7/1;
-  cursor:grab;
-  filter:drop-shadow(0 8px 7px rgba(10,28,55,.34));
-  transition:filter .14s ease;
-}
-.polished-tutorial .polish-pin.interactive::before{
-  content:"‹‹";
-  position:absolute;
-  left:-23px;
-  top:50%;
-  transform:translateY(-53%);
-  color:#8fc6ff;
-  font:900 22px/1 Arial,sans-serif;
-  letter-spacing:-6px;
-  text-shadow:0 0 11px rgba(77,157,255,.68);
-  opacity:.78;
-  pointer-events:none;
-  animation:pullCue .92s ease-in-out infinite;
-}
+.polished-tutorial .polish-pin{aspect-ratio:2.7/1;cursor:grab;filter:drop-shadow(0 8px 7px rgba(10,28,55,.34));transition:filter .14s ease}
+.polished-tutorial .polish-pin.interactive::before{content:"‹‹";position:absolute;left:-23px;top:50%;transform:translateY(-53%);color:#8fc6ff;font:900 22px/1 Arial,sans-serif;letter-spacing:-6px;text-shadow:0 0 11px rgba(77,157,255,.68);opacity:.78;pointer-events:none;animation:pullCue .92s ease-in-out infinite}
 @keyframes pullCue{50%{transform:translate(-7px,-53%);opacity:.38}}
-.machine-running .polished-tutorial .polish-pin::before,
-.polished-tutorial .polish-pin.is-dragging::before{display:none}
-.polished-tutorial .polish-pin.is-dragging{
-  cursor:grabbing;
-  filter:drop-shadow(0 11px 9px rgba(9,31,68,.44)) drop-shadow(0 0 17px rgba(66,148,255,.30));
-}
-.polished-tutorial .polish-pin.past-detent{
-  filter:drop-shadow(0 11px 9px rgba(9,31,68,.44)) drop-shadow(0 0 22px rgba(77,161,255,.42));
-}
-.polished-tutorial .polish-pin.pull-reset{animation:polishPinReset .22s cubic-bezier(.2,.75,.25,1)}
-@keyframes polishPinReset{0%{transform:translate(-54%,-50%)}60%{transform:translate(-48%,-50%)}100%{transform:translate(-50%,-50%)}}
-.polished-tutorial .polish-star{aspect-ratio:.9/1;filter:drop-shadow(0 6px 5px rgba(82,44,4,.24)) drop-shadow(0 0 12px rgba(255,187,37,.34))}
-.polished-tutorial .polish-goal{aspect-ratio:1.08/1;filter:drop-shadow(0 8px 8px rgba(50,25,6,.30))}
-.polished-tutorial .polish-star.polish-collecting{animation:polishStarPop .42s cubic-bezier(.2,.8,.2,1)}
-.polished-tutorial .polish-star.polish-collected{opacity:0;transform:translate(-50%,-72%) scale(.34);transition:opacity .18s ease,transform .18s ease}
-@keyframes polishStarPop{45%{transform:translate(-50%,-54%) scale(1.18)}100%{transform:translate(-50%,-50%) scale(1)}}
+.machine-running .polished-tutorial .polish-pin::before,.polished-tutorial .polish-pin.is-dragging::before{display:none}
+.polished-tutorial .polish-pin.is-dragging{cursor:grabbing;filter:drop-shadow(0 11px 9px rgba(9,31,68,.44)) drop-shadow(0 0 17px rgba(66,148,255,.30))}.polished-tutorial .polish-pin.past-detent{filter:drop-shadow(0 11px 9px rgba(9,31,68,.44)) drop-shadow(0 0 22px rgba(77,161,255,.42))}
+.polished-tutorial .polish-pin.pull-reset{animation:polishPinReset .22s cubic-bezier(.2,.75,.25,1)}@keyframes polishPinReset{0%{transform:translate(-54%,-50%)}60%{transform:translate(-48%,-50%)}100%{transform:translate(-50%,-50%)}}
+.polished-tutorial .polish-star{aspect-ratio:.9/1;filter:drop-shadow(0 6px 5px rgba(82,44,4,.24)) drop-shadow(0 0 12px rgba(255,187,37,.34))}.polished-tutorial .polish-goal{aspect-ratio:1.08/1;filter:drop-shadow(0 8px 8px rgba(50,25,6,.30))}
+.polished-tutorial .polish-star.polish-collecting{animation:polishStarPop .42s cubic-bezier(.2,.8,.2,1)}.polished-tutorial .polish-star.polish-collected{opacity:0;transform:translate(-50%,-72%) scale(.34);transition:opacity .18s ease,transform .18s ease}@keyframes polishStarPop{45%{transform:translate(-50%,-54%) scale(1.18)}100%{transform:translate(-50%,-50%) scale(1)}}
+.polished-tutorial .piece-holder.releasing{animation:holderRelease .42s cubic-bezier(.18,.78,.24,1)}@keyframes holderRelease{30%{transform:translate(-50%,-50%) rotate(-2deg) scale(.98)}58%{transform:translate(-50%,-52%) rotate(1.5deg) scale(1.02)}to{transform:translate(-50%,-50%)}}
+.polished-tutorial .polish-pin.action-pull{animation:polishPinPull .36s cubic-bezier(.18,.82,.24,1) forwards}@keyframes polishPinPull{0%{transform:translate(-50%,-50%)}50%{transform:translate(-57%,-50%)}72%{transform:translate(-50%,-50%)}100%{transform:translate(-52%,-50%)}}
+.polished-tutorial .polish-goal.activated{animation:polishGoalWake .72s ease-in-out infinite alternate}.polished-tutorial .polish-goal.goal-success{animation:polishGoalSuccess .5s cubic-bezier(.18,.76,.2,1) both}@keyframes polishGoalWake{to{filter:drop-shadow(0 0 25px rgba(255,175,25,.70)) brightness(1.08);transform:translate(-50%,-50%) scale(1.035)}}@keyframes polishGoalSuccess{45%{filter:drop-shadow(0 0 38px rgba(255,190,34,.92)) brightness(1.16);transform:translate(-50%,-50%) scale(1.08)}to{filter:drop-shadow(0 0 19px rgba(255,176,27,.52));transform:translate(-50%,-50%) scale(1.02)}}
 
-.polished-tutorial .piece-holder.releasing{animation:holderRelease .42s cubic-bezier(.18,.78,.24,1)}
-@keyframes holderRelease{30%{transform:translate(-50%,-50%) rotate(-2deg) scale(.98)}58%{transform:translate(-50%,-52%) rotate(1.5deg) scale(1.02)}to{transform:translate(-50%,-50%)}}
-.polished-tutorial .tutorial-gear-active img{animation:tutorialGearSpin 1.25s cubic-bezier(.15,.65,.22,1) both}
-@keyframes tutorialGearSpin{to{transform:rotate(240deg)}}
+/* Stronger, coordinated feedback. */
+.release-impact{animation:releaseImpact .28s ease-out}.logic-impact{animation:logicImpact .24s ease-out}.gate-impact{animation:gateImpact .30s ease-out}.star-impact{animation:starImpact .30s ease-out}.goal-impact{animation:goalImpact .48s ease-out}
+@keyframes releaseImpact{30%{transform:translate(-50%,-50%) scale(.995) rotate(-.25deg)}65%{transform:translate(-50%,-50%) scale(1.003) rotate(.18deg)}}
+@keyframes logicImpact{40%{filter:drop-shadow(0 27px 31px rgba(0,0,0,.46)) brightness(1.045)}}
+@keyframes gateImpact{32%{transform:translate(-50%,-50%) translateY(-2px)}70%{transform:translate(-50%,-50%) translateY(1px)}}
+@keyframes starImpact{45%{filter:drop-shadow(0 26px 30px rgba(0,0,0,.46)) brightness(1.06)}}
+@keyframes goalImpact{35%{transform:translate(-50%,-50%) scale(1.01);filter:drop-shadow(0 27px 33px rgba(0,0,0,.46)) brightness(1.07)}}
+.machine-complete{animation:machineComplete .75s cubic-bezier(.2,.78,.24,1) both}@keyframes machineComplete{35%{filter:drop-shadow(0 28px 35px rgba(0,0,0,.48)) brightness(1.08)}to{filter:drop-shadow(0 25px 29px rgba(0,0,0,.43)) brightness(1.025)}}
 
-.polished-tutorial .polish-pin.action-pull{animation:polishPinPull .36s cubic-bezier(.18,.82,.24,1) forwards}
-@keyframes polishPinPull{
-  0%{transform:translate(-50%,-50%)}
-  50%{transform:translate(-57%,-50%)}
-  72%{transform:translate(-50%,-50%)}
-  100%{transform:translate(-52%,-50%)}
-}
+.polish-fx{position:absolute;z-index:70;transform:translate(-50%,-50%);transform-origin:center;object-fit:contain;pointer-events:none;user-select:none;mix-blend-mode:screen;animation:polishFxIn .24s ease-out both}
+.fx-click{width:18%;animation:polishFxIn .18s ease-out both,polishFxFade .34s ease-out both}.fx-metal{width:17%;animation:polishFxIn .16s ease-out both,polishFxFade .46s ease-out both}.fx-star{width:35%;animation:polishFxBurst .66s cubic-bezier(.18,.72,.2,1) both}.fx-goal-warmup{width:32%;opacity:.88;animation:polishGoalPulse .86s ease-in-out both}.fx-goal{width:40%;animation:polishGoalPulse .86s ease-in-out both}.fx-success{width:72%;animation:polishFxBurst .96s cubic-bezier(.18,.72,.2,1) both}.fx-track-dust{width:18%;mix-blend-mode:normal;opacity:.72;animation:polishDust .46s ease-out both}
+@keyframes polishFxIn{from{opacity:0;transform:translate(-50%,-50%) scale(.58)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}@keyframes polishFxFade{0%,58%{opacity:1}to{opacity:0}}@keyframes polishFxBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.46)}32%{opacity:1}to{opacity:0;transform:translate(-50%,-57%) scale(1.14)}}@keyframes polishGoalPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}45%{opacity:.96}to{opacity:0;transform:translate(-50%,-50%) scale(1.16)}}@keyframes polishDust{0%{opacity:0;transform:translate(-50%,-44%) scale(.65)}25%{opacity:.68}to{opacity:0;transform:translate(-50%,-68%) scale(1.04)}}
+.completion-wave{position:absolute;z-index:68;width:8%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,218,117,.9);transform:translate(-50%,-50%);box-shadow:0 0 14px rgba(255,195,62,.52);animation:completionWave .86s ease-out forwards;pointer-events:none}@keyframes completionWave{to{width:78%;opacity:0;border-width:1px;box-shadow:0 0 36px rgba(255,195,62,.16)}}
 
-.polished-tutorial .polish-goal.activated{animation:polishGoalWake .72s ease-in-out infinite alternate}
-.polished-tutorial .polish-goal.goal-success{animation:polishGoalSuccess .5s cubic-bezier(.18,.76,.2,1) both}
-@keyframes polishGoalWake{to{filter:drop-shadow(0 0 25px rgba(255,175,25,.70)) brightness(1.08);transform:translate(-50%,-50%) scale(1.035)}}
-@keyframes polishGoalSuccess{45%{filter:drop-shadow(0 0 38px rgba(255,190,34,.92)) brightness(1.16);transform:translate(-50%,-50%) scale(1.08)}to{filter:drop-shadow(0 0 19px rgba(255,176,27,.52));transform:translate(-50%,-50%) scale(1.02)}}
+.piece-pin.interactive::after{inset:35% -2%;border-color:rgba(108,181,255,.92);box-shadow:0 0 0 7px rgba(47,121,219,.10),0 0 30px rgba(47,121,219,.54)}.polished-tutorial .polish-pin.interactive::after{inset:21% -4%;border-radius:999px}.polished-tutorial .polish-pin.is-dragging::after{animation:none;opacity:.42;transform:scale(.98)}
 
-.polish-fx{
-  position:absolute;
-  z-index:70;
-  transform:translate(-50%,-50%);
-  transform-origin:center;
-  object-fit:contain;
-  pointer-events:none;
-  user-select:none;
-  mix-blend-mode:screen;
-  animation:polishFxIn .24s ease-out both;
-}
-.fx-click{width:18%;animation:polishFxIn .18s ease-out both,polishFxFade .34s ease-out both}
-.fx-metal{width:17%;animation:polishFxIn .16s ease-out both,polishFxFade .46s ease-out both}
-.fx-star{width:33%;animation:polishFxBurst .62s cubic-bezier(.18,.72,.2,1) both}
-.fx-goal-warmup{width:30%;opacity:.88;animation:polishGoalPulse .86s ease-in-out both}
-.fx-goal{width:36%;animation:polishGoalPulse .86s ease-in-out both}
-.fx-success{width:66%;animation:polishFxBurst .92s cubic-bezier(.18,.72,.2,1) both}
-.fx-track-dust{width:18%;mix-blend-mode:normal;opacity:.72;animation:polishDust .46s ease-out both}
-@keyframes polishFxIn{from{opacity:0;transform:translate(-50%,-50%) scale(.58)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
-@keyframes polishFxFade{0%,58%{opacity:1}to{opacity:0}}
-@keyframes polishFxBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.48)}35%{opacity:1}to{opacity:0;transform:translate(-50%,-55%) scale(1.08)}}
-@keyframes polishGoalPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}45%{opacity:.96}to{opacity:0;transform:translate(-50%,-50%) scale(1.12)}}
-@keyframes polishDust{0%{opacity:0;transform:translate(-50%,-44%) scale(.65)}25%{opacity:.68}to{opacity:0;transform:translate(-50%,-68%) scale(1.04)}}
+.game-footer{min-height:50px;margin:0 auto 2px;padding:8px 13px 6px;color:#ceb391;border:1px solid rgba(255,222,177,.10);border-radius:16px;background:rgba(48,31,20,.52);box-shadow:0 8px 22px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.05);backdrop-filter:blur(8px)}
+.game-screen .mini-progress i{background:rgba(234,210,178,.20)}.game-screen .mini-progress i.done{background:rgba(86,151,236,.46)}.game-screen .mini-progress i.active{background:#68a8f3}.mini-progress{margin-top:6px}.game-screen .move-token{border-color:rgba(255,236,196,.76);box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 -4px rgba(110,57,0,.15),0 0 22px rgba(224,155,34,.10)}
 
-.piece-pin.interactive::after{
-  inset:35% -2%;
-  border-color:rgba(108,181,255,.92);
-  box-shadow:0 0 0 7px rgba(47,121,219,.10),0 0 30px rgba(47,121,219,.54);
-}
-.polished-tutorial .polish-pin.interactive::after{inset:21% -4%;border-radius:999px}
-.polished-tutorial .polish-pin.is-dragging::after{animation:none;opacity:.42;transform:scale(.98)}
-
-.game-footer{
-  min-height:50px;
-  margin:0 auto 2px;
-  padding:8px 13px 6px;
-  color:#ceb391;
-  border:1px solid rgba(255,222,177,.10);
-  border-radius:16px;
-  background:rgba(48,31,20,.52);
-  box-shadow:0 8px 22px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.05);
-  backdrop-filter:blur(8px);
-}
-
-.game-screen .mini-progress i{background:rgba(234,210,178,.20)}
-.game-screen .mini-progress i.done{background:rgba(86,151,236,.46)}
-.game-screen .mini-progress i.active{background:#68a8f3}
-.mini-progress{margin-top:6px}
-
-.game-screen .move-token{
-  border-color:rgba(255,236,196,.76);
-  box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 -4px rgba(110,57,0,.15),0 0 22px rgba(224,155,34,.10);
-}
-
-@media(max-width:500px){
-  .machine-board{width:145%;top:52%}
-  .game-footer{margin-left:3px;margin-right:3px}
-  .polished-tutorial .piece-pin{left:27%!important}
-  .polished-tutorial .piece-pin-socket{left:29%!important}
-  .polished-tutorial .polish-pin{width:24%!important}
-  .polished-tutorial .polish-star{width:9.5%!important}
-  .polished-tutorial .polish-goal{width:16%!important}
-}
-
-@media(max-height:720px){
-  .machine-board{top:50%;width:min(128%,590px,88dvh)}
-  .stage::before{top:50%;height:88%}
-}
-
-@media(min-width:501px){
-  .machine-board{width:min(110%,620px,82dvh);top:51%}
-}
+@media(max-width:500px){.machine-board{width:145%;top:52%}.game-footer{margin-left:3px;margin-right:3px}.polished-tutorial .piece-pin{left:27%!important}.polished-tutorial .piece-pin-socket{left:29%!important}.polished-tutorial .polish-pin{width:24%!important}.polished-tutorial .polish-star{width:9.5%!important}.polished-tutorial .polish-goal{width:16%!important}.chassis-start{left:14%}.chassis-drive{left:40.5%;width:38%}}
+@media(max-height:720px){.machine-board{top:50%;width:min(128%,590px,88dvh)}.stage::before{top:50%;height:88%}}
+@media(min-width:501px){.machine-board{width:min(110%,620px,82dvh);top:51%}}
