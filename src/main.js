@@ -54,7 +54,6 @@ function refreshMeta() {
 function renderLevelGrid() {
   dom.grid.innerHTML = '';
   const unlocked = unlockedLevelCount();
-
   levels.forEach((level,index) => {
     const number = index + 1;
     const open = number <= unlocked;
@@ -126,7 +125,6 @@ function useMove(id, event) {
   if (moveUsed || resolved || !runtime) return;
   const outcome = runtime.commit(id);
   if (!outcome.accepted) return;
-
   moveUsed = true;
   recordAttempt(save, levels[current].id);
   dom.move.classList.add('used');
@@ -144,7 +142,7 @@ function playEffect(type) {
   if (type === 'pin-detent') { sfx.detent(save.sound); haptic(save.haptics,8); return; }
   if (type === 'pin-reset') { sfx.tap(save.sound); return; }
   if (type === 'pin-release') { sfx.release(save.sound); haptic(save.haptics,[12,18,8]); return; }
-  if (type === 'roll-start') { sfx.roll(save.sound); return; }
+  if (type === 'roll-start') { sfx.rollStart(save.sound); return; }
   if (type === 'track-tick') { sfx.track(save.sound); haptic(save.haptics,4); return; }
   if (type === 'wood') { sfx.wood(save.sound); haptic(save.haptics,7); return; }
   if (type === 'metal') { sfx.metal(save.sound); haptic(save.haptics,7); return; }
@@ -160,10 +158,7 @@ function renderResultStars(stars) {
     const asset = index < stars ? P.ui.uiStarFull : P.ui.uiStarEmpty;
     return `<img src="${asset}" alt="" draggable="false" style="width:36px;height:36px;object-fit:contain;filter:drop-shadow(0 5px 5px rgba(83,45,5,.16))">`;
   }).join('');
-  dom.resultStars.style.display = 'flex';
-  dom.resultStars.style.alignItems = 'center';
-  dom.resultStars.style.justifyContent = 'center';
-  dom.resultStars.style.gap = '5px';
+  Object.assign(dom.resultStars.style,{display:'flex',alignItems:'center',justifyContent:'center',gap:'5px'});
 }
 
 function winLevel() {
@@ -183,7 +178,6 @@ function winLevel() {
     dom.resultTitle.textContent = stars === 3 ? 'Perfect machine' : 'Machine solved';
     renderResultStars(stars);
     dom.resultCopy.textContent = stars === 3 ? 'One move. Clean route. Star collected.' : 'Solved in one move.';
-
     if (current === levels.length - 1) {
       $('#nextBtn span').textContent = 'WORKSHOP';
       $('#nextBtn small').textContent = 'ALL MACHINES';
@@ -199,7 +193,6 @@ function failLevel(copy = 'That move breaks the chain.') {
   dom.stage.classList.add('failed');
   sfx.fail(save.sound);
   haptic(save.haptics,[36,28,36]);
-
   window.setTimeout(() => {
     dom.resultBadge.textContent = '×';
     dom.resultBadge.classList.add('fail');
@@ -229,6 +222,7 @@ function replayLevel() {
 }
 
 function destroyRuntime() {
+  sfx.rollStop();
   runtime?.destroy();
   runtime = null;
   dom.world.innerHTML = '';
@@ -268,6 +262,7 @@ $('#settingsBtn').addEventListener('click', () => { dom.settings.hidden = false;
 $('#closeSettingsBtn').addEventListener('click', () => { dom.settings.hidden = true; });
 $('#soundToggle').addEventListener('click', () => {
   save.sound = !save.sound;
+  if (!save.sound) sfx.rollStop();
   storeSave(save);
   refreshMeta();
   sfx.tap(save.sound);
@@ -280,7 +275,8 @@ $('#hapticsToggle').addEventListener('click', () => {
 });
 
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) refreshMeta();
+  if (document.hidden) sfx.rollStop();
+  else refreshMeta();
 });
 
 installPolishUi();
