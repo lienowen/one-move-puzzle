@@ -58,8 +58,11 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
     if (piece.interactive) {
       node.setAttribute('aria-label', piece.label || 'Use this control');
-      node.addEventListener('click', ev => onMove?.(piece.id, ev));
-      if (polishedTutorial && piece.id === 'pin') wirePinPreview(node, piece);
+      if (polishedTutorial && piece.id === 'pin') {
+        wirePullPin(node, piece);
+      } else {
+        node.addEventListener('click', ev => onMove?.(piece.id, ev));
+      }
     }
 
     piecesRoot.appendChild(node);
@@ -89,26 +92,76 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       setNodeImage(node, P.interaction.goalYellowIdle);
       return;
     }
-    if (piece.id === 'goalSocket') {
-      node.classList.add('polish-suppressed');
-    }
+    if (piece.id === 'goalSocket') node.classList.add('polish-suppressed');
   }
 
-  function wirePinPreview(node, piece) {
+  function wirePullPin(node, piece) {
+    let dragging = false;
+    let pointerId = null;
+    let startX = 0;
+    let progress = 0;
+    const thresholdPx = 26;
+    const travelPx = 68;
+
+    node.style.touchAction = 'none';
+
     node.addEventListener('pointerenter', () => {
-      if (!running && !destroyed) setNodeImage(node, P.interaction.pinBlueHover);
+      if (!running && !dragging && !destroyed) setNodeImage(node, P.interaction.pinBlueHover);
     });
     node.addEventListener('pointerleave', () => {
-      if (!running && !destroyed) setNodeImage(node, P.interaction.pinBlueIdle);
+      if (!running && !dragging && !destroyed) setNodeImage(node, P.interaction.pinBlueIdle);
     });
-    node.addEventListener('pointerdown', () => {
+    node.addEventListener('pointerdown', ev => {
       if (running || destroyed) return;
+      dragging = true;
+      pointerId = ev.pointerId;
+      startX = ev.clientX;
+      progress = 0;
+      node.classList.add('is-dragging');
+      node.setPointerCapture?.(pointerId);
       setNodeImage(node, P.interaction.pinBluePull);
       playPolishFx(P.fx.fxClickRing, piece.x, piece.y, 'fx-click', 360);
+      ev.preventDefault();
     });
-    node.addEventListener('pointercancel', () => {
-      if (!running && !destroyed) setNodeImage(node, P.interaction.pinBlueIdle);
+    node.addEventListener('pointermove', ev => {
+      if (!dragging || ev.pointerId !== pointerId || running) return;
+      const dx = Math.max(0, startX - ev.clientX);
+      progress = Math.min(1, dx / travelPx);
+      node.style.transform = `translate(calc(-50% - ${Math.round(progress * 24)}px),-50%)`;
+      if (progress > .22) setNodeImage(node, P.interaction.pinBluePull);
+      ev.preventDefault();
     });
+    node.addEventListener('pointerup', ev => finishPull(ev, false));
+    node.addEventListener('pointercancel', ev => finishPull(ev, true));
+
+    // Keep keyboard accessibility even though pointer input uses a drag gesture.
+    node.addEventListener('keydown', ev => {
+      if (running || destroyed) return;
+      if (ev.key !== 'Enter' && ev.key !== ' ') return;
+      ev.preventDefault();
+      setNodeImage(node, P.interaction.pinBluePull);
+      onMove?.(piece.id, ev);
+    });
+
+    function finishPull(ev, cancelled) {
+      if (!dragging || ev.pointerId !== pointerId) return;
+      dragging = false;
+      node.classList.remove('is-dragging');
+      node.releasePointerCapture?.(pointerId);
+      pointerId = null;
+
+      const committed = !cancelled && progress * travelPx >= thresholdPx;
+      if (committed) {
+        node.style.transform = '';
+        onMove?.(piece.id, ev);
+        return;
+      }
+
+      node.classList.add('pull-reset');
+      node.style.transform = '';
+      setNodeImage(node, P.interaction.pinBlueIdle);
+      later(() => node.classList.remove('pull-reset'), 220);
+    }
   }
 
   function commit(id) {
@@ -123,6 +176,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     node.classList.add(`action-${piece.action || 'press'}`);
 
     if (polishedTutorial && id === 'pin') {
+      node.style.transform = '';
       setNodeImage(node, P.interaction.pinBluePull);
       playPolishFx(P.fx.fxMetalSparkSmall, piece.x + 6, piece.y, 'fx-metal', 460);
       later(() => setNodeImage(node, P.interaction.pinBlueReleased), 285);
