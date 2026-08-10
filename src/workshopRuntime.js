@@ -8,6 +8,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
   const logic = getMachineLogic(level.id);
   const polishedTutorial = Boolean(logic?.archetype === 'release-chain');
+  const choiceGate = Boolean(logic?.archetype === 'choice-gate');
   const checkpoints = logic?.checkpoints || { triggerAt:.34, gateHoldAt:.486, goalWakeAt:.83 };
   const timings = logic?.timings || { driveDelay:90, gatePreloadDelay:250, gateOpenDelay:760, resultDelay:620 };
   const copy = logic?.copy || {};
@@ -27,7 +28,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     trigger:false,
     drive:false,
     gateOpening:false,
-    gateOpen:!polishedTutorial,
+    gateOpen:!(polishedTutorial || choiceGate),
     star:false,
     goalPowered:!polishedTutorial,
     goalAwake:false,
@@ -44,7 +45,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   world.innerHTML = '';
 
   const board = document.createElement('div');
-  board.className = `machine-board${polishedTutorial ? ` polished-tutorial focus-${focus.initial || 'start'}` : ''}`;
+  board.className = `machine-board${polishedTutorial ? ` polished-tutorial focus-${focus.initial || 'start'}` : ''}${choiceGate ? ' choice-gate-machine' : ''}`;
   board.setAttribute('aria-label', `${level.name} machine`);
   board.innerHTML = `
     <img class="machine-board-base" src="${scene.board}" alt="" draggable="false">
@@ -59,6 +60,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
         <div class="power-bus"><i></i><i></i><i></i></div>
       </div>
     ` : ''}
+    ${choiceGate ? '<div class="choice-gate-deck" aria-hidden="true"></div>' : ''}
     <svg class="machine-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path class="route-shadow"></path>
       <path class="route-bed"></path>
@@ -79,6 +81,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
   renderRouteJoints(piecesRoot, scene.joints || [.25,.52,.78], sampledPath);
   if (polishedTutorial) renderTutorialMachine(piecesRoot);
+  if (choiceGate) renderChoiceGateMachine(piecesRoot);
 
   scene.pieces.forEach(piece => {
     const node = document.createElement(piece.interactive ? 'button' : 'div');
@@ -117,6 +120,37 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     addMachinePart(root, { id:'logicPlate', kind:'logic-plate', asset:W.hardware.metalPlate, x:62.0, y:38.5, w:23, z:8, rotation:-4 });
     addMachinePart(root, { id:'logicBracketA', kind:'logic-bracket', asset:W.hardware.bracketStraight, x:55.5, y:49.5, w:7, z:18, rotation:24 });
     addMachinePart(root, { id:'logicBracketB', kind:'logic-bracket', asset:W.hardware.bracketStraight, x:69.0, y:57.0, w:6.8, z:18, rotation:-19 });
+  }
+
+  function renderChoiceGateMachine(root) {
+    const controls = logic?.controls || {};
+    const correct = pieces.get(controls.correct);
+    const decoy = pieces.get(controls.decoy);
+    const target = pieces.get(controls.target);
+    if (!correct || !decoy || !target) return;
+
+    addMachineLink(root, 'correctLink', correct, target, 'choice-link correct-link');
+
+    const deadStop = {x:67,y:31};
+    addMachineLink(root, 'decoyLink', decoy, deadStop, 'choice-link decoy-link');
+    addMachinePart(root, {id:'choiceDeadStop',kind:'choice-dead-stop',asset:W.hardware.bracketU,x:deadStop.x,y:deadStop.y,w:7.2,z:19,rotation:22});
+    addMachinePart(root, {id:'choiceLamp',kind:'choice-lamp',asset:W.mechanisms.lampIndicatorGreen,x:61,y:56,w:5.6,z:19});
+  }
+
+  function addMachineLink(root, id, from, to, className) {
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const length = Math.hypot(dx,dy);
+    const angle = Math.atan2(dy,dx) * 180 / Math.PI;
+    const link = document.createElement('div');
+    link.className = className;
+    link.dataset.id = id;
+    link.style.left = `${from.x}%`;
+    link.style.top = `${from.y}%`;
+    link.style.width = `${length}%`;
+    link.style.setProperty('--link-angle', `${angle}deg`);
+    root.appendChild(link);
+    nodes.set(id,link);
   }
 
   function addMachinePart(root, spec) {
@@ -269,6 +303,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     disableControls();
     node.classList.add(`action-${piece.action || 'press'}`);
 
+    if (choiceGate) return commitChoiceGate(id,node);
+
     if (polishedTutorial && id === 'pin') {
       node.style.transform = '';
       setNodeImage(node, P.interaction.pinBluePull);
@@ -299,6 +335,51 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       if (!destroyed) runBall();
     }, polishedTutorial ? 390 : 330);
     return { accepted:true, correct:true, effectHandled:true };
+  }
+
+  function commitChoiceGate(id,node) {
+    const controls = logic.controls;
+    if (id !== controls.correct) {
+      node.classList.add('action-wrong');
+      nodes.get('decoyLink')?.classList.add('link-wrong');
+      nodes.get('choiceDeadStop')?.classList.add('dead-stop-hit');
+      board.classList.add('choice-wrong');
+      onEffect?.('fail-soft');
+      onStatus?.(copy.wrong || 'Dead linkage. Route blocked.');
+      failTimer = window.setTimeout(() => {
+        if (!destroyed) onFail?.(copy.wrong || 'Dead linkage. Route blocked.');
+      }, 700);
+      return {accepted:true,correct:false,effectHandled:true};
+    }
+
+    board.classList.add('choice-correct');
+    nodes.get('correctLink')?.classList.add('link-live');
+    onStatus?.(copy.correct || 'Linkage engaged.');
+    onEffect?.('drive');
+
+    later(() => {
+      machine.gateOpening = true;
+      nodes.get(controls.target)?.classList.add('choice-gate-preload');
+      onEffect?.('gate-preload');
+    }, timings.driveDelay);
+
+    later(() => {
+      machine.gateOpen = true;
+      const gate = nodes.get(controls.target);
+      gate?.classList.remove('choice-gate-preload');
+      gate?.classList.add('activated','choice-gate-open');
+      nodes.get('choiceLamp')?.classList.add('logic-active');
+      board.classList.add('route-open');
+      onStatus?.(copy.gate || 'Gate open. Route clear.');
+      onEffect?.('gate-open');
+      sparkAtNode(gate,5);
+    }, timings.gateOpenDelay);
+
+    startTimer = window.setTimeout(() => {
+      if (!destroyed) runBall();
+    }, timings.ballReleaseDelay);
+
+    return {accepted:true,correct:true,effectHandled:true};
   }
 
   function runBall() {
@@ -448,15 +529,13 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       void board.offsetWidth;
       board.classList.add('micro-impact');
       onEffect?.('track-tick');
-      if (polishedTutorial && index === 1) {
-        playPolishFx(P.fx.fxWoodDustSmall, point.x, point.y, 'fx-track-dust', 480);
-      }
+      if (polishedTutorial && index === 1) playPolishFx(P.fx.fxWoodDustSmall, point.x, point.y, 'fx-track-dust', 480);
     });
   }
 
   function finishGoal() {
     const finishRequirements = logic?.requirements?.finish || [];
-    if (polishedTutorial && !machineRequirementsMet(machine, finishRequirements)) {
+    if (logic && !machineRequirementsMet(machine, finishRequirements)) {
       onEffect?.('fail-soft');
       onFail?.('The machine chain did not complete.');
       return;
@@ -483,9 +562,11 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       later(() => completionWave(77,79), 50);
     }
 
+    if (choiceGate) board.classList.add('choice-complete');
+
     later(() => {
       if (!destroyed) onGoal?.();
-    }, polishedTutorial ? timings.resultDelay : 310);
+    }, logic?.timings?.resultDelay ?? (polishedTutorial ? timings.resultDelay : 310));
   }
 
   function fireTimeline(t) {
@@ -495,6 +576,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       const node = nodes.get(event.id);
 
       if (event.type === 'activate') {
+        if (choiceGate && event.id === logic?.controls?.target) return;
         node?.classList.add('activated');
         onEffect?.(event.sound || 'metal');
         sparkAt(event.x, event.y, event.sound === 'wood' ? 4 : 5);
@@ -580,10 +662,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     const boardRect = board.getBoundingClientRect();
     const nodeRect = node.getBoundingClientRect();
     if (!boardRect.width || !boardRect.height) return {x:50,y:50};
-    return {
-      x: ((nodeRect.left + nodeRect.width * .5 - boardRect.left) / boardRect.width) * 100,
-      y: ((nodeRect.top + nodeRect.height * .5 - boardRect.top) / boardRect.height) * 100,
-    };
+    return {x:((nodeRect.left + nodeRect.width*.5 - boardRect.left)/boardRect.width)*100,y:((nodeRect.top + nodeRect.height*.5 - boardRect.top)/boardRect.height)*100};
   }
 
   function playPolishFx(asset, x, y, className, life) {
@@ -607,10 +686,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   }
 
   function later(fn, delay) {
-    const id = window.setTimeout(() => {
-      timers.delete(id);
-      if (!destroyed) fn();
-    }, delay);
+    const id = window.setTimeout(() => { timers.delete(id); if (!destroyed) fn(); }, delay);
     timers.add(id);
     return id;
   }
@@ -622,146 +698,57 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
   function sparkAt(x, y, count) {
     const root = board.querySelector('.machine-fx');
-    for (let i = 0; i < count; i += 1) {
-      const spark = document.createElement('i');
-      spark.style.left = `${x}%`;
-      spark.style.top = `${y}%`;
-      spark.style.setProperty('--x', `${(Math.random() - .5) * 58}px`);
-      spark.style.setProperty('--y', `${-14 - Math.random() * 38}px`);
-      spark.style.animationDelay = `${Math.random() * 55}ms`;
-      root.appendChild(spark);
-      later(() => spark.remove(), 760);
+    for (let i=0;i<count;i+=1) {
+      const spark=document.createElement('i');
+      spark.style.left=`${x}%`; spark.style.top=`${y}%`;
+      spark.style.setProperty('--x',`${(Math.random()-.5)*58}px`);
+      spark.style.setProperty('--y',`${-14-Math.random()*38}px`);
+      spark.style.animationDelay=`${Math.random()*55}ms`;
+      root.appendChild(spark); later(()=>spark.remove(),760);
     }
   }
 
   function destroy() {
-    destroyed = true;
-    running = false;
-    cancelAnimationFrame(frameId);
-    clearTimeout(startTimer);
-    clearTimeout(failTimer);
-    timers.forEach(id => clearTimeout(id));
-    timers.clear();
-    world.innerHTML = '';
+    destroyed=true; running=false; cancelAnimationFrame(frameId); clearTimeout(startTimer); clearTimeout(failTimer);
+    timers.forEach(id=>clearTimeout(id)); timers.clear(); world.innerHTML='';
   }
 
   return { commit, destroy, nodes, board };
 }
 
 function renderRouteJoints(root, positions, samples) {
-  positions.forEach(t => {
-    const point = pointOnSampledPath(samples, t);
-    const ahead = pointOnSampledPath(samples, Math.min(1, t + .01));
-    const angle = Math.atan2(ahead.y - point.y, ahead.x - point.x) * 180 / Math.PI + 90;
-    const joint = document.createElement('div');
-    joint.className = 'route-joint';
-    joint.style.left = `${point.x}%`;
-    joint.style.top = `${point.y}%`;
-    joint.style.setProperty('--joint-angle', `${angle}deg`);
-    root.appendChild(joint);
+  positions.forEach(t=>{
+    const point=pointOnSampledPath(samples,t); const ahead=pointOnSampledPath(samples,Math.min(1,t+.01));
+    const angle=Math.atan2(ahead.y-point.y,ahead.x-point.x)*180/Math.PI+90;
+    const joint=document.createElement('div'); joint.className='route-joint'; joint.style.left=`${point.x}%`; joint.style.top=`${point.y}%`; joint.style.setProperty('--joint-angle',`${angle}deg`); root.appendChild(joint);
   });
 }
 
-function sampledPathToD(samples) {
-  if (!samples.length) return '';
-  return samples.map((p,index) => `${index ? 'L' : 'M'} ${p.x.toFixed(3)} ${p.y.toFixed(3)}`).join(' ');
-}
+function sampledPathToD(samples) { if(!samples.length)return''; return samples.map((p,index)=>`${index?'L':'M'} ${p.x.toFixed(3)} ${p.y.toFixed(3)}`).join(' '); }
 
 function buildSampledPath(points) {
-  if (!points.length) return [{x:50,y:50,distance:0}];
-  if (points.length === 1) return [{...points[0],distance:0}];
-
-  const samples = [];
-  const subdivisions = 28;
-  let distance = 0;
-  let previous = null;
-
-  for (let segment = 0; segment < points.length - 1; segment += 1) {
-    const p0 = points[Math.max(0, segment - 1)];
-    const p1 = points[segment];
-    const p2 = points[segment + 1];
-    const p3 = points[Math.min(points.length - 1, segment + 2)];
-
-    for (let step = 0; step < subdivisions; step += 1) {
-      if (segment > 0 && step === 0) continue;
-      const t = step / subdivisions;
-      const point = catmullRom(p0,p1,p2,p3,t);
-      if (previous) distance += Math.hypot(point.x - previous.x, point.y - previous.y);
-      samples.push({...point,distance});
-      previous = point;
-    }
+  if(!points.length)return[{x:50,y:50,distance:0}]; if(points.length===1)return[{...points[0],distance:0}];
+  const samples=[]; const subdivisions=28; let distance=0; let previous=null;
+  for(let segment=0;segment<points.length-1;segment+=1){
+    const p0=points[Math.max(0,segment-1)],p1=points[segment],p2=points[segment+1],p3=points[Math.min(points.length-1,segment+2)];
+    for(let step=0;step<subdivisions;step+=1){ if(segment>0&&step===0)continue; const t=step/subdivisions; const point=catmullRom(p0,p1,p2,p3,t); if(previous)distance+=Math.hypot(point.x-previous.x,point.y-previous.y); samples.push({...point,distance}); previous=point; }
   }
-
-  const finalPoint = points[points.length - 1];
-  if (previous) distance += Math.hypot(finalPoint.x - previous.x, finalPoint.y - previous.y);
-  samples.push({...finalPoint,distance});
-  return samples;
+  const finalPoint=points[points.length-1]; if(previous)distance+=Math.hypot(finalPoint.x-previous.x,finalPoint.y-previous.y); samples.push({...finalPoint,distance}); return samples;
 }
 
-function pointOnSampledPath(samples, t) {
-  if (samples.length === 1) return samples[0];
-  const total = samples[samples.length - 1].distance || 1;
-  const target = Math.max(0,Math.min(1,t)) * total;
-
-  let low = 0;
-  let high = samples.length - 1;
-  while (low < high) {
-    const mid = Math.floor((low + high) / 2);
-    if (samples[mid].distance < target) low = mid + 1;
-    else high = mid;
-  }
-
-  const next = samples[low];
-  const prev = samples[Math.max(0,low - 1)];
-  const span = Math.max(.0001,next.distance - prev.distance);
-  const local = Math.max(0,Math.min(1,(target - prev.distance) / span));
-  return {
-    x:prev.x + (next.x - prev.x) * local,
-    y:prev.y + (next.y - prev.y) * local,
-  };
+function pointOnSampledPath(samples,t){
+  if(samples.length===1)return samples[0]; const total=samples[samples.length-1].distance||1; const target=Math.max(0,Math.min(1,t))*total;
+  let low=0,high=samples.length-1; while(low<high){const mid=Math.floor((low+high)/2);if(samples[mid].distance<target)low=mid+1;else high=mid;}
+  const next=samples[low],prev=samples[Math.max(0,low-1)],span=Math.max(.0001,next.distance-prev.distance),local=Math.max(0,Math.min(1,(target-prev.distance)/span));
+  return{x:prev.x+(next.x-prev.x)*local,y:prev.y+(next.y-prev.y)*local};
 }
 
-function motionAt(profile, raw) {
-  const points = Array.isArray(profile) && profile.length >= 2
-    ? profile
-    : [
-        {time:0,progress:0},
-        {time:.10,progress:.045},
-        {time:.30,progress:.255},
-        {time:.52,progress:.49},
-        {time:.72,progress:.69},
-        {time:.90,progress:.88},
-        {time:1,progress:1},
-      ];
-
-  const t = Math.max(0,Math.min(1,raw));
-  let a = points[0];
-  let b = points[points.length - 1];
-  for (let i = 1; i < points.length; i += 1) {
-    if (t <= points[i].time) {
-      a = points[i - 1];
-      b = points[i];
-      break;
-    }
-  }
-
-  const span = Math.max(.0001,b.time - a.time);
-  let u = Math.max(0,Math.min(1,(t - a.time) / span));
-  if (a.time === 0) u = easeOutCubic(u);
-  if (b.time === 1) u = easeInOutSine(u);
-  const progress = a.progress + (b.progress - a.progress) * u;
-  const speed = (b.progress - a.progress) / span;
-  return {progress:Math.max(0,Math.min(1,progress)),speed};
+function motionAt(profile,raw){
+  const points=Array.isArray(profile)&&profile.length>=2?profile:[{time:0,progress:0},{time:.10,progress:.045},{time:.30,progress:.255},{time:.52,progress:.49},{time:.72,progress:.69},{time:.90,progress:.88},{time:1,progress:1}];
+  const t=Math.max(0,Math.min(1,raw));let a=points[0],b=points[points.length-1];for(let i=1;i<points.length;i+=1){if(t<=points[i].time){a=points[i-1];b=points[i];break;}}
+  const span=Math.max(.0001,b.time-a.time);let u=Math.max(0,Math.min(1,(t-a.time)/span));if(a.time===0)u=easeOutCubic(u);if(b.time===1)u=easeInOutSine(u);const progress=a.progress+(b.progress-a.progress)*u;const speed=(b.progress-a.progress)/span;return{progress:Math.max(0,Math.min(1,progress)),speed};
 }
 
-function catmullRom(p0,p1,p2,p3,t) {
-  const t2 = t*t;
-  const t3 = t2*t;
-  return {
-    x:.5*((2*p1.x)+(-p0.x+p2.x)*t+(2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+(-p0.x+3*p1.x-3*p2.x+p3.x)*t3),
-    y:.5*((2*p1.y)+(-p0.y+p2.y)*t+(2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+(-p0.y+3*p1.y-3*p2.y+p3.y)*t3),
-  };
-}
-
+function catmullRom(p0,p1,p2,p3,t){const t2=t*t,t3=t2*t;return{x:.5*((2*p1.x)+(-p0.x+p2.x)*t+(2*p0.x-5*p1.x+4*p2.x-p3.x)*t2+(-p0.x+3*p1.x-3*p2.x+p3.x)*t3),y:.5*((2*p1.y)+(-p0.y+p2.y)*t+(2*p0.y-5*p1.y+4*p2.y-p3.y)*t2+(-p0.y+3*p1.y-3*p2.y+p3.y)*t3)};}
 function easeOutCubic(t){return 1-Math.pow(1-t,3)}
 function easeInOutSine(t){return -(Math.cos(Math.PI*t)-1)/2}
