@@ -112,7 +112,7 @@ function buildLevel() {
       bonusStar = true;
       sfx.star(save.sound);
       haptic(save.haptics,[7,18,11]);
-      dom.status.textContent = 'Star collected. Keep rolling.';
+      dom.status.textContent = 'Energy captured.';
     },
     onEffect: playEffect,
     onGoal: winLevel,
@@ -142,7 +142,18 @@ function playEffect(type) {
   if (type === 'pin-detent') { sfx.detent(save.sound); haptic(save.haptics,8); return; }
   if (type === 'pin-reset') { sfx.tap(save.sound); return; }
   if (type === 'pin-release') { sfx.release(save.sound); haptic(save.haptics,[12,18,8]); return; }
+
+  if (type === 'trigger') { sfx.trigger(save.sound); haptic(save.haptics,6); return; }
+  if (type === 'drive') { sfx.drive(save.sound); haptic(save.haptics,[4,14,6]); return; }
+  if (type === 'gate-preload') { sfx.gatePreload(save.sound); haptic(save.haptics,5); return; }
+  if (type === 'gate-open') { sfx.gateOpen(save.sound); haptic(save.haptics,[7,12,10]); return; }
+  if (type === 'power') { sfx.power(save.sound); haptic(save.haptics,[5,17,7]); return; }
+
   if (type === 'roll-start') { sfx.rollStart(save.sound); return; }
+  if (type === 'roll-brake') { sfx.rollMood('brake'); haptic(save.haptics,3); return; }
+  if (type === 'roll-resume') { sfx.rollMood('run'); return; }
+  if (type === 'roll-goal') { sfx.rollMood('goal'); return; }
+
   if (type === 'track-tick') { sfx.track(save.sound); haptic(save.haptics,4); return; }
   if (type === 'wood') { sfx.wood(save.sound); haptic(save.haptics,7); return; }
   if (type === 'metal') { sfx.metal(save.sound); haptic(save.haptics,7); return; }
@@ -177,14 +188,14 @@ function winLevel() {
       : '★';
     dom.resultTitle.textContent = stars === 3 ? 'Perfect machine' : 'Machine solved';
     renderResultStars(stars);
-    dom.resultCopy.textContent = stars === 3 ? 'One move. Clean route. Star collected.' : 'Solved in one move.';
+    dom.resultCopy.textContent = stars === 3 ? 'One move. Every mechanism connected.' : 'Solved in one move.';
     if (current === levels.length - 1) {
       $('#nextBtn span').textContent = 'WORKSHOP';
       $('#nextBtn small').textContent = 'ALL MACHINES';
     }
     dom.result.hidden = false;
     refreshMeta();
-  },520);
+  },560);
 }
 
 function failLevel(copy = 'That move breaks the chain.') {
