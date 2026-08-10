@@ -10,10 +10,13 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   let frameId = 0;
   let startTimer = 0;
   let failTimer = 0;
+  let filteredSpeed = .45;
+  let goalAwake = false;
   const timers = new Set();
   const nodes = new Map();
   const pieces = new Map(scene.pieces.map(piece => [piece.id, piece]));
   const firedEvents = new Set();
+  const firedJoints = new Set();
   const sampledPath = buildSampledPath(scene.path);
 
   world.innerHTML = '';
@@ -100,8 +103,9 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     let pointerId = null;
     let startX = 0;
     let progress = 0;
-    const thresholdPx = 26;
-    const travelPx = 68;
+    let passedDetent = false;
+    let travelPx = 72;
+    const threshold = .48;
 
     node.style.touchAction = 'none';
 
@@ -117,9 +121,12 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       pointerId = ev.pointerId;
       startX = ev.clientX;
       progress = 0;
+      passedDetent = false;
+      travelPx = Math.max(66, Math.min(96, node.getBoundingClientRect().width * .46));
       node.classList.add('is-dragging');
       node.setPointerCapture?.(pointerId);
       setNodeImage(node, P.interaction.pinBluePull);
+      onEffect?.('pin-grab');
       playPolishFx(P.fx.fxClickRing, piece.x, piece.y, 'fx-click', 360);
       ev.preventDefault();
     });
@@ -127,14 +134,24 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       if (!dragging || ev.pointerId !== pointerId || running) return;
       const dx = Math.max(0, startX - ev.clientX);
       progress = Math.min(1, dx / travelPx);
-      node.style.transform = `translate(calc(-50% - ${Math.round(progress * 24)}px),-50%)`;
-      if (progress > .22) setNodeImage(node, P.interaction.pinBluePull);
+      const resisted = Math.pow(progress, .88);
+      const offset = Math.round(resisted * 34);
+      node.style.setProperty('--pull-progress', progress.toFixed(3));
+      node.style.transform = `translate(calc(-50% - ${offset}px),-50%) scale(${(1 - progress * .018).toFixed(3)})`;
+
+      if (!passedDetent && progress >= .42) {
+        passedDetent = true;
+        node.classList.add('past-detent');
+        onEffect?.('pin-detent');
+      } else if (passedDetent && progress < .34) {
+        passedDetent = false;
+        node.classList.remove('past-detent');
+      }
       ev.preventDefault();
     });
     node.addEventListener('pointerup', ev => finishPull(ev, false));
     node.addEventListener('pointercancel', ev => finishPull(ev, true));
 
-    // Keep keyboard accessibility even though pointer input uses a drag gesture.
     node.addEventListener('keydown', ev => {
       if (running || destroyed) return;
       if (ev.key !== 'Enter' && ev.key !== ' ') return;
@@ -150,25 +167,30 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       node.releasePointerCapture?.(pointerId);
       pointerId = null;
 
-      const committed = !cancelled && progress * travelPx >= thresholdPx;
+      const committed = !cancelled && progress >= threshold;
       if (committed) {
+        node.classList.add('pull-committed');
         node.style.transform = '';
+        node.style.removeProperty('--pull-progress');
         onMove?.(piece.id, ev);
         return;
       }
 
+      node.classList.remove('past-detent');
       node.classList.add('pull-reset');
       node.style.transform = '';
+      node.style.removeProperty('--pull-progress');
       setNodeImage(node, P.interaction.pinBlueIdle);
+      onEffect?.('pin-reset');
       later(() => node.classList.remove('pull-reset'), 220);
     }
   }
 
   function commit(id) {
-    if (destroyed || running) return { accepted:false, correct:false };
+    if (destroyed || running) return { accepted:false, correct:false, effectHandled:false };
     const piece = pieces.get(id);
     const node = nodes.get(id);
-    if (!piece?.interactive || !node) return { accepted:false, correct:false };
+    if (!piece?.interactive || !node) return { accepted:false, correct:false, effectHandled:false };
 
     running = true;
     stage.classList.add('machine-running');
@@ -178,8 +200,11 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     if (polishedTutorial && id === 'pin') {
       node.style.transform = '';
       setNodeImage(node, P.interaction.pinBluePull);
+      onEffect?.('pin-release');
       playPolishFx(P.fx.fxMetalSparkSmall, piece.x + 6, piece.y, 'fx-metal', 460);
-      later(() => setNodeImage(node, P.interaction.pinBlueReleased), 285);
+      later(() => setNodeImage(node, P.interaction.pinBlueReleased), 210);
+    } else {
+      onEffect?.(piece.action === 'press' ? 'tap' : 'metal');
     }
 
     if (id !== level.solution) {
@@ -189,54 +214,92 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       failTimer = window.setTimeout(() => {
         if (!destroyed) onFail?.('That move breaks the chain.');
       }, 720);
-      return { accepted:true, correct:false };
+      return { accepted:true, correct:false, effectHandled:true };
     }
 
-    onEffect?.(piece.action === 'press' ? 'tap' : 'metal');
-    onStatus?.('Watch the machine.');
+    onStatus?.(polishedTutorial ? 'Released. Watch the ball.' : 'Watch the machine.');
     startTimer = window.setTimeout(() => {
       if (!destroyed) runBall();
-    }, polishedTutorial ? 430 : 330);
-    return { accepted:true, correct:true };
+    }, polishedTutorial ? 360 : 330);
+    return { accepted:true, correct:true, effectHandled:true };
   }
 
   function runBall() {
     const duration = scene.duration || 4200;
     const start = performance.now();
     ball.classList.add('running');
+    onEffect?.('roll-start');
 
     const tick = now => {
       if (destroyed) return;
       const raw = Math.min(1, (now - start) / duration);
-      const t = raw < .06 ? easeOutCubic(raw / .06) * .06 : raw;
+      const motion = motionAt(scene.motion, raw);
+      const t = motion.progress;
+      filteredSpeed += (motion.speed - filteredSpeed) * .075;
       const point = pointOnSampledPath(sampledPath, t);
       const ahead = pointOnSampledPath(sampledPath, Math.min(1, t + .008));
       const angle = Math.atan2(ahead.y - point.y, ahead.x - point.x) * 180 / Math.PI;
+      const goalSink = t > .92 ? Math.min(1, (t - .92) / .08) : 0;
 
       ball.style.left = `${point.x}%`;
       ball.style.top = `${point.y}%`;
-      ball.style.setProperty('--travel-rotation', `${angle * .18 + t * 820}deg`);
-      ball.style.transform = `translate(-50%,-50%) rotate(var(--travel-rotation))`;
+      ball.style.setProperty('--roll-angle', `${angle * .24 + t * 960}deg`);
+      ball.style.setProperty('--roll-speed', Math.max(.55, Math.min(1.55, filteredSpeed)).toFixed(3));
+      ball.style.setProperty('--goal-sink', goalSink.toFixed(3));
 
+      wakeGoal(t);
+      fireJointFeedback(t);
       fireTimeline(t);
 
       if (raw < 1) {
         frameId = requestAnimationFrame(tick);
       } else {
-        ball.classList.add('at-goal');
-        if (polishedTutorial) {
-          const goal = nodes.get('goal');
-          setNodeImage(goal, P.interaction.goalYellowSuccess);
-          playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal', 950);
-          playPolishFx(P.fx.fxSuccessBurst, 77, 75, 'fx-success', 1100);
-        }
-        later(() => {
-          if (!destroyed) onGoal?.();
-        }, polishedTutorial ? 470 : 310);
+        finishGoal();
       }
     };
 
     frameId = requestAnimationFrame(tick);
+  }
+
+  function wakeGoal(t) {
+    if (!polishedTutorial || goalAwake || t < .875) return;
+    goalAwake = true;
+    const goal = nodes.get('goal');
+    goal?.classList.add('activated', 'goal-awake');
+    setNodeImage(goal, P.interaction.goalYellowActive);
+    playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal-warmup', 900);
+    onEffect?.('goal-warmup');
+  }
+
+  function fireJointFeedback(t) {
+    const joints = scene.joints || [];
+    joints.forEach((joint, index) => {
+      if (t < joint || firedJoints.has(index)) return;
+      firedJoints.add(index);
+      const point = pointOnSampledPath(sampledPath, joint);
+      board.classList.remove('micro-impact');
+      void board.offsetWidth;
+      board.classList.add('micro-impact');
+      onEffect?.('track-tick');
+      if (polishedTutorial && index === 1) {
+        playPolishFx(P.fx.fxWoodDustSmall, point.x, point.y, 'fx-track-dust', 480);
+      }
+    });
+  }
+
+  function finishGoal() {
+    ball.classList.add('at-goal');
+    onEffect?.('goal-sink');
+    if (polishedTutorial) {
+      const goal = nodes.get('goal');
+      setNodeImage(goal, P.interaction.goalYellowSuccess);
+      goal?.classList.add('goal-success');
+      playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal', 950);
+      later(() => playPolishFx(P.fx.fxSuccessBurst, 77, 75, 'fx-success', 1100), 90);
+    }
+    later(() => {
+      if (!destroyed) onGoal?.();
+    }, polishedTutorial ? 520 : 310);
   }
 
   function fireTimeline(t) {
@@ -257,14 +320,14 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
           node.classList.add('polish-collecting');
           setNodeImage(node, P.interaction.starCollect1);
           playPolishFx(P.fx.fxStarBurst, event.x, event.y, 'fx-star', 780);
-          later(() => setNodeImage(node, P.interaction.starCollect2), 105);
-          later(() => setNodeImage(node, P.interaction.starCollectDone), 225);
-          later(() => node.classList.add('polish-collected'), 395);
+          later(() => setNodeImage(node, P.interaction.starCollect2), 90);
+          later(() => setNodeImage(node, P.interaction.starCollectDone), 195);
+          later(() => node.classList.add('polish-collected'), 360);
         } else {
           node?.classList.add('collected');
         }
         onStar?.();
-        sparkAt(event.x, event.y, 9);
+        sparkAt(event.x, event.y, 7);
         return;
       }
 
@@ -272,12 +335,13 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
         const goal = nodes.get('goal');
         goal?.classList.add('activated');
         nodes.get('goalSocket')?.classList.add('activated');
-        if (polishedTutorial) {
+        if (polishedTutorial && !goalAwake) {
+          goalAwake = true;
           setNodeImage(goal, P.interaction.goalYellowActive);
-          playPolishFx(P.fx.fxGoalGlow, event.x, event.y, 'fx-goal-warmup', 950);
+          playPolishFx(P.fx.fxGoalGlow, event.x, event.y, 'fx-goal-warmup', 900);
         }
         onEffect?.('goal');
-        sparkAt(event.x, event.y, 12);
+        sparkAt(event.x, event.y, 8);
       }
     });
   }
@@ -325,11 +389,11 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       const spark = document.createElement('i');
       spark.style.left = `${x}%`;
       spark.style.top = `${y}%`;
-      spark.style.setProperty('--x', `${(Math.random() - .5) * 64}px`);
-      spark.style.setProperty('--y', `${-15 - Math.random() * 44}px`);
-      spark.style.animationDelay = `${Math.random() * 70}ms`;
+      spark.style.setProperty('--x', `${(Math.random() - .5) * 58}px`);
+      spark.style.setProperty('--y', `${-14 - Math.random() * 38}px`);
+      spark.style.animationDelay = `${Math.random() * 55}ms`;
       root.appendChild(spark);
-      later(() => spark.remove(), 820);
+      later(() => spark.remove(), 760);
     }
   }
 
@@ -371,7 +435,7 @@ function buildSampledPath(points) {
   if (points.length === 1) return [{...points[0],distance:0}];
 
   const samples = [];
-  const subdivisions = 24;
+  const subdivisions = 28;
   let distance = 0;
   let previous = null;
 
@@ -420,6 +484,39 @@ function pointOnSampledPath(samples, t) {
   };
 }
 
+function motionAt(profile, raw) {
+  const points = Array.isArray(profile) && profile.length >= 2
+    ? profile
+    : [
+        {time:0,progress:0},
+        {time:.10,progress:.045},
+        {time:.30,progress:.255},
+        {time:.52,progress:.49},
+        {time:.72,progress:.69},
+        {time:.90,progress:.88},
+        {time:1,progress:1},
+      ];
+
+  const t = Math.max(0,Math.min(1,raw));
+  let a = points[0];
+  let b = points[points.length - 1];
+  for (let i = 1; i < points.length; i += 1) {
+    if (t <= points[i].time) {
+      a = points[i - 1];
+      b = points[i];
+      break;
+    }
+  }
+
+  const span = Math.max(.0001,b.time - a.time);
+  let u = Math.max(0,Math.min(1,(t - a.time) / span));
+  if (a.time === 0) u = easeOutCubic(u);
+  if (b.time === 1) u = easeInOutSine(u);
+  const progress = a.progress + (b.progress - a.progress) * u;
+  const speed = (b.progress - a.progress) / span;
+  return {progress:Math.max(0,Math.min(1,progress)),speed};
+}
+
 function catmullRom(p0,p1,p2,p3,t) {
   const t2 = t*t;
   const t3 = t2*t;
@@ -430,3 +527,4 @@ function catmullRom(p0,p1,p2,p3,t) {
 }
 
 function easeOutCubic(t){return 1-Math.pow(1-t,3)}
+function easeInOutSine(t){return -(Math.cos(Math.PI*t)-1)/2}
