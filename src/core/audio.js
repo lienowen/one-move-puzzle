@@ -109,10 +109,33 @@ function startRolling(enabled) {
     hum.connect(humGain).connect(c.destination);
     source.start(t);
     hum.start(t);
-    rolling = { source, gain, hum, humGain, ctx:c };
+    rolling = { source, filter, gain, hum, humGain, ctx:c, mood:'run' };
   } catch {
     rolling = null;
   }
+}
+
+function setRollingMood(mood = 'run') {
+  if (!rolling) return;
+  const presets = {
+    run:{filter:290,gain:.0075,hum:.0038,pitch:74},
+    brake:{filter:205,gain:.0042,hum:.0026,pitch:66},
+    goal:{filter:355,gain:.0054,hum:.0030,pitch:82},
+  };
+  const next = presets[mood] || presets.run;
+  if (rolling.mood === mood) return;
+  rolling.mood = mood;
+  try {
+    const t = rolling.ctx.currentTime;
+    rolling.filter.frequency.cancelScheduledValues(t);
+    rolling.filter.frequency.linearRampToValueAtTime(next.filter, t + .12);
+    rolling.gain.gain.cancelScheduledValues(t);
+    rolling.gain.gain.linearRampToValueAtTime(next.gain, t + .12);
+    rolling.humGain.gain.cancelScheduledValues(t);
+    rolling.humGain.gain.linearRampToValueAtTime(next.hum, t + .12);
+    rolling.hum.frequency.cancelScheduledValues(t);
+    rolling.hum.frequency.linearRampToValueAtTime(next.pitch, t + .14);
+  } catch {}
 }
 
 function stopRolling(fade = .11) {
@@ -152,12 +175,43 @@ export const sfx = {
     tone(178, .11, .026, 'triangle', .025, 112);
     noise(.08, .018, .022, 1150);
   },
+  trigger(enabled) {
+    if (!enabled) return;
+    metalClick(0, .018);
+    tone(365, .07, .016, 'triangle', .018, 460);
+  },
+  drive(enabled) {
+    if (!enabled) return;
+    noise(.11, .012, 0, 900);
+    tone(118, .13, .019, 'triangle', 0, 154);
+    tone(236, .08, .011, 'sine', .055, 272);
+  },
+  gatePreload(enabled) {
+    if (!enabled) return;
+    noise(.12, .013, 0, 620);
+    tone(102, .11, .014, 'triangle', 0, 86);
+  },
+  gateOpen(enabled) {
+    if (!enabled) return;
+    noise(.11, .017, 0, 1500);
+    tone(188, .09, .022, 'triangle', .035, 125);
+    metalClick(.09, .016);
+  },
+  power(enabled) {
+    if (!enabled) return;
+    tone(438, .13, .016, 'sine', 0, 554);
+    tone(659, .15, .017, 'sine', .08, 880);
+    tone(988, .14, .014, 'sine', .16, 1175);
+  },
   rollStart(enabled) {
     startRolling(enabled);
     if (enabled) {
       noise(.08, .009, 0, 540);
       tone(96, .09, .008, 'triangle', 0, 79);
     }
+  },
+  rollMood(mood) {
+    setRollingMood(mood);
   },
   rollStop() {
     stopRolling();
