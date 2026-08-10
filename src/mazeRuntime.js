@@ -57,7 +57,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
   }
 
   for (const cell of maze.cells) renderCell(cell);
-  placeBall(maze.start.x, maze.start.y);
+  requestAnimationFrame(() => placeBall(maze.start.x, maze.start.y));
   onStatus?.(logic.copy?.ready || 'Study the route. Rotate one tile.');
 
   function renderCell(cell) {
@@ -71,12 +71,14 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       return;
     }
 
-    const tile = document.createElement(cell.id === maze.pivot.id ? 'button' : 'div');
-    tile.className = `maze-tile${cell.id === maze.pivot.id ? ' rotatable' : ''}`;
+    const isPivot = cell.id === maze.pivot.id;
+    const rotation = isPivot ? currentRotation : (cell.rotation || 0);
+    const tile = document.createElement(isPivot ? 'button' : 'div');
+    tile.className = `maze-tile${isPivot ? ' rotatable' : ''}`;
     tile.dataset.id = cell.id || '';
     tile.dataset.type = cell.type;
-    tile.dataset.rotation = String(cell.rotation || 0);
-    tile.style.setProperty('--angle', `${(cell.rotation || 0) * 90}deg`);
+    tile.dataset.rotation = String(rotation);
+    tile.style.setProperty('--angle', `${rotation * 90}deg`);
     tile.innerHTML = tileMarkup(cell.type);
     slot.appendChild(tile);
 
@@ -103,7 +105,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       slot.appendChild(star);
     }
 
-    if (cell.id === maze.pivot.id) installRotationGesture(tile);
+    if (isPivot) installRotationGesture(tile);
   }
 
   function tileMarkup(type) {
@@ -152,6 +154,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       pendingRotation = norm(currentRotation + turns);
       tile.style.transition = '';
       tile.style.setProperty('--angle', `${pendingRotation*90}deg`);
+      tile.dataset.rotation = String(pendingRotation);
       onMove?.(maze.pivot.id, event);
     };
 
@@ -167,6 +170,7 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       event.preventDefault();
       pendingRotation = norm(currentRotation + (event.key === 'ArrowRight' ? 1 : -1));
       tile.style.setProperty('--angle', `${pendingRotation*90}deg`);
+      tile.dataset.rotation = String(pendingRotation);
       onMove?.(maze.pivot.id, event);
     });
   }
@@ -176,8 +180,6 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
     running = true;
     currentRotation = pendingRotation;
     pendingRotation = null;
-    const pivotCell = maze.cells.find(c => c.id === maze.pivot.id);
-    pivotCell.rotation = currentRotation;
     onStatus?.(logic.copy?.running || 'Route set. Watch the machine.');
     onEffect?.('metal');
     later(runMaze, 420);
@@ -210,7 +212,8 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
       if (cell.star) star = true;
       if (cell.goal) return {path,success:true,reason:'goal',star};
 
-      const connections = rotatedConnections(cell.type, cell.rotation || 0);
+      const rotation = cell.id === maze.pivot.id ? currentRotation : (cell.rotation || 0);
+      const connections = rotatedConnections(cell.type, rotation);
       const entry = OPP[dir];
       if (!connections.includes(entry)) return {path,success:false,reason:'broken',star};
       const exits = connections.filter(d => d !== entry);
@@ -281,7 +284,15 @@ export function mountMazeRuntime({ world, stage, level, onMove, onStar, onGoal, 
   }
 
   function cellPoint(x,y) {
-    return { x: ((x+.5)/maze.cols)*82 + 9, y: ((y+.5)/maze.rows)*82 + 9 };
+    const boardRect = board.getBoundingClientRect();
+    const gridRect = grid.getBoundingClientRect();
+    if (!boardRect.width || !boardRect.height || !gridRect.width || !gridRect.height) {
+      return { x: ((x+.5)/maze.cols)*80 + 10, y: ((y+.5)/maze.rows)*80 + 10 };
+    }
+    return {
+      x: ((gridRect.left - boardRect.left + ((x+.5)/maze.cols)*gridRect.width) / boardRect.width) * 100,
+      y: ((gridRect.top - boardRect.top + ((y+.5)/maze.rows)*gridRect.height) / boardRect.height) * 100,
+    };
   }
 
   function placeBall(x,y) {
