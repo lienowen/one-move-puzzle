@@ -1,0 +1,336 @@
+{
+  "name": "One Move Puzzle Polish Assets",
+  "version": "1.2.0",
+  "asset_count": 41,
+  "format": "transparent PNG",
+  "assets": [
+    {
+      "name": "pin_blue_idle",
+      "path": "assets/interaction/pins/pin_blue_idle.png",
+      "width": 272,
+      "height": 101,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "pin_blue_hover",
+      "path": "assets/interaction/pins/pin_blue_hover.png",
+      "width": 265,
+      "height": 117,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "pin_blue_pull",
+      "path": "assets/interaction/pins/pin_blue_pull.png",
+      "width": 311,
+      "height": 101,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "pin_blue_released",
+      "path": "assets/interaction/pins/pin_blue_released.png",
+      "width": 40,
+      "height": 92,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "goal_yellow_idle",
+      "path": "assets/interaction/goals/goal_yellow_idle.png",
+      "width": 182,
+      "height": 168,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "goal_yellow_active",
+      "path": "assets/interaction/goals/goal_yellow_active.png",
+      "width": 170,
+      "height": 150,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "goal_yellow_success",
+      "path": "assets/interaction/goals/goal_yellow_success.png",
+      "width": 184,
+      "height": 190,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "star_idle",
+      "path": "assets/interaction/stars/star_idle.png",
+      "width": 108,
+      "height": 128,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "star_collect_1",
+      "path": "assets/interaction/stars/star_collect_1.png",
+      "width": 138,
+      "height": 162,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "star_collect_2",
+      "path": "assets/interaction/stars/star_collect_2.png",
+      "width": 165,
+      "height": 168,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "star_collect_done",
+      "path": "assets/interaction/stars/star_collect_done.png",
+      "width": 173,
+      "height": 172,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "button_yellow_idle",
+      "path": "assets/interaction/buttons/button_yellow_idle.png",
+      "width": 167,
+      "height": 146,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "button_yellow_pressed",
+      "path": "assets/interaction/buttons/button_yellow_pressed.png",
+      "width": 159,
+      "height": 112,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "fx_click_ring",
+      "path": "assets/fx/fx_click_ring.png",
+      "width": 195,
+      "height": 140,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "fx_goal_glow",
+      "path": "assets/fx/fx_goal_glow.png",
+      "width": 197,
+      "height": 190,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "fx_star_burst",
+      "path": "assets/fx/fx_star_burst.png",
+      "width": 227,
+      "height": 190,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "fx_metal_spark_small",
+      "path": "assets/fx/fx_metal_spark_small.png",
+      "width": 165,
+      "height": 156,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "fx_wood_dust_small",
+      "path": "assets/fx/fx_wood_dust_small.png",
+      "width": 205,
+      "height": 175,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "fx_success_burst",
+      "path": "assets/fx/fx_success_burst.png",
+      "width": 446,
+      "height": 215,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "fx_trail_soft",
+      "path": "assets/fx/fx_trail_soft.png",
+      "width": 817,
+      "height": 155,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_logo",
+      "path": "assets/ui/ui_logo.png",
+      "width": 351,
+      "height": 230,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_play_idle",
+      "path": "assets/ui/buttons/ui_btn_play_idle.png",
+      "width": 163,
+      "height": 182,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_play_press",
+      "path": "assets/ui/buttons/ui_btn_play_press.png",
+      "width": 161,
+      "height": 184,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_next_idle",
+      "path": "assets/ui/buttons/ui_btn_next_idle.png",
+      "width": 154,
+      "height": 178,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_next_press",
+      "path": "assets/ui/buttons/ui_btn_next_press.png",
+      "width": 155,
+      "height": 178,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_replay_idle",
+      "path": "assets/ui/buttons/ui_btn_replay_idle.png",
+      "width": 176,
+      "height": 169,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_replay_press",
+      "path": "assets/ui/buttons/ui_btn_replay_press.png",
+      "width": 176,
+      "height": 169,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_hint_idle",
+      "path": "assets/ui/buttons/ui_btn_hint_idle.png",
+      "width": 167,
+      "height": 169,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_btn_hint_press",
+      "path": "assets/ui/buttons/ui_btn_hint_press.png",
+      "width": 150,
+      "height": 169,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_panel_success",
+      "path": "assets/ui/panels/ui_panel_success.png",
+      "width": 268,
+      "height": 263,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_panel_fail",
+      "path": "assets/ui/panels/ui_panel_fail.png",
+      "width": 303,
+      "height": 262,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_star_full",
+      "path": "assets/ui/ui_star_full.png",
+      "width": 145,
+      "height": 134,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_star_empty",
+      "path": "assets/ui/ui_star_empty.png",
+      "width": 141,
+      "height": 136,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_toggle_sound_on",
+      "path": "assets/ui/toggles/ui_toggle_sound_on.png",
+      "width": 148,
+      "height": 142,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_toggle_sound_off",
+      "path": "assets/ui/toggles/ui_toggle_sound_off.png",
+      "width": 140,
+      "height": 141,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_toggle_haptics_on",
+      "path": "assets/ui/toggles/ui_toggle_haptics_on.png",
+      "width": 178,
+      "height": 177,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_toggle_haptics_off",
+      "path": "assets/ui/toggles/ui_toggle_haptics_off.png",
+      "width": 145,
+      "height": 177,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_title_bar",
+      "path": "assets/ui/hud/ui_title_bar.png",
+      "width": 527,
+      "height": 93,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_move_token",
+      "path": "assets/ui/hud/ui_move_token.png",
+      "width": 131,
+      "height": 154,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_status_chip_idle",
+      "path": "assets/ui/hud/ui_status_chip_idle.png",
+      "width": 202,
+      "height": 95,
+      "transparent": true,
+      "anchor": "center"
+    },
+    {
+      "name": "ui_status_chip_success",
+      "path": "assets/ui/hud/ui_status_chip_success.png",
+      "width": 252,
+      "height": 95,
+      "transparent": true,
+      "anchor": "center"
+    }
+  ]
+}

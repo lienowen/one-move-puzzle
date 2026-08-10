@@ -1,0 +1,53 @@
+// Vite-ready code asset map.
+const modules = import.meta.glob('../assets/**/*.png', { eager: true, query: '?url', import: 'default' });
+const asset = p => modules[`../assets/${p}`] || '';
+export const POLISH_ASSETS = {
+  fx: {
+    fxClickRing: asset('fx/fx_click_ring.png'),
+    fxGoalGlow: asset('fx/fx_goal_glow.png'),
+    fxStarBurst: asset('fx/fx_star_burst.png'),
+    fxMetalSparkSmall: asset('fx/fx_metal_spark_small.png'),
+    fxWoodDustSmall: asset('fx/fx_wood_dust_small.png'),
+    fxSuccessBurst: asset('fx/fx_success_burst.png'),
+    fxTrailSoft: asset('fx/fx_trail_soft.png'),
+  },
+  interaction: {
+    pinBlueIdle: asset('interaction/pins/pin_blue_idle.png'),
+    pinBlueHover: asset('interaction/pins/pin_blue_hover.png'),
+    pinBluePull: asset('interaction/pins/pin_blue_pull.png'),
+    pinBlueReleased: asset('interaction/pins/pin_blue_released.png'),
+    goalYellowIdle: asset('interaction/goals/goal_yellow_idle.png'),
+    goalYellowActive: asset('interaction/goals/goal_yellow_active.png'),
+    goalYellowSuccess: asset('interaction/goals/goal_yellow_success.png'),
+    starIdle: asset('interaction/stars/star_idle.png'),
+    starCollect1: asset('interaction/stars/star_collect_1.png'),
+    starCollect2: asset('interaction/stars/star_collect_2.png'),
+    starCollectDone: asset('interaction/stars/star_collect_done.png'),
+    buttonYellowIdle: asset('interaction/buttons/button_yellow_idle.png'),
+    buttonYellowPressed: asset('interaction/buttons/button_yellow_pressed.png'),
+  },
+  ui: {
+    uiLogo: asset('ui/ui_logo.png'),
+    uiBtnPlayIdle: asset('ui/buttons/ui_btn_play_idle.png'),
+    uiBtnPlayPress: asset('ui/buttons/ui_btn_play_press.png'),
+    uiBtnNextIdle: asset('ui/buttons/ui_btn_next_idle.png'),
+    uiBtnNextPress: asset('ui/buttons/ui_btn_next_press.png'),
+    uiBtnReplayIdle: asset('ui/buttons/ui_btn_replay_idle.png'),
+    uiBtnReplayPress: asset('ui/buttons/ui_btn_replay_press.png'),
+    uiBtnHintIdle: asset('ui/buttons/ui_btn_hint_idle.png'),
+    uiBtnHintPress: asset('ui/buttons/ui_btn_hint_press.png'),
+    uiPanelSuccess: asset('ui/panels/ui_panel_success.png'),
+    uiPanelFail: asset('ui/panels/ui_panel_fail.png'),
+    uiStarFull: asset('ui/ui_star_full.png'),
+    uiStarEmpty: asset('ui/ui_star_empty.png'),
+    uiToggleSoundOn: asset('ui/toggles/ui_toggle_sound_on.png'),
+    uiToggleSoundOff: asset('ui/toggles/ui_toggle_sound_off.png'),
+    uiToggleHapticsOn: asset('ui/toggles/ui_toggle_haptics_on.png'),
+    uiToggleHapticsOff: asset('ui/toggles/ui_toggle_haptics_off.png'),
+    uiTitleBar: asset('ui/hud/ui_title_bar.png'),
+    uiMoveToken: asset('ui/hud/ui_move_token.png'),
+    uiStatusChipIdle: asset('ui/hud/ui_status_chip_idle.png'),
+    uiStatusChipSuccess: asset('ui/hud/ui_status_chip_success.png'),
+  },
+};
+export default POLISH_ASSETS;
