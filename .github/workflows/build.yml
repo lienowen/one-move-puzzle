@@ -28,12 +28,12 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-      - name: Install browser for visual check
+      - name: Install browser for visual QA
         run: |
           npm install --no-save playwright@1.54.2
           npx playwright install --with-deps chromium
 
-      - name: Capture visual snapshots
+      - name: Run causal gameplay and visual QA
         run: |
           mkdir -p .visual-check
           npm run preview -- --host 127.0.0.1 --port 4173 >/tmp/one-move-preview.log 2>&1 &
@@ -41,69 +41,88 @@ jobs:
             if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
             sleep 1
           done
+
           node <<'NODE'
           const { chromium } = require('playwright');
+
+          async function pullPin(page) {
+            const pin = page.locator('[data-id="pin"]');
+            const box = await pin.boundingBox();
+            if (!box) throw new Error('Pull pin has no bounding box');
+            await page.mouse.move(box.x + box.width * .72, box.y + box.height * .5);
+            await page.mouse.down();
+            await page.mouse.move(box.x + box.width * .10, box.y + box.height * .5, {steps:10});
+            await page.mouse.up();
+          }
+
           (async () => {
             const browser = await chromium.launch({headless:true});
             const cases = [
               {name:'mobile', width:390, height:844},
               {name:'desktop', width:620, height:900},
             ];
+
             for (const item of cases) {
-              const context = await browser.newContext({viewport:{width:item.width,height:item.height},deviceScaleFactor:1,reducedMotion:'reduce'});
+              const context = await browser.newContext({
+                viewport:{width:item.width,height:item.height},
+                deviceScaleFactor:1,
+                reducedMotion:'reduce',
+              });
               const page = await context.newPage();
               await page.goto('http://127.0.0.1:4173', {waitUntil:'networkidle'});
-              await page.screenshot({path:`.visual-check/home-${item.name}.jpg`,type:'jpeg',quality:58,fullPage:false});
+              await page.screenshot({path:`.visual-check/home-${item.name}.jpg`,type:'jpeg',quality:66,fullPage:false});
+
               await page.click('#playBtn');
-              await page.waitForTimeout(500);
-              await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`,type:'jpeg',quality:62,fullPage:false});
+              await page.locator('.game-screen.active').waitFor({state:'visible'});
+              await page.locator('.machine-board').waitFor({state:'visible'});
+              await page.waitForTimeout(300);
+              await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`,type:'jpeg',quality:70,fullPage:false});
+
               if (item.name === 'mobile') {
-                await page.locator('.machine-board').screenshot({path:'.visual-check/board-mobile.jpg',type:'jpeg',quality:72});
-                const pin = page.locator('[data-id="pin"]');
-                const box = await pin.boundingBox();
-                if (!box) throw new Error('Pull pin has no bounding box');
-                await page.mouse.move(box.x + box.width * .72, box.y + box.height * .5);
-                await page.mouse.down();
-                await page.mouse.move(box.x + box.width * .12, box.y + box.height * .5, {steps:8});
-                await page.mouse.up();
-                await page.waitForTimeout(1500);
-                await page.screenshot({path:'.visual-check/level1-running-mobile.jpg',type:'jpeg',quality:62,fullPage:false});
-                await page.waitForTimeout(3500);
-                await page.screenshot({path:'.visual-check/level1-result-mobile.jpg',type:'jpeg',quality:62,fullPage:false});
+                await page.locator('.machine-board').screenshot({path:'.visual-check/board-mobile.jpg',type:'jpeg',quality:78});
+                await pullPin(page);
+
+                await page.locator('.piece-logic-trigger.logic-active').waitFor({state:'visible',timeout:3500});
+                await page.screenshot({path:'.visual-check/level1-trigger-mobile.jpg',type:'jpeg',quality:70,fullPage:false});
+
+                // The ball must physically stop at the gate until the drive opens it.
+                await page.locator('.machine-board.waiting-gate').waitFor({state:'attached',timeout:3500});
+                await page.screenshot({path:'.visual-check/level1-gate-wait-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+
+                await page.locator('.piece-logic-gate.logic-gate-open').waitFor({state:'attached',timeout:3500});
+                await page.locator('.machine-board.goal-powered').waitFor({state:'attached',timeout:5200});
+                await page.screenshot({path:'.visual-check/level1-powered-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+
+                await page.locator('.machine-board.machine-complete').waitFor({state:'attached',timeout:6500});
+                await page.screenshot({path:'.visual-check/level1-complete-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
+
+                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:2500});
+                await page.screenshot({path:'.visual-check/level1-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
               }
+
               await context.close();
             }
             await browser.close();
           })().catch(err => { console.error(err); process.exit(1); });
           NODE
+
+          # Sweep all levels for viewport regressions. This produces a report instead of
+          # discarding the Level 1 screenshots if a later level needs composition work.
           node scripts/visual-sweep.mjs
 
-      - name: Build visual review snapshots
+      - name: Build review thumbnails
         run: |
           python3 -m pip install --quiet pillow
-          python3 scripts/review-ball-asset.py
           python3 <<'PY'
           from PIL import Image
-          import json
+          import json, os
 
-          alphabet32 = '0123456789abcdefghijklmnopqrstuv'
-          xpm_keys = list('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./:;<=>?@[]^_{|}~')
+          keys = list('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./:;<=>?@[]^_{|}~')
 
-          def quant(src, size, colors=32):
-              img = Image.open(src).convert('RGB').resize(size, Image.Resampling.LANCZOS)
-              return img.quantize(colors=colors, method=Image.Quantize.MEDIANCUT)
-
-          def build_json(src, dst):
-              q = quant(src,(48,104),32)
-              raw = q.getpalette()[:96]
-              palette = ['#%02x%02x%02x' % tuple(raw[i:i+3]) for i in range(0,96,3)]
-              px = list(q.getdata())
-              rows = [''.join(alphabet32[v] for v in px[y*48:(y+1)*48]) for y in range(104)]
-              with open(dst,'w') as f:
-                  json.dump({'width':48,'height':104,'palette':palette,'rows':rows},f,separators=(',',':'))
-
-          def build_xpm(src, dst, w, h, colors=32):
-              q = quant(src,(w,h),colors)
+          def xpm(src, dst, w=40, h=86, colors=40):
+              if not os.path.exists(src): return
+              img = Image.open(src).convert('RGB').resize((w,h), Image.Resampling.LANCZOS)
+              q = img.quantize(colors=colors, method=Image.Quantize.MEDIANCUT)
               raw = q.getpalette()[:colors*3]
               palette = [tuple(raw[i:i+3]) for i in range(0,colors*3,3)]
               px = list(q.getdata())
@@ -111,29 +130,31 @@ jobs:
                   f.write('/* XPM */\nstatic char * review[] = {\n')
                   f.write(f'"{w} {h} {len(palette)} 1",\n')
                   for i,(r,g,b) in enumerate(palette):
-                      f.write(f'"{xpm_keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
+                      f.write(f'"{keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
                   for y in range(h):
-                      row = ''.join(xpm_keys[v] for v in px[y*w:(y+1)*w])
-                      comma = ',' if y < h-1 else ''
-                      f.write(f'"{row}"{comma}\n')
+                      row = ''.join(keys[v] for v in px[y*w:(y+1)*w])
+                      f.write(f'"{row}"{"," if y < h-1 else ""}\n')
                   f.write('};\n')
 
-          build_json('.visual-check/home-mobile.jpg','.visual-check/review-home.json')
-          build_json('.visual-check/level1-mobile.jpg','.visual-check/review-level.json')
-          build_xpm('.visual-check/home-mobile.jpg','.visual-check/review-home.xpm',32,69)
-          build_xpm('.visual-check/level1-mobile.jpg','.visual-check/review-level.xpm',32,69)
-          build_xpm('.visual-check/level1-running-mobile.jpg','.visual-check/review-running.xpm',32,69)
-          build_xpm('.visual-check/level1-result-mobile.jpg','.visual-check/review-result.xpm',32,69)
-          build_xpm('.visual-check/level1-desktop.jpg','.visual-check/review-desktop.xpm',42,61,40)
-          build_xpm('.visual-check/board-mobile.jpg','.visual-check/review-board.xpm',48,48,48)
+          shots = {
+            'review-home.xpm':'home-mobile.jpg',
+            'review-level.xpm':'level1-mobile.jpg',
+            'review-trigger.xpm':'level1-trigger-mobile.jpg',
+            'review-gate-wait.xpm':'level1-gate-wait-mobile.jpg',
+            'review-powered.xpm':'level1-powered-mobile.jpg',
+            'review-complete.xpm':'level1-complete-mobile.jpg',
+            'review-result.xpm':'level1-result-mobile.jpg',
+            'review-desktop.xpm':'level1-desktop.jpg',
+          }
+          for dst,src in shots.items():
+              xpm('.visual-check/'+src,'.visual-check/'+dst)
           PY
-          python3 scripts/build-visual-contact.py
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
       - name: Publish visual snapshots
         run: |
           git config user.name 'github-actions[bot]'
-          git config user.email '418982e+github-actions[bot]@users.noreply.github.com'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add .visual-check
           if ! git diff --cached --quiet; then
             git commit -m 'chore: refresh visual snapshots [skip ci]'
