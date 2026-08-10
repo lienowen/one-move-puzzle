@@ -37,6 +37,14 @@
   filter:drop-shadow(0 25px 27px rgba(0,0,0,.43));
 }
 
+.machine-running .route-light{
+  stroke-dasharray:3 8;
+  animation:routeGlint 1.05s linear infinite;
+}
+@keyframes routeGlint{to{stroke-dashoffset:-22}}
+.machine-board.micro-impact .machine-route{animation:routeImpact .16s ease-out}
+@keyframes routeImpact{45%{filter:brightness(1.08)}to{filter:brightness(1)}}
+
 /* Gameplay pieces need to read before the frame at phone scale. */
 .piece-holder img{transform:scale(1.10)}
 .piece-pin img{transform:scale(1.22);filter:saturate(1.18) brightness(1.08)}
@@ -44,8 +52,11 @@
 .piece-goal img{transform:scale(1.13);filter:saturate(1.10) brightness(1.07)}
 .piece-goal-socket img{transform:scale(1.07)}
 
-/* The source ball PNG has loose/irregular transparent canvas. Render a true sphere instead
-   so the ball is always complete at every zoom level and while rotating on the route. */
+/* Stable procedural sphere: the lighting stays camera-fixed while a subtle inner mark rolls. */
+.piece-ball{
+  transform:translate(-50%,-50%)!important;
+  transition:filter .12s ease;
+}
 .piece-ball img{opacity:0!important}
 .piece-ball::before{
   content:"";
@@ -62,8 +73,28 @@
     0 7px 9px rgba(4,14,30,.34),
     0 0 8px rgba(51,135,232,.20);
 }
+.piece-ball::after{
+  content:"";
+  position:absolute;
+  inset:17%;
+  border-radius:50%;
+  border:1.2px solid rgba(147,204,255,.22);
+  border-right-color:transparent;
+  border-bottom-color:rgba(2,28,69,.24);
+  transform:rotate(var(--roll-angle,0deg));
+  pointer-events:none;
+}
+.piece-ball.running{
+  filter:drop-shadow(0 7px 5px rgba(18,31,52,.34)) drop-shadow(0 0 8px rgba(53,128,231,.20));
+}
+.piece-ball.running::after{opacity:.72}
+.piece-ball.at-goal{animation:polishBallSink .5s cubic-bezier(.23,.79,.26,1) forwards!important}
+@keyframes polishBallSink{
+  0%{transform:translate(-50%,-50%) scale(1)!important;opacity:1}
+  35%{transform:translate(-50%,-49%) scale(1.05,.92)!important;opacity:1}
+  100%{transform:translate(-50%,-46%) scale(.12)!important;opacity:.06;filter:brightness(1.2)}
+}
 
-/* Steel-ball levels keep the same geometry but use a neutral metallic material. */
 .piece-ball:has(img[src*="steel"])::before{
   background:
     radial-gradient(circle at 30% 24%,rgba(255,255,255,.98) 0 5%,rgba(240,246,249,.90) 6% 11%,transparent 18%),
@@ -86,11 +117,16 @@
 .polished-tutorial .polish-suppressed{opacity:0!important;pointer-events:none!important}
 .polished-tutorial .polish-pin{
   aspect-ratio:2.7/1;
+  cursor:grab;
   filter:drop-shadow(0 8px 7px rgba(10,28,55,.34));
   transition:filter .14s ease;
 }
 .polished-tutorial .polish-pin.is-dragging{
-  filter:drop-shadow(0 10px 9px rgba(9,31,68,.42)) drop-shadow(0 0 16px rgba(66,148,255,.28));
+  cursor:grabbing;
+  filter:drop-shadow(0 11px 9px rgba(9,31,68,.44)) drop-shadow(0 0 17px rgba(66,148,255,.30));
+}
+.polished-tutorial .polish-pin.past-detent{
+  filter:drop-shadow(0 11px 9px rgba(9,31,68,.44)) drop-shadow(0 0 22px rgba(77,161,255,.42));
 }
 .polished-tutorial .polish-pin.pull-reset{animation:polishPinReset .22s cubic-bezier(.2,.75,.25,1)}
 @keyframes polishPinReset{0%{transform:translate(-54%,-50%)}60%{transform:translate(-48%,-50%)}100%{transform:translate(-50%,-50%)}}
@@ -100,17 +136,19 @@
 .polished-tutorial .polish-star.polish-collected{opacity:0;transform:translate(-50%,-72%) scale(.34);transition:opacity .18s ease,transform .18s ease}
 @keyframes polishStarPop{45%{transform:translate(-50%,-54%) scale(1.18)}100%{transform:translate(-50%,-50%) scale(1)}}
 
-/* The authored pin states already show extension/release. Keep movement small so the control
-   feels physical without sliding the whole sprite off the board. */
+/* Authored pin states show the mechanical extension; motion is a short release recoil only. */
 .polished-tutorial .polish-pin.action-pull{animation:polishPinPull .36s cubic-bezier(.18,.82,.24,1) forwards}
 @keyframes polishPinPull{
   0%{transform:translate(-50%,-50%)}
-  55%{transform:translate(-58%,-50%)}
+  50%{transform:translate(-57%,-50%)}
+  72%{transform:translate(-50%,-50%)}
   100%{transform:translate(-52%,-50%)}
 }
 
 .polished-tutorial .polish-goal.activated{animation:polishGoalWake .72s ease-in-out infinite alternate}
+.polished-tutorial .polish-goal.goal-success{animation:polishGoalSuccess .5s cubic-bezier(.18,.76,.2,1) both}
 @keyframes polishGoalWake{to{filter:drop-shadow(0 0 25px rgba(255,175,25,.70)) brightness(1.08);transform:translate(-50%,-50%) scale(1.035)}}
+@keyframes polishGoalSuccess{45%{filter:drop-shadow(0 0 38px rgba(255,190,34,.92)) brightness(1.16);transform:translate(-50%,-50%) scale(1.08)}to{filter:drop-shadow(0 0 19px rgba(255,176,27,.52));transform:translate(-50%,-50%) scale(1.02)}}
 
 /* Sprite FX from the polish pack. */
 .polish-fx{
@@ -130,10 +168,12 @@
 .fx-goal-warmup{width:30%;opacity:.88;animation:polishGoalPulse .86s ease-in-out both}
 .fx-goal{width:36%;animation:polishGoalPulse .86s ease-in-out both}
 .fx-success{width:66%;animation:polishFxBurst .92s cubic-bezier(.18,.72,.2,1) both}
+.fx-track-dust{width:18%;mix-blend-mode:normal;opacity:.72;animation:polishDust .46s ease-out both}
 @keyframes polishFxIn{from{opacity:0;transform:translate(-50%,-50%) scale(.58)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
 @keyframes polishFxFade{0%,58%{opacity:1}to{opacity:0}}
 @keyframes polishFxBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.48)}35%{opacity:1}to{opacity:0;transform:translate(-50%,-55%) scale(1.08)}}
 @keyframes polishGoalPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}45%{opacity:.96}to{opacity:0;transform:translate(-50%,-50%) scale(1.12)}}
+@keyframes polishDust{0%{opacity:0;transform:translate(-50%,-44%) scale(.65)}25%{opacity:.68}to{opacity:0;transform:translate(-50%,-68%) scale(1.04)}}
 
 .piece-pin.interactive::after{
   inset:35% -2%;
@@ -141,6 +181,7 @@
   box-shadow:0 0 0 7px rgba(47,121,219,.10),0 0 30px rgba(47,121,219,.54);
 }
 .polished-tutorial .polish-pin.interactive::after{inset:21% -4%;border-radius:999px}
+.polished-tutorial .polish-pin.is-dragging::after{animation:none;opacity:.42;transform:scale(.98)}
 
 .game-footer{
   min-height:50px;
@@ -168,8 +209,6 @@
 @media(max-width:500px){
   .machine-board{width:145%;top:52%}
   .game-footer{margin-left:3px;margin-right:3px}
-
-  /* Keep the long pull pin inside the close-up camera safe zone. */
   .piece-pin{left:27%!important}
   .piece-pin-socket{left:29%!important}
   .polished-tutorial .polish-pin{width:24%!important}
