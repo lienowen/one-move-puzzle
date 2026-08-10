@@ -28,37 +28,41 @@ function solveMaze(maze,override = {}) {
   for (const [id,rotation] of Object.entries(override)) rotations.set(id,rotation);
   const openGates = new Set(maze.openGates || []);
   const visited = new Set();
+  const path = [];
   let x = maze.start.x;
   let y = maze.start.y;
   let dir = maze.start.dir;
 
+  const result = (success,reason) => ({success,reason,path:[...path]});
+
   for (let i=0;i<72;i+=1) {
     const state = `${x},${y},${dir}|${[...openGates].sort().join(',')}`;
-    if (visited.has(state)) return {success:false,reason:'loop'};
+    if (visited.has(state)) return result(false,'loop');
     visited.add(state);
     const [dx,dy] = STEP[dir];
     x += dx; y += dy;
     const cell = cells.get(`${x},${y}`);
-    if (!cell) return {success:false,reason:'off-track'};
-    if (cell.hazard) return {success:false,reason:'pit'};
+    if (!cell) return result(false,'off-track');
+    path.push(cell.id || `${x},${y}`);
+    if (cell.hazard) return result(false,'pit');
     if (cell.feature === 'gate') {
       const gateId = cell.gateId || cell.id || 'gate';
-      if (!openGates.has(gateId)) return {success:false,reason:'gate'};
+      if (!openGates.has(gateId)) return result(false,'gate');
     }
     if (cell.feature === 'pad') for (const gateId of cell.opens || []) openGates.add(gateId);
-    if (cell.goal) return {success:true,reason:'goal'};
+    if (cell.goal) return result(true,'goal');
 
     const rotation = cell.id && rotations.has(cell.id) ? rotations.get(cell.id) : (cell.rotation || 0);
     const links = connections(cell.type,rotation);
     const entry = OPP[dir];
-    if (!links.includes(entry)) return {success:false,reason:'broken'};
+    if (!links.includes(entry)) return result(false,'broken');
     const exits = links.filter(item => item !== entry);
-    if (!exits.length) return {success:false,reason:'dead-end'};
+    if (!exits.length) return result(false,'dead-end');
     const exit = chooseExit(cell,rotation,entry,dir,exits);
-    if (!exit || !exits.includes(exit)) return {success:false,reason:'broken'};
+    if (!exit || !exits.includes(exit)) return result(false,'broken');
     dir = exit;
   }
-  return {success:false,reason:'loop'};
+  return result(false,'loop');
 }
 
 function validateMaze(levelId) {
@@ -99,19 +103,30 @@ function validateMaze(levelId) {
     for (const turn of rotator.turns || []) {
       const rotation = norm(rotator.initialRotation + turn);
       const result = solveMaze(maze,{[rotator.id]:rotation});
-      if (result.success) solutions.push({id:rotator.id,turn,rotation});
+      if (result.success) solutions.push({id:rotator.id,turn,rotation,result});
     }
   }
   if (solutions.length !== 1) fail(`${levelId}: expected exactly one one-move solution, found ${solutions.length} (${solutions.map(s => `${s.id}:${s.turn}`).join(', ') || 'none'})`);
   const expected = maze.expectedSolution;
   if (expected && (solutions[0]?.id !== expected.id || solutions[0]?.turn !== expected.turn)) fail(`${levelId}: unique solution does not match expected ${expected.id}:${expected.turn}`);
+  return solutions[0];
 }
 
 for (const id of ['release','gate','switch','button']) validateMaze(id);
+const springSolution = validateMaze('spring');
+
+const springMaze = MACHINE_LOGIC.spring?.maze;
+if (springMaze?.mode !== 'vector') fail('spring: must use vector maze mode');
+const springCells = springMaze?.cells?.filter(cell => cell.feature === 'spring') || [];
+if (springCells.length !== 1) fail(`spring: expected exactly one spring launcher, found ${springCells.length}`);
+const gaps = springMaze?.cells?.filter(cell => cell.gap) || [];
+if (!gaps.length) fail('spring: must contain a real visible gap');
+if (springCells[0] && !(Number.isInteger(springCells[0].airborneSteps) && springCells[0].airborneSteps >= 2)) fail('spring: launcher must keep the ball airborne across at least two grid steps');
+if (springSolution && gaps.length && !gaps.some(cell => springSolution.result.path.includes(cell.id))) fail('spring: unique solution must actually cross the authored gap');
 
 if (errors.length) {
   for (const message of errors) console.error(`Machine logic check failed: ${message}`);
   process.exit(1);
 }
 
-console.log('Machine logic check passed: Levels 1-4 each have exactly one valid one-move maze solution.');
+console.log('Machine logic check passed: Levels 1-5 are unique one-move puzzles and Spring Gap crosses a real vector gap.');
