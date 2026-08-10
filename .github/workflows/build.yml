@@ -28,7 +28,7 @@ jobs:
       - name: Build production bundle
         run: npm run build
 
-      - name: Install browser for visual QA
+      - name: Install browser for causal QA
         run: |
           npm install --no-save playwright@1.54.2
           npx playwright install --with-deps chromium
@@ -41,123 +41,7 @@ jobs:
             if curl -fsS http://127.0.0.1:4173 >/dev/null; then break; fi
             sleep 1
           done
-
-          node <<'NODE'
-          const { chromium } = require('playwright');
-
-          async function pullPin(page) {
-            const pin = page.locator('[data-id="pin"]');
-            const box = await pin.boundingBox();
-            if (!box) throw new Error('Pull pin has no bounding box');
-            await page.mouse.move(box.x + box.width * .72, box.y + box.height * .5);
-            await page.mouse.down();
-            await page.mouse.move(box.x + box.width * .10, box.y + box.height * .5, {steps:10});
-            await page.mouse.up();
-          }
-
-          function movement(a,b) {
-            if (!a || !b) return 0;
-            return Math.hypot(b.x-a.x,b.y-a.y);
-          }
-
-          (async () => {
-            const browser = await chromium.launch({headless:true});
-            const cases = [
-              {name:'mobile', width:390, height:844},
-              {name:'desktop', width:620, height:900},
-            ];
-
-            for (const item of cases) {
-              const context = await browser.newContext({viewport:{width:item.width,height:item.height},deviceScaleFactor:1,reducedMotion:'reduce'});
-              const page = await context.newPage();
-              await page.goto('http://127.0.0.1:4173', {waitUntil:'networkidle'});
-              await page.screenshot({path:`.visual-check/home-${item.name}.jpg`,type:'jpeg',quality:66,fullPage:false});
-
-              await page.click('#playBtn');
-              await page.locator('.game-screen.active').waitFor({state:'visible'});
-              await page.locator('.machine-board').waitFor({state:'visible'});
-              await page.waitForTimeout(300);
-              await page.screenshot({path:`.visual-check/level1-${item.name}.jpg`,type:'jpeg',quality:70,fullPage:false});
-
-              if (item.name === 'mobile') {
-                await page.locator('.machine-board').screenshot({path:'.visual-check/board-mobile.jpg',type:'jpeg',quality:78});
-                await pullPin(page);
-
-                await page.locator('.piece-logic-trigger.logic-active').waitFor({state:'visible',timeout:3500});
-                await page.screenshot({path:'.visual-check/level1-trigger-mobile.jpg',type:'jpeg',quality:70,fullPage:false});
-                await page.locator('.machine-board.waiting-gate').waitFor({state:'attached',timeout:3500});
-                await page.screenshot({path:'.visual-check/level1-gate-wait-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-                await page.locator('.piece-logic-gate.logic-gate-open').waitFor({state:'attached',timeout:3500});
-                await page.locator('.machine-board.goal-powered').waitFor({state:'attached',timeout:5200});
-                await page.screenshot({path:'.visual-check/level1-powered-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-                await page.locator('.machine-board.machine-complete').waitFor({state:'attached',timeout:6500});
-                await page.screenshot({path:'.visual-check/level1-complete-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
-                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:2500});
-                await page.screenshot({path:'.visual-check/level1-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-
-                // Level 2: one linkage reaches the gate and one visibly dead-ends.
-                await page.click('#nextBtn');
-                await page.locator('.choice-gate-machine').waitFor({state:'visible',timeout:2500});
-                await page.waitForTimeout(250);
-                await page.screenshot({path:'.visual-check/level2-initial-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-                if (await page.locator('.correct-link').count() !== 1 || await page.locator('.decoy-link').count() !== 1) throw new Error('Level 2 linkage topology missing');
-
-                await page.click('[data-id="redLever"]');
-                await page.locator('.decoy-link.link-wrong').waitFor({state:'attached',timeout:1500});
-                await page.locator('.piece-choice-dead-stop.dead-stop-hit').waitFor({state:'attached',timeout:1500});
-                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:2500});
-                if (!/wrong/i.test(await page.locator('#resultTitle').textContent() || '')) throw new Error('Level 2 red lever must fail');
-                await page.screenshot({path:'.visual-check/level2-wrong-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-
-                await page.click('#nextBtn');
-                await page.locator('.choice-gate-machine').waitFor({state:'visible',timeout:2000});
-                const l2BallBefore = await page.locator('[data-id="ball"]').boundingBox();
-                await page.click('[data-id="blueLever"]');
-                await page.locator('.correct-link.link-live').waitFor({state:'attached',timeout:1200});
-                await page.locator('[data-id="gate"].choice-gate-open').waitFor({state:'attached',timeout:2200});
-                const l2BallAtOpen = await page.locator('[data-id="ball"]').boundingBox();
-                if (movement(l2BallBefore,l2BallAtOpen) > 12) throw new Error('Level 2 ball moved before gate opened');
-                await page.screenshot({path:'.visual-check/level2-gate-open-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:6500});
-                if (/wrong/i.test(await page.locator('#resultTitle').textContent() || '')) throw new Error('Level 2 blue linkage unexpectedly failed');
-                await page.screenshot({path:'.visual-check/level2-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-
-                // Level 3: the route must visibly start broken; the wrong valve cannot repair it.
-                await page.click('#nextBtn');
-                await page.locator('.route-align-machine').waitFor({state:'visible',timeout:2500});
-                await page.locator('.route-gap').waitFor({state:'visible',timeout:1500});
-                await page.locator('[data-id="spinner"].bridge-misaligned').waitFor({state:'visible',timeout:1500});
-                if (await page.locator('.align-shaft').count() !== 1 || await page.locator('.valve-shaft').count() !== 1) throw new Error('Level 3 control topology missing');
-                await page.screenshot({path:'.visual-check/level3-initial-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-
-                await page.click('[data-id="wheel"]');
-                await page.locator('.valve-shaft.valve-live').waitFor({state:'attached',timeout:1500});
-                await page.locator('.piece-align-valve-stop.valve-spinning').waitFor({state:'attached',timeout:1500});
-                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:2500});
-                if (!/wrong/i.test(await page.locator('#resultTitle').textContent() || '')) throw new Error('Level 3 valve must fail');
-                await page.screenshot({path:'.visual-check/level3-wrong-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-
-                // Correct crank must align the bridge before the ball starts moving.
-                await page.click('#nextBtn');
-                await page.locator('.route-align-machine').waitFor({state:'visible',timeout:2000});
-                const l3BallBefore = await page.locator('[data-id="ball"]').boundingBox();
-                await page.click('[data-id="crank"]');
-                await page.locator('.align-shaft.shaft-live').waitFor({state:'attached',timeout:1200});
-                await page.locator('[data-id="spinner"].bridge-aligned').waitFor({state:'attached',timeout:2200});
-                const l3BallAtAlign = await page.locator('[data-id="ball"]').boundingBox();
-                if (movement(l3BallBefore,l3BallAtAlign) > 12) throw new Error('Level 3 ball moved before bridge aligned');
-                await page.screenshot({path:'.visual-check/level3-aligned-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:6800});
-                if (/wrong/i.test(await page.locator('#resultTitle').textContent() || '')) throw new Error('Level 3 crank unexpectedly failed');
-                await page.screenshot({path:'.visual-check/level3-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
-              }
-
-              await context.close();
-            }
-            await browser.close();
-          })().catch(err => { console.error(err); process.exit(1); });
-          NODE
-
+          node scripts/causal-browser-qa.mjs
           node scripts/visual-sweep.mjs
 
       - name: Build review thumbnails
@@ -166,7 +50,9 @@ jobs:
           python3 <<'PY'
           from PIL import Image
           import os
+
           keys = list('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./:;<=>?@[]^_{|}~')
+
           def xpm(src, dst, w=40, h=86, colors=40):
               if not os.path.exists(src): return
               img = Image.open(src).convert('RGB').resize((w,h), Image.Resampling.LANCZOS)
@@ -177,19 +63,36 @@ jobs:
               with open(dst,'w') as f:
                   f.write('/* XPM */\nstatic char * review[] = {\n')
                   f.write(f'"{w} {h} {len(palette)} 1",\n')
-                  for i,(r,g,b) in enumerate(palette): f.write(f'"{keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
+                  for i,(r,g,b) in enumerate(palette):
+                      f.write(f'"{keys[i]} c #{r:02x}{g:02x}{b:02x}",\n')
                   for y in range(h):
                       row = ''.join(keys[v] for v in px[y*w:(y+1)*w])
                       f.write(f'"{row}"{"," if y < h-1 else ""}\n')
                   f.write('};\n')
+
           shots = {
-            'review-home.xpm':'home-mobile.jpg','review-level.xpm':'level1-mobile.jpg','review-trigger.xpm':'level1-trigger-mobile.jpg',
-            'review-gate-wait.xpm':'level1-gate-wait-mobile.jpg','review-powered.xpm':'level1-powered-mobile.jpg','review-complete.xpm':'level1-complete-mobile.jpg','review-result.xpm':'level1-result-mobile.jpg',
-            'review-level2.xpm':'level2-initial-mobile.jpg','review-level2-wrong.xpm':'level2-wrong-mobile.jpg','review-level2-open.xpm':'level2-gate-open-mobile.jpg','review-level2-result.xpm':'level2-result-mobile.jpg',
-            'review-level3.xpm':'level3-initial-mobile.jpg','review-level3-wrong.xpm':'level3-wrong-mobile.jpg','review-level3-aligned.xpm':'level3-aligned-mobile.jpg','review-level3-result.xpm':'level3-result-mobile.jpg',
+            'review-home.xpm':'home-mobile.jpg',
+            'review-level.xpm':'level1-mobile.jpg',
+            'review-maze-wrong.xpm':'level1-wrong-turn-mobile.jpg',
+            'review-maze-aligned.xpm':'level1-aligned-mobile.jpg',
+            'review-complete.xpm':'level1-complete-mobile.jpg',
+            'review-result.xpm':'level1-result-mobile.jpg',
+            'review-level2.xpm':'level2-initial-mobile.jpg',
+            'review-level2-wrong.xpm':'level2-wrong-mobile.jpg',
+            'review-level2-open.xpm':'level2-gate-open-mobile.jpg',
+            'review-level2-result.xpm':'level2-result-mobile.jpg',
+            'review-level3.xpm':'level3-initial-mobile.jpg',
+            'review-level3-wrong.xpm':'level3-wrong-mobile.jpg',
+            'review-level3-aligned.xpm':'level3-aligned-mobile.jpg',
+            'review-level3-result.xpm':'level3-result-mobile.jpg',
+            'review-level4.xpm':'level4-initial-mobile.jpg',
+            'review-level4-wrong.xpm':'level4-wrong-mobile.jpg',
+            'review-level4-open.xpm':'level4-gate-open-mobile.jpg',
+            'review-level4-result.xpm':'level4-result-mobile.jpg',
             'review-desktop.xpm':'level1-desktop.jpg',
           }
-          for dst,src in shots.items(): xpm('.visual-check/'+src,'.visual-check/'+dst)
+          for dst,src in shots.items():
+              xpm('.visual-check/'+src,'.visual-check/'+dst)
           PY
           printf '%s\n' "$GITHUB_RUN_ID" > .visual-check/run-id.txt
 
