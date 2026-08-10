@@ -83,6 +83,8 @@
   transform:rotate(var(--roll-angle,0deg));
   pointer-events:none;
 }
+.piece-ball.release-ready::before{animation:ballReady .34s cubic-bezier(.2,.74,.25,1)}
+@keyframes ballReady{35%{transform:translateX(-3%) scale(.97,1.03)}70%{transform:translateX(2%) scale(1.02,.98)}to{transform:none}}
 .piece-ball.running{
   filter:drop-shadow(0 7px 5px rgba(18,31,52,.34)) drop-shadow(0 0 8px rgba(53,128,231,.20));
 }
@@ -105,6 +107,7 @@
     0 0 7px rgba(198,220,233,.16);
 }
 
+/* Level 1 authored interaction states. */
 .polished-tutorial .polish-state img{
   transform:none!important;
   filter:none!important;
@@ -119,6 +122,23 @@
   filter:drop-shadow(0 8px 7px rgba(10,28,55,.34));
   transition:filter .14s ease;
 }
+.polished-tutorial .polish-pin.interactive::before{
+  content:"‹‹";
+  position:absolute;
+  left:-23px;
+  top:50%;
+  transform:translateY(-53%);
+  color:#8fc6ff;
+  font:900 22px/1 Arial,sans-serif;
+  letter-spacing:-6px;
+  text-shadow:0 0 11px rgba(77,157,255,.68);
+  opacity:.78;
+  pointer-events:none;
+  animation:pullCue .92s ease-in-out infinite;
+}
+@keyframes pullCue{50%{transform:translate(-7px,-53%);opacity:.38}}
+.machine-running .polished-tutorial .polish-pin::before,
+.polished-tutorial .polish-pin.is-dragging::before{display:none}
 .polished-tutorial .polish-pin.is-dragging{
   cursor:grabbing;
   filter:drop-shadow(0 11px 9px rgba(9,31,68,.44)) drop-shadow(0 0 17px rgba(66,148,255,.30));
@@ -133,6 +153,11 @@
 .polished-tutorial .polish-star.polish-collecting{animation:polishStarPop .42s cubic-bezier(.2,.8,.2,1)}
 .polished-tutorial .polish-star.polish-collected{opacity:0;transform:translate(-50%,-72%) scale(.34);transition:opacity .18s ease,transform .18s ease}
 @keyframes polishStarPop{45%{transform:translate(-50%,-54%) scale(1.18)}100%{transform:translate(-50%,-50%) scale(1)}}
+
+.polished-tutorial .piece-holder.releasing{animation:holderRelease .42s cubic-bezier(.18,.78,.24,1)}
+@keyframes holderRelease{30%{transform:translate(-50%,-50%) rotate(-2deg) scale(.98)}58%{transform:translate(-50%,-52%) rotate(1.5deg) scale(1.02)}to{transform:translate(-50%,-50%)}}
+.polished-tutorial .tutorial-gear-active img{animation:tutorialGearSpin 1.25s cubic-bezier(.15,.65,.22,1) both}
+@keyframes tutorialGearSpin{to{transform:rotate(240deg)}}
 
 .polished-tutorial .polish-pin.action-pull{animation:polishPinPull .36s cubic-bezier(.18,.82,.24,1) forwards}
 @keyframes polishPinPull{
@@ -204,8 +229,8 @@
 @media(max-width:500px){
   .machine-board{width:145%;top:52%}
   .game-footer{margin-left:3px;margin-right:3px}
-  .piece-pin{left:27%!important}
-  .piece-pin-socket{left:29%!important}
+  .polished-tutorial .piece-pin{left:27%!important}
+  .polished-tutorial .piece-pin-socket{left:29%!important}
   .polished-tutorial .polish-pin{width:24%!important}
   .polished-tutorial .polish-star{width:9.5%!important}
   .polished-tutorial .polish-goal{width:16%!important}
