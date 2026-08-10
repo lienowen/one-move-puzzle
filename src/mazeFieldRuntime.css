@@ -1,0 +1,20 @@
+/* Directional force-field puzzles: the control changes the ball vector, not track topology. */
+.maze-field-control{position:absolute;z-index:24;border:0;background:transparent;padding:0;touch-action:none;cursor:grab;appearance:none;-webkit-appearance:none}
+.maze-field-control:active{cursor:grabbing}
+.maze-field-dial,.maze-field-device{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;transition:transform 210ms cubic-bezier(.2,.82,.2,1),filter 180ms}
+.maze-field-dial{z-index:1;filter:drop-shadow(0 0 9px rgba(74,165,255,.22))}
+.maze-field-device{z-index:2;inset:13%;width:74%;height:74%;left:13%;top:13%;filter:drop-shadow(0 6px 7px rgba(0,0,0,.34));transform:rotate(var(--field-angle,0deg))}
+.maze-field-control.dragging .maze-field-device{transition:none;filter:brightness(1.1) drop-shadow(0 0 14px rgba(67,174,255,.5))}
+.maze-field-control.snapped .maze-field-device{filter:brightness(1.15) drop-shadow(0 0 17px rgba(73,181,255,.58))}
+.maze-field-line{position:absolute;z-index:17;pointer-events:none;transform-origin:0 50%;height:3px;border-radius:999px;background:linear-gradient(90deg,rgba(68,179,255,.06),rgba(68,179,255,.7),rgba(68,179,255,.06));box-shadow:0 0 10px rgba(58,169,255,.34);opacity:.34;transition:opacity 180ms,filter 180ms}
+.maze-field-board.field-armed .maze-field-line{opacity:.82;animation:mazeFieldPulse .72s ease-in-out infinite alternate}
+.maze-field-fx{position:absolute;z-index:19;pointer-events:none;object-fit:contain;opacity:0}
+.maze-field-board.field-armed .maze-field-fx{opacity:.72;animation:mazeFieldBloom 1s ease-in-out infinite alternate}
+.maze-field-board .maze-ball{transition:filter 120ms}
+.maze-field-board .maze-ball.field-captured{filter:brightness(1.18) drop-shadow(0 0 12px rgba(64,178,255,.52)) drop-shadow(0 8px 7px rgba(0,0,0,.28))}
+.maze-field-board .maze-ball.field-repelled{filter:saturate(.75) brightness(.94) drop-shadow(0 0 10px rgba(255,94,72,.35))}
+.maze-field-arrow{position:absolute;z-index:27;left:50%;top:-12%;width:8px;height:28%;transform-origin:50% 120%;transform:translateX(-50%) rotate(var(--field-angle,0deg));pointer-events:none}
+.maze-field-arrow::before{content:"";position:absolute;left:3px;top:5px;width:2px;height:75%;background:#72c5ff;box-shadow:0 0 7px rgba(92,190,255,.6)}
+.maze-field-arrow::after{content:"";position:absolute;left:0;top:0;width:8px;height:8px;border-left:2px solid #8fd4ff;border-top:2px solid #8fd4ff;transform:rotate(45deg)}
+@keyframes mazeFieldPulse{to{filter:brightness(1.35);box-shadow:0 0 16px rgba(70,181,255,.52)}}
+@keyframes mazeFieldBloom{to{opacity:.92;transform:scale(1.06)}}
