@@ -88,12 +88,10 @@ async function testLevel4(page) {
   if (await board.locator('.maze-pit-art').count() !== 1) throw new Error('Level 4 must show the bad branch ending in a pit');
   await page.screenshot({path:'.visual-check/level4-initial-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
 
-  // Counter-clockwise removes the south entry from the T-junction.
   await rotate(page,'pivot','ArrowLeft');
   await expectResult(page,'wrong');
   await page.screenshot({path:'.visual-check/level4-wrong-mobile.jpg',type:'jpeg',quality:73,fullPage:false});
 
-  // Clockwise sends the ball left, around the long upper route, through the star and into the goal.
   await page.click('#nextBtn');
   board = page.locator('.maze-puzzle-board[data-maze-level="button"]');
   await board.waitFor({state:'visible',timeout:2200});
@@ -102,6 +100,33 @@ async function testLevel4(page) {
   await page.screenshot({path:'.visual-check/level4-complete-mobile.jpg',type:'jpeg',quality:75,fullPage:false});
   await expectResult(page,'success');
   await page.screenshot({path:'.visual-check/level4-result-mobile.jpg',type:'jpeg',quality:73,fullPage:false});
+}
+
+async function testLevel5(page) {
+  await page.click('#nextBtn');
+  let board = page.locator('.maze-vector-board[data-maze-level="spring"]');
+  await board.waitFor({state:'visible',timeout:2500});
+  if (await board.locator('.maze-spring-art').count() !== 1) throw new Error('Level 5 must render one spring launcher');
+  if (await board.locator('.maze-gap-slot').count() !== 1) throw new Error('Level 5 must render a real gap');
+  if (await board.locator('.maze-gap-slot .maze-rail-art').count() !== 0) throw new Error('Level 5 gap must not contain a hidden rail image');
+  await page.screenshot({path:'.visual-check/level5-initial-mobile.jpg',type:'jpeg',quality:75,fullPage:false});
+
+  // Counter-clockwise aims the launcher down into the visible pit.
+  await rotate(page,'springPivot','ArrowLeft');
+  await expectResult(page,'wrong');
+  await page.screenshot({path:'.visual-check/level5-wrong-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
+
+  // Clockwise aims across the physical gap. The ball must enter an airborne phase before landing.
+  await page.click('#nextBtn');
+  board = page.locator('.maze-vector-board[data-maze-level="spring"]');
+  await board.waitFor({state:'visible',timeout:2200});
+  await rotate(page,'springPivot','ArrowRight');
+  await board.locator('.spring-fired').waitFor({state:'attached',timeout:4500});
+  await board.locator('.maze-ball.maze-airborne').waitFor({state:'attached',timeout:1800});
+  await page.screenshot({path:'.visual-check/level5-airborne-mobile.jpg',type:'jpeg',quality:76,fullPage:false});
+  await page.locator('.maze-board.maze-solved').waitFor({state:'attached',timeout:7000});
+  await expectResult(page,'success');
+  await page.screenshot({path:'.visual-check/level5-result-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
 }
 
 const browser = await chromium.launch({headless:true});
@@ -126,6 +151,7 @@ try {
       await testLevel2(page);
       await testLevel3(page);
       await testLevel4(page);
+      await testLevel5(page);
     }
     await context.close();
   }
