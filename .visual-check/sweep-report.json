@@ -1,0 +1,878 @@
+[
+  {
+    "level": 1,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "pin",
+        "interactive": true,
+        "kind": "piece-pin",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          333,
+          141,
+          381
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          169,
+          491,
+          221,
+          548
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          303,
+          582,
+          390,
+          663
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          31,
+          274,
+          77,
+          321
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 2,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "blueLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          2,
+          579,
+          66,
+          644
+        ]
+      },
+      {
+        "id": "redLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          324,
+          295,
+          388,
+          359
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          259,
+          499,
+          302,
+          542
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          570,
+          387,
+          621
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          288,
+          57,
+          334
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 3,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "crank",
+        "interactive": true,
+        "kind": "piece-crank",
+        "visibleRatio": 1,
+        "rect": [
+          13,
+          284,
+          77,
+          349
+        ]
+      },
+      {
+        "id": "wheel",
+        "interactive": true,
+        "kind": "piece-wheel",
+        "visibleRatio": 1,
+        "rect": [
+          321,
+          582,
+          380,
+          641
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          265,
+          359,
+          308,
+          402
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          296,
+          387,
+          347
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          583,
+          57,
+          629
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 4,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "greenButton",
+        "interactive": true,
+        "kind": "piece-button",
+        "visibleRatio": 1,
+        "rect": [
+          10,
+          587,
+          69,
+          646
+        ]
+      },
+      {
+        "id": "yellowButton",
+        "interactive": true,
+        "kind": "piece-button",
+        "visibleRatio": 1,
+        "rect": [
+          321,
+          287,
+          380,
+          346
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          281,
+          499,
+          324,
+          542
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          570,
+          387,
+          621
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          288,
+          57,
+          334
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 5,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "spring",
+        "interactive": true,
+        "kind": "piece-spring",
+        "visibleRatio": 1,
+        "rect": [
+          157,
+          434,
+          222,
+          499
+        ]
+      },
+      {
+        "id": "decoyBumper",
+        "interactive": true,
+        "kind": "piece-bumper",
+        "visibleRatio": 1,
+        "rect": [
+          321,
+          292,
+          380,
+          351
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          281,
+          483,
+          324,
+          526
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          570,
+          387,
+          621
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          299,
+          57,
+          344
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 6,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "beltButton",
+        "interactive": true,
+        "kind": "piece-button",
+        "visibleRatio": 1,
+        "rect": [
+          5,
+          582,
+          64,
+          641
+        ]
+      },
+      {
+        "id": "redLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          326,
+          292,
+          385,
+          351
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          275,
+          504,
+          318,
+          547
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          565,
+          387,
+          615
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          294,
+          57,
+          339
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 7,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "blueLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          5,
+          287,
+          64,
+          346
+        ]
+      },
+      {
+        "id": "redLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          326,
+          582,
+          385,
+          641
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          275,
+          418,
+          318,
+          461
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          318,
+          387,
+          368
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          578,
+          57,
+          623
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 8,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "greenButton",
+        "interactive": true,
+        "kind": "piece-button",
+        "visibleRatio": 1,
+        "rect": [
+          10,
+          582,
+          69,
+          641
+        ]
+      },
+      {
+        "id": "yellowButton",
+        "interactive": true,
+        "kind": "piece-button",
+        "visibleRatio": 1,
+        "rect": [
+          321,
+          287,
+          380,
+          346
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          254,
+          509,
+          297,
+          552
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          331,
+          575,
+          381,
+          626
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          294,
+          57,
+          339
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 9,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "crank",
+        "interactive": true,
+        "kind": "piece-crank",
+        "visibleRatio": 1,
+        "rect": [
+          7,
+          284,
+          72,
+          349
+        ]
+      },
+      {
+        "id": "button",
+        "interactive": true,
+        "kind": "piece-button",
+        "visibleRatio": 1,
+        "rect": [
+          326,
+          577,
+          385,
+          636
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          265,
+          391,
+          308,
+          434
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          307,
+          387,
+          358
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          578,
+          57,
+          623
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 10,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "singlePulley",
+        "interactive": true,
+        "kind": "piece-pulley",
+        "visibleRatio": 1,
+        "rect": [
+          7,
+          574,
+          72,
+          638
+        ]
+      },
+      {
+        "id": "doublePulley",
+        "interactive": true,
+        "kind": "piece-pulley",
+        "visibleRatio": 0.988,
+        "rect": [
+          321,
+          287,
+          391,
+          357
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          270,
+          504,
+          313,
+          547
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          570,
+          387,
+          621
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          294,
+          57,
+          339
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 11,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "blueLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          5,
+          582,
+          64,
+          641
+        ]
+      },
+      {
+        "id": "redLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          326,
+          287,
+          385,
+          346
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          275,
+          520,
+          318,
+          563
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 1,
+        "rect": [
+          336,
+          581,
+          387,
+          631
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          11,
+          288,
+          57,
+          334
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  },
+  {
+    "level": 12,
+    "stage": [
+      10,
+      127,
+      380,
+      780
+    ],
+    "important": [
+      {
+        "id": "valve",
+        "interactive": true,
+        "kind": "piece-wheel",
+        "visibleRatio": 1,
+        "rect": [
+          2,
+          279,
+          66,
+          343
+        ]
+      },
+      {
+        "id": "redLever",
+        "interactive": true,
+        "kind": "piece-lever",
+        "visibleRatio": 1,
+        "rect": [
+          326,
+          577,
+          385,
+          636
+        ]
+      },
+      {
+        "id": "yellowButton",
+        "interactive": true,
+        "kind": "piece-button",
+        "visibleRatio": 1,
+        "rect": [
+          324,
+          289,
+          377,
+          343
+        ]
+      },
+      {
+        "id": "star",
+        "interactive": false,
+        "kind": "piece-star",
+        "visibleRatio": 1,
+        "rect": [
+          281,
+          332,
+          324,
+          375
+        ]
+      },
+      {
+        "id": "goal",
+        "interactive": false,
+        "kind": "piece-goal",
+        "visibleRatio": 0.963,
+        "rect": [
+          341,
+          280,
+          392,
+          331
+        ]
+      },
+      {
+        "id": "ball",
+        "interactive": false,
+        "kind": "piece-ball",
+        "visibleRatio": 1,
+        "rect": [
+          1,
+          578,
+          46,
+          623
+        ]
+      }
+    ],
+    "warnings": [],
+    "pass": true
+  }
+]
