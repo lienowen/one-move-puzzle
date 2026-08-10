@@ -2,84 +2,127 @@ import { MACHINE_LOGIC } from '../src/machineLogic.js';
 
 const errors = [];
 const fail = message => errors.push(message);
+const DIRS = ['N','E','S','W'];
+const STEP = { N:[0,-1], E:[1,0], S:[0,1], W:[-1,0] };
+const OPP = { N:'S', E:'W', S:'N', W:'E' };
+const BASE = {
+  straight:['N','S'], corner:['N','E'], tee:['N','E','S'], cross:['N','E','S','W'],
+};
 
-function requireStrings(object, keys, scope) {
-  for (const key of keys) {
-    if (typeof object?.[key] !== 'string' || !object[key].trim()) fail(`${scope}: missing ${key}`);
+function norm(value) { return ((value%4)+4)%4; }
+function connections(type,rotation) {
+  return (BASE[type] || []).map(dir => DIRS[(DIRS.indexOf(dir)+rotation)%4]);
+}
+function chooseExit(cell,rotation,entry,currentDir,exits) {
+  const byRotation = cell.exitByRotation?.[String(rotation)]?.[entry];
+  if (byRotation) return byRotation;
+  const fixed = cell.exitMap?.[entry];
+  if (fixed) return fixed;
+  if (exits.includes(currentDir)) return currentDir;
+  return exits[0];
+}
+
+function solveMaze(maze,override = {}) {
+  const cells = new Map(maze.cells.map(cell => [`${cell.x},${cell.y}`,cell]));
+  const rotators = maze.rotators || [];
+  const rotations = new Map(rotators.map(item => [item.id,item.initialRotation]));
+  for (const [id,rotation] of Object.entries(override)) rotations.set(id,rotation);
+  const openGates = new Set(maze.openGates || []);
+  const visited = new Set();
+  let x = maze.start.x;
+  let y = maze.start.y;
+  let dir = maze.start.dir;
+
+  for (let i=0;i<72;i+=1) {
+    const state = `${x},${y},${dir}|${[...openGates].sort().join(',')}`;
+    if (visited.has(state)) return {success:false,reason:'loop'};
+    visited.add(state);
+    const [dx,dy] = STEP[dir];
+    x += dx; y += dy;
+    const cell = cells.get(`${x},${y}`);
+    if (!cell) return {success:false,reason:'off-track'};
+    if (cell.hazard) return {success:false,reason:'pit'};
+    if (cell.feature === 'gate') {
+      const gateId = cell.gateId || cell.id || 'gate';
+      if (!openGates.has(gateId)) return {success:false,reason:'gate'};
+    }
+    if (cell.feature === 'pad') for (const gateId of cell.opens || []) openGates.add(gateId);
+    if (cell.goal) return {success:true,reason:'goal'};
+
+    const rotation = cell.id && rotations.has(cell.id) ? rotations.get(cell.id) : (cell.rotation || 0);
+    const links = connections(cell.type,rotation);
+    const entry = OPP[dir];
+    if (!links.includes(entry)) return {success:false,reason:'broken'};
+    const exits = links.filter(item => item !== entry);
+    if (!exits.length) return {success:false,reason:'dead-end'};
+    const exit = chooseExit(cell,rotation,entry,dir,exits);
+    if (!exit || !exits.includes(exit)) return {success:false,reason:'broken'};
+    dir = exit;
   }
+  return {success:false,reason:'loop'};
 }
 
-function requireDistinctControls(logic, scope, expected = {}) {
-  const controls = logic?.controls || {};
-  requireStrings(controls,['correct','decoy','target'],`${scope} controls`);
-  const ids = [controls.correct,controls.decoy,controls.target].filter(Boolean);
-  if (new Set(ids).size !== ids.length) fail(`${scope}: correct, decoy and target must be distinct`);
-  for (const [key,value] of Object.entries(expected)) {
-    if (controls[key] !== value) fail(`${scope}: ${key} must be ${value}`);
+function validateMaze(levelId) {
+  const logic = MACHINE_LOGIC[levelId];
+  if (!logic?.maze) return fail(`${levelId}: missing maze configuration`);
+  const maze = logic.maze;
+  if (!(Number.isInteger(maze.cols) && maze.cols >= 4)) fail(`${levelId}: cols must be >= 4`);
+  if (!(Number.isInteger(maze.rows) && maze.rows >= 4)) fail(`${levelId}: rows must be >= 4`);
+  if (!maze.start || !Number.isInteger(maze.start.x) || !Number.isInteger(maze.start.y) || !DIRS.includes(maze.start.dir)) fail(`${levelId}: invalid start`);
+  if (!Array.isArray(maze.cells) || maze.cells.length < 6) fail(`${levelId}: maze needs authored cells`);
+  if (!Array.isArray(maze.rotators) || !maze.rotators.length) fail(`${levelId}: maze needs at least one rotator`);
+
+  const ids = maze.cells.filter(cell => cell.id).map(cell => cell.id);
+  if (new Set(ids).size !== ids.length) fail(`${levelId}: duplicate cell ids`);
+  for (const cell of maze.cells || []) {
+    if (!(Number.isInteger(cell.x) && Number.isInteger(cell.y) && cell.x >= 0 && cell.x < maze.cols && cell.y >= 0 && cell.y < maze.rows)) fail(`${levelId}: cell ${cell.id || '?'} is outside the grid`);
+    if (!cell.hazard && !BASE[cell.type]) fail(`${levelId}: cell ${cell.id || '?'} has unsupported type ${cell.type}`);
   }
-  return controls;
+  for (const rotator of maze.rotators || []) {
+    if (!rotator.id || !ids.includes(rotator.id)) fail(`${levelId}: rotator ${rotator.id || '?'} has no matching cell`);
+    if (!Number.isInteger(rotator.initialRotation)) fail(`${levelId}: rotator ${rotator.id || '?'} initialRotation must be integer`);
+    if (!Array.isArray(rotator.turns) || !rotator.turns.length || rotator.turns.some(turn => ![-1,1].includes(turn))) fail(`${levelId}: rotator ${rotator.id || '?'} turns must be -1/1`);
+  }
+  if (!maze.cells.some(cell => cell.goal)) fail(`${levelId}: missing goal`);
+  if (!maze.cells.some(cell => cell.star)) fail(`${levelId}: missing reward star`);
+  if (!maze.cells.some(cell => cell.hazard)) fail(`${levelId}: missing visible failure route`);
+
+  const gates = new Set(maze.cells.filter(cell => cell.feature === 'gate').map(cell => cell.gateId || cell.id));
+  for (const pad of maze.cells.filter(cell => cell.feature === 'pad')) {
+    for (const gateId of pad.opens || []) if (!gates.has(gateId)) fail(`${levelId}: pad ${pad.id || '?'} opens unknown gate ${gateId}`);
+  }
+
+  const initial = solveMaze(maze);
+  if (initial.success) fail(`${levelId}: maze is already solved before the one move`);
+
+  const solutions = [];
+  for (const rotator of maze.rotators || []) {
+    for (const turn of rotator.turns || []) {
+      const rotation = norm(rotator.initialRotation + turn);
+      const result = solveMaze(maze,{[rotator.id]:rotation});
+      if (result.success) solutions.push({id:rotator.id,turn,rotation});
+    }
+  }
+  if (solutions.length !== 1) fail(`${levelId}: expected exactly one one-move solution, found ${solutions.length} (${solutions.map(s => `${s.id}:${s.turn}`).join(', ') || 'none'})`);
+  const expected = maze.expectedSolution;
+  if (expected && (solutions[0]?.id !== expected.id || solutions[0]?.turn !== expected.turn)) fail(`${levelId}: unique solution does not match expected ${expected.id}:${expected.turn}`);
 }
 
-function validateRelease() {
-  const logic = MACHINE_LOGIC.release;
-  if (!logic) return fail('release logic is missing');
-  if (logic.archetype !== 'maze-one-turn') fail('release: archetype must be maze-one-turn');
-  const maze = logic.maze || {};
-  if (!(Number.isInteger(maze.cols) && maze.cols >= 4)) fail('release: maze cols must be >= 4');
-  if (!(Number.isInteger(maze.rows) && maze.rows >= 4)) fail('release: maze rows must be >= 4');
-  if (!Array.isArray(maze.cells) || maze.cells.length < 6) fail('release: maze needs enough authored cells');
-  if (!maze.start || !Number.isInteger(maze.start.x) || !Number.isInteger(maze.start.y) || !['N','E','S','W'].includes(maze.start.dir)) fail('release: maze start is invalid');
-  if (!maze.pivot?.id) fail('release: maze needs one pivot id');
-  if (!Number.isInteger(maze.pivot?.initialRotation) || !Number.isInteger(maze.pivot?.targetRotation)) fail('release: pivot rotations must be integers');
-  if (maze.pivot?.initialRotation === maze.pivot?.targetRotation) fail('release: initial pivot state cannot already be solved');
-
-  const pivotCells = (maze.cells || []).filter(cell => cell.id === maze.pivot?.id);
-  if (pivotCells.length !== 1) fail('release: maze must contain exactly one pivot cell');
-  if (!(maze.cells || []).some(cell => cell.goal)) fail('release: maze must contain a goal');
-  if (!(maze.cells || []).some(cell => cell.hazard)) fail('release: maze must contain a visible failure route');
-  if (!(maze.cells || []).some(cell => cell.star)) fail('release: maze must contain a reward star');
-  requireStrings(logic.copy,['ready','running','complete','pit','wrong'],'release copy');
+function validateSignalMatch() {
+  const logic = MACHINE_LOGIC.button;
+  if (!logic) return fail('button: missing signal-match logic');
+  if (logic.archetype !== 'signal-match') fail('button: archetype must remain signal-match until its maze redesign');
+  const ids = [logic.controls?.correct,logic.controls?.decoy,logic.controls?.target].filter(Boolean);
+  if (ids.length !== 3 || new Set(ids).size !== 3) fail('button: signal controls must be distinct');
+  if (!logic.signal?.required || logic.signal.correct !== logic.signal.required || logic.signal.decoy === logic.signal.required) fail('button: signal puzzle must have one matching and one rejected signal');
 }
 
-function validateGate() {
-  const logic = MACHINE_LOGIC.gate;
-  if (!logic) return fail('gate logic is missing');
-  if (logic.archetype !== 'choice-gate') fail('gate: archetype must be choice-gate');
-  requireDistinctControls(logic,'gate',{correct:'blueLever',decoy:'redLever',target:'gate'});
-  const { timings = {}, requirements = {}, copy = {} } = logic;
-
-  for (const key of ['driveDelay','gateOpenDelay','ballReleaseDelay','resultDelay']) if (!(Number.isFinite(timings[key]) && timings[key] >= 0)) fail(`gate: ${key} must be non-negative`);
-  if (!(timings.driveDelay < timings.gateOpenDelay && timings.gateOpenDelay < timings.ballReleaseDelay)) fail('gate: sequence must be linkage drive -> gate open -> ball release');
-  if (timings.gateOpenDelay - timings.driveDelay < 180) fail('gate: opening needs a readable mechanical delay');
-  if (timings.ballReleaseDelay - timings.gateOpenDelay < 120) fail('gate: ball cannot release before the open gate reads');
-  if (!(timings.resultDelay >= 300 && timings.resultDelay <= 750)) fail('gate: result delay must preserve the goal completion beat');
-  if (!requirements.finish?.includes('gateOpen')) fail('gate: finish must require gateOpen');
-  requireStrings(copy,['ready','correct','gate','wrong'],'gate copy');
-}
-
-function validateSwitch() {
-  const logic = MACHINE_LOGIC.switch;
-  if (!logic) return fail('switch logic is missing');
-  if (logic.archetype !== 'route-align') fail('switch: archetype must be route-align');
-  requireDistinctControls(logic,'switch',{correct:'crank',decoy:'wheel',target:'spinner'});
-  const { timings = {}, requirements = {}, copy = {} } = logic;
-
-  for (const key of ['shaftDelay','alignDelay','ballReleaseDelay','resultDelay']) if (!(Number.isFinite(timings[key]) && timings[key] >= 0)) fail(`switch: ${key} must be non-negative`);
-  if (!(timings.shaftDelay < timings.alignDelay && timings.alignDelay < timings.ballReleaseDelay)) fail('switch: sequence must be shaft torque -> bridge alignment -> ball release');
-  if (timings.alignDelay - timings.shaftDelay < 250) fail('switch: bridge alignment needs a readable rotation interval');
-  if (timings.ballReleaseDelay - timings.alignDelay < 140) fail('switch: player must see the aligned bridge before the ball starts');
-  if (!(timings.resultDelay >= 300 && timings.resultDelay <= 750)) fail('switch: result delay must preserve the goal completion beat');
-  if (!requirements.finish?.includes('routeAligned')) fail('switch: finish must require routeAligned');
-  requireStrings(copy,['ready','correct','aligned','wrong'],'switch copy');
-}
-
-validateRelease();
-validateGate();
-validateSwitch();
+for (const id of ['release','gate','switch']) validateMaze(id);
+validateSignalMatch();
 
 if (errors.length) {
   for (const message of errors) console.error(`Machine logic check failed: ${message}`);
   process.exit(1);
 }
 
-console.log('Machine logic check passed: maze-one-turn, choice-gate and route-align causality are valid.');
+console.log('Machine logic check passed: Levels 1-3 each have exactly one valid one-move maze solution.');
