@@ -75,8 +75,7 @@
     0 0 7px rgba(198,220,233,.16);
 }
 
-/* Real state art from the polish pack. These overrides intentionally replace the old
-   CSS-only transforms for Level 1 so state changes read as authored art, not DOM tricks. */
+/* Real state art from the polish pack. */
 .polished-tutorial .polish-state img{
   transform:none!important;
   filter:none!important;
@@ -85,7 +84,16 @@
   object-fit:contain;
 }
 .polished-tutorial .polish-suppressed{opacity:0!important;pointer-events:none!important}
-.polished-tutorial .polish-pin{aspect-ratio:2.7/1;filter:drop-shadow(0 8px 7px rgba(10,28,55,.34))}
+.polished-tutorial .polish-pin{
+  aspect-ratio:2.7/1;
+  filter:drop-shadow(0 8px 7px rgba(10,28,55,.34));
+  transition:filter .14s ease;
+}
+.polished-tutorial .polish-pin.is-dragging{
+  filter:drop-shadow(0 10px 9px rgba(9,31,68,.42)) drop-shadow(0 0 16px rgba(66,148,255,.28));
+}
+.polished-tutorial .polish-pin.pull-reset{animation:polishPinReset .22s cubic-bezier(.2,.75,.25,1)}
+@keyframes polishPinReset{0%{transform:translate(-54%,-50%)}60%{transform:translate(-48%,-50%)}100%{transform:translate(-50%,-50%)}}
 .polished-tutorial .polish-star{aspect-ratio:.9/1;filter:drop-shadow(0 6px 5px rgba(82,44,4,.24)) drop-shadow(0 0 12px rgba(255,187,37,.34))}
 .polished-tutorial .polish-goal{aspect-ratio:1.08/1;filter:drop-shadow(0 8px 8px rgba(50,25,6,.30))}
 .polished-tutorial .polish-star.polish-collecting{animation:polishStarPop .42s cubic-bezier(.2,.8,.2,1)}
