@@ -1,6 +1,6 @@
 /* Crosswind Drop: free-flight airflow puzzle. */
 .maze-air-board .maze-airwell{position:absolute;z-index:7;pointer-events:none;border-radius:18px;border:1px dashed rgba(116,205,255,.16);background:linear-gradient(180deg,rgba(72,164,221,.025),rgba(72,164,221,.085),rgba(72,164,221,.02));box-shadow:inset 0 0 30px rgba(61,155,218,.055)}
-.maze-air-control{position:absolute;z-index:25;border:0;padding:0;background:transparent;appearance:none;-webkit-appearance:none;touch-action:none;cursor:grab}
+.maze-air-control{position:absolute;inset:7%;width:86%;height:86%;z-index:25;border:0;padding:0;background:transparent;appearance:none;-webkit-appearance:none;touch-action:none;cursor:grab}
 .maze-air-control:active{cursor:grabbing}
 .maze-air-dial,.maze-air-fan{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;transition:transform 210ms cubic-bezier(.2,.82,.2,1),filter 180ms}
 .maze-air-dial{z-index:1;filter:drop-shadow(0 0 9px rgba(73,180,255,.2))}
@@ -10,7 +10,7 @@
 .maze-air-arrow{position:absolute;z-index:27;left:50%;top:-9%;width:8px;height:27%;transform-origin:50% 120%;transform:translateX(-50%) rotate(var(--air-angle,0deg));pointer-events:none}
 .maze-air-arrow::before{content:"";position:absolute;left:3px;top:5px;width:2px;height:75%;background:#9adaff;box-shadow:0 0 8px rgba(104,207,255,.65)}
 .maze-air-arrow::after{content:"";position:absolute;left:0;top:0;width:8px;height:8px;border-left:2px solid #b6e5ff;border-top:2px solid #b6e5ff;transform:rotate(45deg)}
-.maze-air-stream{position:absolute;z-index:18;pointer-events:none;object-fit:contain;opacity:0;filter:drop-shadow(0 0 10px rgba(103,202,255,.22));transform-origin:50% 50%}
+.maze-air-stream{position:absolute;inset:7%;width:86%;height:86%;z-index:18;pointer-events:none;object-fit:contain;opacity:0;filter:drop-shadow(0 0 10px rgba(103,202,255,.22));transform-origin:50% 50%}
 .maze-air-board.air-armed .maze-air-stream{opacity:.66;animation:mazeAirStream .7s ease-in-out infinite alternate}
 .maze-air-board.air-armed .maze-air-fan{animation:mazeFanSpin .28s linear infinite;filter:brightness(1.08) drop-shadow(0 0 13px rgba(93,197,255,.45))}
 .maze-air-board .maze-ball.airborne{z-index:45;filter:brightness(1.12) drop-shadow(0 13px 10px rgba(0,0,0,.24)) drop-shadow(0 0 8px rgba(116,207,255,.28));will-change:left,top,transform}
