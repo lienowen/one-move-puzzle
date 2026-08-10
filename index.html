@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./app.css" />
   <link rel="stylesheet" href="./visual-pass.css" />
   <link rel="stylesheet" href="./market-pass.css" />
+  <link rel="stylesheet" href="./progress-ui.css" />
 </head>
 <body>
   <div id="app" class="app-shell">
@@ -40,20 +41,27 @@
       </main>
 
       <footer class="home-actions">
+        <div class="campaign-progress" aria-label="Season progress">
+          <div class="campaign-progress-copy">
+            <span>SEASON 01 · 12 PUZZLES</span>
+            <strong><b id="campaignCurrent">01</b><i>/</i><em id="campaignTotal">12</em></strong>
+          </div>
+          <div id="campaignRail" class="campaign-rail" aria-hidden="true"></div>
+        </div>
         <button id="playBtn" class="primary-btn" type="button">
           <span>PLAY</span>
-          <small id="continueLabel">LEVEL 01</small>
+          <small id="continueLabel">LEVEL 01 OF 12</small>
           <b>→</b>
         </button>
-        <button id="levelsBtn" class="ghost-btn" type="button">SELECT MACHINE <span>▦</span></button>
-        <div class="season-label">SEASON 01 · WOOD WORKSHOP</div>
+        <button id="levelsBtn" class="ghost-btn" type="button">12 LEVELS · SELECT PUZZLE <span>▦</span></button>
+        <div class="season-label">MECHANICAL MAZE · ONE MOVE EACH</div>
       </footer>
     </section>
 
     <section id="levelsScreen" class="screen levels-screen" aria-label="Level select">
       <header class="page-header">
         <button id="levelsBackBtn" class="icon-btn" type="button" aria-label="Back">←</button>
-        <div class="page-title"><span>WOOD WORKSHOP</span><h1>Select a machine</h1></div>
+        <div class="page-title"><span>WOOD WORKSHOP</span><h1>Select a puzzle</h1><small id="levelCountMeta" class="level-count-meta">12 LEVELS · 1 UNLOCKED</small></div>
         <div class="star-bank"><span>★</span><strong id="levelStars">0</strong></div>
       </header>
       <div id="levelGrid" class="level-grid"></div>
@@ -111,5 +119,6 @@
     <div id="toast" class="toast" role="status"></div>
   </div>
   <script type="module" src="./src/main.js"></script>
+  <script type="module" src="./src/progressUi.js"></script>
 </body>
 </html>
