@@ -1,7 +1,7 @@
 import { levels } from './levels.js';
 import { loadSave, storeSave, recordAttempt, recordClear } from './core/save.js';
 import { sfx, haptic } from './core/audio.js';
-import { mountWorkshopRuntime } from './workshopRuntime.js';
+import { mountMachineRuntime } from './runtimeRouter.js';
 import { getMachineLogic } from './machineLogic.js';
 import { POLISH_ASSETS as P } from './polishAssets.js';
 import { WORKSHOP_ASSETS as W } from './workshopAssets.js';
@@ -65,6 +65,14 @@ function unlockedLevelCount() {
   return Math.max(1, Math.min(levels.length, Number(save.unlocked || 1)));
 }
 
+function displayMeta(level) {
+  const logic = getMachineLogic(level.id);
+  return {
+    name: logic?.displayName || level.name,
+    subtitle: logic?.displaySubtitle || level.subtitle,
+  };
+}
+
 function refreshMeta() {
   const stars = totalStars();
   dom.homeStars.textContent = stars;
@@ -81,6 +89,7 @@ function renderLevelGrid() {
     const number = index + 1;
     const open = number <= unlocked;
     const stars = Number(save.stars[level.id] || 0);
+    const meta = displayMeta(level);
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `level-card${open ? '' : ' locked'}`;
@@ -88,8 +97,8 @@ function renderLevelGrid() {
     button.innerHTML = `
       <span class="level-index">LEVEL ${String(number).padStart(2,'0')}</span>
       <img class="level-card-icon" src="${level.icon}" alt="" draggable="false">
-      <strong>${level.name}</strong>
-      <small>${level.subtitle}</small>
+      <strong>${meta.name}</strong>
+      <small>${meta.subtitle}</small>
       <div class="card-stars">${stars ? '★'.repeat(stars) + '☆'.repeat(3-stars) : open ? 'READY' : 'LOCKED'}</div>
     `;
     if (open) button.addEventListener('click', () => startLevel(index));
@@ -107,7 +116,9 @@ function startLevel(index) {
 
 function guidanceFor(level, logic) {
   if (!logic) return { hint:level.hint, status:level.status || 'Choose one piece.' };
-
+  if (logic.archetype === 'maze-one-turn') {
+    return { hint:'Rotate one tile to connect the whole route.', status:logic.copy?.ready || 'Study the maze.' };
+  }
   if (logic.archetype === 'choice-gate') {
     return { hint:'Follow the linkage to the gate.', status:logic.copy?.ready || 'Trace the linkage.' };
   }
@@ -125,6 +136,7 @@ function buildLevel() {
   const level = levels[current];
   const logic = getMachineLogic(level.id);
   const guidance = guidanceFor(level, logic);
+  const meta = displayMeta(level);
   moveUsed = false;
   resolved = false;
   bonusStar = false;
@@ -136,13 +148,13 @@ function buildLevel() {
   dom.move.classList.remove('used');
   dom.move.querySelector('strong').textContent = '1';
   dom.levelNumber.textContent = `LEVEL ${String(current + 1).padStart(2,'0')}`;
-  dom.levelTitle.textContent = level.name;
+  dom.levelTitle.textContent = meta.name;
   dom.hint.textContent = guidance.hint;
   dom.status.textContent = guidance.status;
   resetResultButton();
   renderMiniProgress();
 
-  runtime = mountWorkshopRuntime({
+  runtime = mountMachineRuntime({
     world: dom.world,
     stage: dom.stage,
     level,
