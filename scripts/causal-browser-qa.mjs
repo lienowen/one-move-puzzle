@@ -43,7 +43,6 @@ async function testLevel2(page) {
   if (await board.locator('.maze-tile.rotatable').count() !== 2) throw new Error('Level 2 must expose two candidate rotatable tiles');
   await page.screenshot({path:'.visual-check/level2-initial-mobile.jpg',type:'jpeg',quality:73,fullPage:false});
 
-  // Changing pivotB wastes the only move; pivotA still sends the ball into the pit.
   await rotate(page,'pivotB','ArrowLeft');
   await expectResult(page,'wrong');
   await page.screenshot({path:'.visual-check/level2-wrong-mobile.jpg',type:'jpeg',quality:73,fullPage:false});
@@ -63,14 +62,12 @@ async function testLevel3(page) {
   if (await board.locator('.maze-pad-art').count() !== 1 || await board.locator('.maze-gate-art').count() !== 1) throw new Error('Level 3 must visibly contain a pressure pad and gate');
   await page.screenshot({path:'.visual-check/level3-initial-mobile.jpg',type:'jpeg',quality:73,fullPage:false});
 
-  // Clockwise sends the ball straight to the locked gate before touching the pad.
   await rotate(page,'pivot','ArrowRight');
   await page.locator('.maze-gate-blocked').waitFor({state:'attached',timeout:4000});
   if (await board.locator('.maze-pad-pressed').count() !== 0) throw new Error('Level 3 wrong route must not press the pad');
   await page.screenshot({path:'.visual-check/level3-gate-blocked-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
   await expectResult(page,'wrong');
 
-  // Counter-clockwise routes through the pad first, then the same gate must open.
   await page.click('#nextBtn');
   board = page.locator('.maze-puzzle-board[data-maze-level="switch"]');
   await board.waitFor({state:'visible',timeout:2200});
@@ -85,23 +82,26 @@ async function testLevel3(page) {
 
 async function testLevel4(page) {
   await page.click('#nextBtn');
-  await page.locator('.signal-match-machine').waitFor({state:'visible',timeout:2500});
-  await page.locator('.signal-receiver').waitFor({state:'visible',timeout:1500});
-  if (await page.locator('.correct-signal').count() !== 1 || await page.locator('.decoy-signal').count() !== 1) throw new Error('Level 4 signal topology missing');
-  if (await page.locator('.signal-receiver .glyph-circle').count() !== 1) throw new Error('Level 4 receiver requirement is not readable');
-  await page.screenshot({path:'.visual-check/level4-initial-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+  let board = page.locator('.maze-puzzle-board[data-maze-level="button"]');
+  await board.waitFor({state:'visible',timeout:2500});
+  if (await board.locator('[data-id="pivot"][data-type="tee"]').count() !== 1) throw new Error('Level 4 must expose one rotatable T-junction');
+  if (await board.locator('.maze-pit-art').count() !== 1) throw new Error('Level 4 must show the bad branch ending in a pit');
+  await page.screenshot({path:'.visual-check/level4-initial-mobile.jpg',type:'jpeg',quality:74,fullPage:false});
 
-  await page.click('[data-id="yellowButton"]');
-  await page.locator('.signal-receiver.receiver-reject').waitFor({state:'attached',timeout:1800});
+  // Counter-clockwise removes the south entry from the T-junction.
+  await rotate(page,'pivot','ArrowLeft');
   await expectResult(page,'wrong');
+  await page.screenshot({path:'.visual-check/level4-wrong-mobile.jpg',type:'jpeg',quality:73,fullPage:false});
 
+  // Clockwise sends the ball left, around the long upper route, through the star and into the goal.
   await page.click('#nextBtn');
-  await page.locator('.signal-match-machine').waitFor({state:'visible',timeout:2000});
-  await page.click('[data-id="greenButton"]');
-  await page.locator('.signal-receiver.receiver-match').waitFor({state:'attached',timeout:1800});
-  await page.locator('[data-id="gate"].signal-gate-open').waitFor({state:'attached',timeout:2200});
+  board = page.locator('.maze-puzzle-board[data-maze-level="button"]');
+  await board.waitFor({state:'visible',timeout:2200});
+  await rotate(page,'pivot','ArrowRight');
+  await page.locator('.maze-board.maze-solved').waitFor({state:'attached',timeout:7000});
+  await page.screenshot({path:'.visual-check/level4-complete-mobile.jpg',type:'jpeg',quality:75,fullPage:false});
   await expectResult(page,'success');
-  await page.screenshot({path:'.visual-check/level4-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+  await page.screenshot({path:'.visual-check/level4-result-mobile.jpg',type:'jpeg',quality:73,fullPage:false});
 }
 
 const browser = await chromium.launch({headless:true});
