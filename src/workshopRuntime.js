@@ -6,36 +6,52 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   if (!scene?.path?.length) throw new Error(`Level ${level.id} is missing machine path data`);
 
   const polishedTutorial = level.id === 'release';
+  const tutorialLogic = { triggerAt:.34, gateAt:.50, gateHoldAt:.486, goalWakeAt:.83 };
+
   let destroyed = false;
   let running = false;
   let frameId = 0;
   let startTimer = 0;
   let failTimer = 0;
   let filteredSpeed = .45;
-  let goalAwake = false;
   let tutorialPhase = 0;
+  let gateHoldStarted = 0;
+  let pausedForGate = 0;
+
+  const machine = {
+    trigger:false,
+    drive:false,
+    gateOpening:false,
+    gateOpen:!polishedTutorial,
+    star:false,
+    goalPowered:!polishedTutorial,
+    goalAwake:false,
+    complete:false,
+  };
+
   const timers = new Set();
   const nodes = new Map();
   const pieces = new Map(scene.pieces.map(piece => [piece.id, piece]));
   const firedEvents = new Set();
   const firedJoints = new Set();
-  const firedLogic = new Set();
   const sampledPath = buildSampledPath(scene.path);
 
   world.innerHTML = '';
 
   const board = document.createElement('div');
-  board.className = `machine-board${polishedTutorial ? ' polished-tutorial' : ''}`;
+  board.className = `machine-board${polishedTutorial ? ' polished-tutorial focus-start' : ''}`;
   board.setAttribute('aria-label', `${level.name} machine`);
   board.innerHTML = `
     <img class="machine-board-base" src="${scene.board}" alt="" draggable="false">
     <div class="machine-board-shade"></div>
     ${polishedTutorial ? `
       <div class="tutorial-chassis" aria-hidden="true">
+        <div class="machine-deck"></div>
         <div class="chassis-module chassis-start"><i></i><i></i><i></i><i></i></div>
         <div class="chassis-module chassis-drive"><i></i><i></i><i></i><i></i></div>
         <div class="chassis-module chassis-goal"><i></i><i></i><i></i><i></i></div>
         <div class="drive-link"></div>
+        <div class="power-bus"><i></i><i></i><i></i></div>
       </div>
     ` : ''}
     <svg class="machine-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -54,8 +70,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   const routeD = sampledPathToD(sampledPath);
   board.querySelectorAll('.machine-route path').forEach(path => path.setAttribute('d', routeD));
   const routeProgress = board.querySelector('.route-progress');
-
   const piecesRoot = board.querySelector('.machine-pieces');
+
   renderRouteJoints(piecesRoot, scene.joints || [.25,.52,.78], sampledPath);
   if (polishedTutorial) renderTutorialMachine(piecesRoot);
 
@@ -87,33 +103,15 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   if (!ball) throw new Error(`Level ${level.id} requires a ball piece`);
 
   function renderTutorialMachine(root) {
-    const triggerPoint = pointOnSampledPath(sampledPath, .37);
-    const gatePoint = pointOnSampledPath(sampledPath, .50);
+    const triggerPoint = pointOnSampledPath(sampledPath, tutorialLogic.triggerAt);
+    const gatePoint = pointOnSampledPath(sampledPath, tutorialLogic.gateAt);
 
-    addMachinePart(root, {
-      id:'logicTrigger', kind:'logic-trigger', asset:W.mechanisms.checkpointRing,
-      x:triggerPoint.x, y:triggerPoint.y, w:11.5, z:21,
-    });
-    addMachinePart(root, {
-      id:'logicGate', kind:'logic-gate', asset:W.mechanisms.gateSlider,
-      x:gatePoint.x, y:gatePoint.y, w:12.5, z:28, rotation:9,
-    });
-    addMachinePart(root, {
-      id:'logicLamp', kind:'logic-lamp', asset:W.mechanisms.lampIndicatorGreen,
-      x:66.5, y:45.5, w:6.2, z:20,
-    });
-    addMachinePart(root, {
-      id:'logicPlate', kind:'logic-plate', asset:W.hardware.metalPlate,
-      x:67.2, y:36.3, w:22, z:8, rotation:-5,
-    });
-    addMachinePart(root, {
-      id:'logicBracketA', kind:'logic-bracket', asset:W.hardware.bracketStraight,
-      x:56.5, y:50.8, w:7.5, z:18, rotation:24,
-    });
-    addMachinePart(root, {
-      id:'logicBracketB', kind:'logic-bracket', asset:W.hardware.bracketStraight,
-      x:72.5, y:58.5, w:7, z:18, rotation:-22,
-    });
+    addMachinePart(root, { id:'logicTrigger', kind:'logic-trigger', asset:W.mechanisms.checkpointRing, x:triggerPoint.x, y:triggerPoint.y, w:10.5, z:21 });
+    addMachinePart(root, { id:'logicGate', kind:'logic-gate', asset:W.mechanisms.gateSlider, x:gatePoint.x, y:gatePoint.y, w:12.5, z:28, rotation:8 });
+    addMachinePart(root, { id:'logicLamp', kind:'logic-lamp', asset:W.mechanisms.lampIndicatorGreen, x:64.5, y:44.0, w:5.6, z:20 });
+    addMachinePart(root, { id:'logicPlate', kind:'logic-plate', asset:W.hardware.metalPlate, x:62.0, y:38.5, w:23, z:8, rotation:-4 });
+    addMachinePart(root, { id:'logicBracketA', kind:'logic-bracket', asset:W.hardware.bracketStraight, x:55.5, y:49.5, w:7, z:18, rotation:24 });
+    addMachinePart(root, { id:'logicBracketB', kind:'logic-bracket', asset:W.hardware.bracketStraight, x:69.0, y:57.0, w:6.8, z:18, rotation:-19 });
   }
 
   function addMachinePart(root, spec) {
@@ -168,6 +166,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     const threshold = .48;
 
     node.style.touchAction = 'none';
+    appendPullCue(node);
 
     node.addEventListener('pointerenter', () => {
       if (!running && !dragging && !destroyed) setNodeImage(node, P.interaction.pinBlueHover);
@@ -247,6 +246,13 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     }
   }
 
+  function appendPullCue(node) {
+    const cue = document.createElement('span');
+    cue.className = 'pull-cue';
+    cue.innerHTML = '<i></i><i></i><i></i>';
+    node.appendChild(cue);
+  }
+
   function commit(id) {
     if (destroyed || running) return { accepted:false, correct:false, effectHandled:false };
     const piece = pieces.get(id);
@@ -267,6 +273,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       playPolishFx(P.fx.fxMetalSparkSmall, point.x + 4, point.y, 'fx-metal', 460);
       nodes.get('holder')?.classList.add('releasing');
       ball.classList.add('release-ready');
+      setFocus('route');
       updateTutorialPhase(1, 'Latch released.');
       later(() => setNodeImage(node, P.interaction.pinBlueReleased), 210);
     } else {
@@ -299,9 +306,36 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
     const tick = now => {
       if (destroyed) return;
-      const raw = Math.min(1, (now - start) / duration);
-      const motion = motionAt(scene.motion, raw);
-      const t = motion.progress;
+
+      let elapsed = Math.max(0, now - start - pausedForGate);
+      let raw = Math.min(1, elapsed / duration);
+      let motion = motionAt(scene.motion, raw);
+      let t = motion.progress;
+
+      if (polishedTutorial) {
+        fireTutorialMachineLogic(t);
+
+        if (!machine.gateOpen && t >= tutorialLogic.gateHoldAt) {
+          if (!gateHoldStarted) {
+            gateHoldStarted = now;
+            ball.classList.add('waiting-at-gate');
+            board.classList.add('waiting-gate');
+            updateTutorialPhase(4, 'Drive opening the gate…');
+            onEffect?.('track-tick');
+          }
+          t = tutorialLogic.gateHoldAt;
+        } else if (machine.gateOpen && gateHoldStarted) {
+          pausedForGate += now - gateHoldStarted;
+          gateHoldStarted = 0;
+          ball.classList.remove('waiting-at-gate');
+          board.classList.remove('waiting-gate');
+          elapsed = Math.max(0, now - start - pausedForGate);
+          raw = Math.min(1, elapsed / duration);
+          motion = motionAt(scene.motion, raw);
+          t = motion.progress;
+        }
+      }
+
       filteredSpeed += (motion.speed - filteredSpeed) * .075;
       const point = pointOnSampledPath(sampledPath, t);
       const ahead = pointOnSampledPath(sampledPath, Math.min(1, t + .008));
@@ -315,12 +349,11 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       ball.style.setProperty('--goal-sink', goalSink.toFixed(3));
       if (routeProgress) routeProgress.style.strokeDasharray = `${Math.max(0, t * 100).toFixed(1)} 100`;
 
-      if (polishedTutorial) fireTutorialMachineLogic(t);
       wakeGoal(t);
       fireJointFeedback(t);
       fireTimeline(t);
 
-      if (raw < 1) frameId = requestAnimationFrame(tick);
+      if (raw < 1 || (polishedTutorial && !machine.gateOpen)) frameId = requestAnimationFrame(tick);
       else finishGoal();
     };
 
@@ -328,35 +361,48 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   }
 
   function fireTutorialMachineLogic(t) {
-    if (t >= .34 && !firedLogic.has('trigger')) {
-      firedLogic.add('trigger');
-      const trigger = nodes.get('logicTrigger');
-      trigger?.classList.add('logic-active');
-      impact('logic-impact');
-      onEffect?.('metal');
-      sparkAtNode(trigger, 5);
-      updateTutorialPhase(3, 'Trigger engaged.');
-    }
+    if (machine.trigger || t < tutorialLogic.triggerAt) return;
 
-    if (t >= .39 && !firedLogic.has('drive')) {
-      firedLogic.add('drive');
+    machine.trigger = true;
+    const trigger = nodes.get('logicTrigger');
+    trigger?.classList.add('logic-active');
+    impact('logic-impact');
+    onEffect?.('metal');
+    sparkAtNode(trigger, 5);
+    updateTutorialPhase(3, 'Pressure ring engaged.');
+    setFocus('drive');
+
+    later(() => {
+      if (machine.drive) return;
+      machine.drive = true;
       nodes.get('gear')?.classList.add('tutorial-gear-active', 'drive-live');
       nodes.get('logicPlate')?.classList.add('logic-active');
       board.classList.add('drive-live');
       onEffect?.('track-tick');
-      updateTutorialPhase(4, 'Drive engaged.');
-    }
+    }, 90);
 
-    if (t >= .47 && !firedLogic.has('gate')) {
-      firedLogic.add('gate');
+    later(() => {
+      if (machine.gateOpening) return;
+      machine.gateOpening = true;
+      nodes.get('logicGate')?.classList.add('logic-gate-opening');
+      board.classList.add('gate-opening');
+      onEffect?.('metal');
+    }, 250);
+
+    later(() => {
+      if (machine.gateOpen) return;
+      machine.gateOpen = true;
       const gate = nodes.get('logicGate');
+      gate?.classList.remove('logic-gate-opening');
       gate?.classList.add('logic-gate-open');
       nodes.get('logicLamp')?.classList.add('logic-active');
+      board.classList.remove('gate-opening');
+      board.classList.add('route-open');
       impact('gate-impact');
       onEffect?.('metal');
       sparkAtNode(gate, 6);
-      updateTutorialPhase(5, 'Route open.');
-    }
+      updateTutorialPhase(5, 'Route unlocked.');
+    }, 760);
   }
 
   function updateTutorialPhase(phase, copy) {
@@ -366,15 +412,22 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     onStatus?.(copy);
   }
 
+  function setFocus(focus) {
+    if (!polishedTutorial) return;
+    board.classList.remove('focus-start','focus-route','focus-drive','focus-goal','focus-complete');
+    board.classList.add(`focus-${focus}`);
+  }
+
   function wakeGoal(t) {
-    if (!polishedTutorial || goalAwake || t < .875) return;
-    goalAwake = true;
+    if (!polishedTutorial || machine.goalAwake || !machine.goalPowered || t < tutorialLogic.goalWakeAt) return;
+    machine.goalAwake = true;
     const goal = nodes.get('goal');
     goal?.classList.add('activated', 'goal-awake');
     setNodeImage(goal, P.interaction.goalYellowActive);
     playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal-warmup', 900);
     onEffect?.('goal-warmup');
-    updateTutorialPhase(7, 'Goal online.');
+    updateTutorialPhase(7, 'Receiver charged.');
+    setFocus('goal');
   }
 
   function fireJointFeedback(t) {
@@ -394,22 +447,32 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   }
 
   function finishGoal() {
+    if (polishedTutorial && (!machine.gateOpen || !machine.star || !machine.goalAwake)) {
+      onEffect?.('fail-soft');
+      onFail?.('The machine chain did not complete.');
+      return;
+    }
+
     ball.classList.add('at-goal');
     onEffect?.('goal-sink');
     impact('goal-impact');
+
     if (polishedTutorial) {
+      machine.complete = true;
       const goal = nodes.get('goal');
       setNodeImage(goal, P.interaction.goalYellowSuccess);
       goal?.classList.add('goal-success');
       board.classList.add('machine-complete');
       updateTutorialPhase(8, 'Machine complete.');
+      setFocus('complete');
       playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal', 950);
       later(() => playPolishFx(P.fx.fxSuccessBurst, 77, 75, 'fx-success', 1100), 90);
       later(() => completionWave(77,79), 50);
     }
+
     later(() => {
       if (!destroyed) onGoal?.();
-    }, polishedTutorial ? 560 : 310);
+    }, polishedTutorial ? 620 : 310);
   }
 
   function fireTimeline(t) {
@@ -427,13 +490,17 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
 
       if (event.type === 'star') {
         if (polishedTutorial && node) {
+          machine.star = true;
+          machine.goalPowered = true;
+          board.classList.add('star-secured','goal-powered');
           node.classList.add('polish-collecting');
           setNodeImage(node, P.interaction.starCollect1);
           playPolishFx(P.fx.fxStarBurst, event.x, event.y, 'fx-star', 780);
           later(() => setNodeImage(node, P.interaction.starCollect2), 90);
           later(() => setNodeImage(node, P.interaction.starCollectDone), 195);
           later(() => node.classList.add('polish-collected'), 360);
-          updateTutorialPhase(6, 'Star secured.');
+          updateTutorialPhase(6, 'Energy captured.');
+          pulsePowerBus();
         } else {
           node?.classList.add('collected');
         }
@@ -447,15 +514,25 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
         const goal = nodes.get('goal');
         goal?.classList.add('activated');
         nodes.get('goalSocket')?.classList.add('activated');
-        if (polishedTutorial && !goalAwake) {
-          goalAwake = true;
+        if (polishedTutorial && machine.goalPowered && !machine.goalAwake) {
+          machine.goalAwake = true;
           setNodeImage(goal, P.interaction.goalYellowActive);
           playPolishFx(P.fx.fxGoalGlow, event.x, event.y, 'fx-goal-warmup', 900);
+          setFocus('goal');
         }
         onEffect?.('goal');
         sparkAt(event.x, event.y, 8);
       }
     });
+  }
+
+  function pulsePowerBus() {
+    const bus = board.querySelector('.power-bus');
+    if (!bus) return;
+    bus.classList.remove('pulse');
+    void bus.offsetWidth;
+    bus.classList.add('pulse');
+    later(() => bus.classList.remove('pulse'), 900);
   }
 
   function impact(className) {
