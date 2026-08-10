@@ -46,6 +46,7 @@ jobs:
           done
           failed=0
           for script in \
+            scripts/progression-ui-qa.mjs \
             scripts/causal-browser-qa.mjs \
             scripts/level6-slide-qa.mjs \
             scripts/level7-magnet-qa.mjs \
