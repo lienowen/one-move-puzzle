@@ -497,51 +497,27 @@
     ],
     "important": [
       {
-        "id": "crank",
-        "interactive": true,
-        "kind": "piece-crank",
-        "visibleRatio": 1,
-        "rect": [
-          7,
-          284,
-          72,
-          349
-        ]
-      },
-      {
-        "id": "button",
-        "interactive": true,
-        "kind": "piece-button",
-        "visibleRatio": 1,
-        "rect": [
-          326,
-          577,
-          385,
-          636
-        ]
-      },
-      {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          307,
-          387,
-          358
+          235,
+          431,
+          280,
+          476
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          578,
-          57,
-          623
+          55,
+          565,
+          84,
+          594
         ]
       }
     ],
