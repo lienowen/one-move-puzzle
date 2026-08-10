@@ -23,7 +23,14 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build production bundle
-        run: npm run build
+        run: |
+          mkdir -p .visual-check
+          set +e
+          npm run build > .visual-check/build.log 2>&1
+          code=$?
+          cat .visual-check/build.log
+          echo "$code" > .visual-check/build-exit-code.txt
+          exit "$code"
       - name: Install browser for causal QA
         run: |
           npm install --no-save playwright@1.54.2
@@ -57,12 +64,12 @@ jobs:
           cp /tmp/one-move-preview.log .visual-check/qa-preview.log || true
           echo "$failed" > .visual-check/qa-failed.txt
           exit "$failed"
-      - name: Publish QA failure diagnostics
+      - name: Publish failure diagnostics
         if: failure()
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add .visual-check/qa-*.log .visual-check/qa-failed.txt || true
+          git add .visual-check/build.log .visual-check/build-exit-code.txt .visual-check/qa-*.log .visual-check/qa-failed.txt || true
           if ! git diff --cached --quiet; then
             git commit -m 'chore: publish QA failure diagnostics [skip ci]'
             git push
