@@ -51,6 +51,7 @@ jobs:
             scripts/level7-magnet-qa.mjs \
             scripts/level8-airflow-qa.mjs \
             scripts/level9-oneway-qa.mjs \
+            scripts/level10-portal-qa.mjs \
             scripts/maze-control-safe-area-qa.mjs \
             scripts/visual-sweep.mjs
           do
@@ -103,6 +104,7 @@ jobs:
             'review-level7.xpm':'level7-initial-mobile.jpg','review-level7-wrong-field.xpm':'level7-wrong-field-mobile.jpg','review-level7-captured.xpm':'level7-captured-mobile.jpg','review-level7-result.xpm':'level7-result-mobile.jpg',
             'review-level8.xpm':'level8-initial-mobile.jpg','review-level8-wrong-air.xpm':'level8-wrong-airborne-mobile.jpg','review-level8-carry.xpm':'level8-carry-mobile.jpg','review-level8-landed.xpm':'level8-landed-mobile.jpg','review-level8-result.xpm':'level8-result-mobile.jpg',
             'review-level9.xpm':'level9-initial-mobile.jpg','review-level9-running.xpm':'level9-loop-running-mobile.jpg','review-level9-blocked.xpm':'level9-blocked-mobile.jpg','review-level9-open.xpm':'level9-valve-open-mobile.jpg','review-level9-result.xpm':'level9-result-mobile.jpg',
+            'review-level10.xpm':'level10-initial-mobile.jpg','review-level10-wrong-portal.xpm':'level10-teleport-wrong-mobile.jpg','review-level10-blocked.xpm':'level10-gate-blocked-mobile.jpg','review-level10-pad-gate.xpm':'level10-pad-gate-mobile.jpg','review-level10-result.xpm':'level10-result-mobile.jpg',
             'review-desktop.xpm':'level1-desktop.jpg'
           }
           for dst,src in shots.items(): xpm('.visual-check/'+src,'.visual-check/'+dst)
