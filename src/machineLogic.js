@@ -37,6 +37,30 @@ export const MACHINE_LOGIC = {
       complete: 'complete',
     },
   },
+
+  gate: {
+    archetype: 'choice-gate',
+    controls: {
+      correct: 'blueLever',
+      decoy: 'redLever',
+      target: 'gate',
+    },
+    timings: {
+      driveDelay: 120,
+      gateOpenDelay: 430,
+      ballReleaseDelay: 620,
+      resultDelay: 420,
+    },
+    requirements: {
+      finish: ['gateOpen'],
+    },
+    copy: {
+      ready: 'Trace the linkage.',
+      correct: 'Linkage engaged.',
+      gate: 'Gate open. Route clear.',
+      wrong: 'Dead linkage. Route blocked.',
+    },
+  },
 };
 
 export function getMachineLogic(levelId) {
