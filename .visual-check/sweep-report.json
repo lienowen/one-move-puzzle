@@ -350,51 +350,39 @@
     ],
     "important": [
       {
-        "id": "beltButton",
-        "interactive": true,
-        "kind": "piece-button",
+        "id": "star-0",
+        "interactive": false,
+        "kind": "maze-star-art",
         "visibleRatio": 1,
         "rect": [
-          5,
-          582,
-          64,
-          641
-        ]
-      },
-      {
-        "id": "redLever",
-        "interactive": true,
-        "kind": "piece-lever",
-        "visibleRatio": 1,
-        "rect": [
-          326,
-          292,
-          385,
-          351
+          244,
+          565,
+          272,
+          594
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          336,
-          565,
-          387,
-          615
+          298,
+          557,
+          343,
+          602
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          294,
-          57,
-          339
+          55,
+          439,
+          84,
+          468
         ]
       }
     ],
