@@ -8,5 +8,6 @@ try{
   await inside('Level 6 slide row',await open(6,'[data-id="slideRow"]'));
   await inside('Level 7 magnet dial',await open(7,'[data-id="magnetDial"]'));
   await inside('Level 8 fan dial',await open(8,'[data-id="fanDial"]'));
+  await inside('Level 9 one-way valve',await open(9,'[data-id="oneWayValve"]'));
   await context.close();
 }finally{await browser.close();}
