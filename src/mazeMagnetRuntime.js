@@ -23,13 +23,15 @@ export function mountMazeMagnetRuntime({world,stage,level,onMove,onStar,onGoal,o
   const grid=board.querySelector('.maze-grid'),ball=board.querySelector('.maze-ball');
   for(let y=0;y<maze.rows;y++)for(let x=0;x<maze.cols;x++){const slot=document.createElement('div');slot.className='maze-slot';slot.style.gridColumn=x+1;slot.style.gridRow=y+1;slot.innerHTML=`<img class="maze-slot-base" src="${A.tiles.baseSteelDark}" alt="">`;grid.appendChild(slot);nodes.set(`${x},${y}`,slot);}
   for(const c of maze.cells)render(c);
-  const control=buildControl();
+  let control;
+  control=buildControl();
+  sync(rotation,false);
   requestAnimationFrame(()=>place(maze.start.x,maze.start.y));
   onStatus?.(logic.copy?.ready||'Read the fork, then aim the magnetic field.');
 
   function render(c){const slot=nodes.get(`${c.x},${c.y}`);if(!slot)return;if(c.hazard){art(slot,'maze-pit-art',A.tiles.pitIdle);return;}const tile=document.createElement('div');tile.className='maze-tile';tile.dataset.id=c.id||'';tile.style.setProperty('--angle',`${(c.rotation||0)*90}deg`);tile.innerHTML=`<img class="maze-rail-art" src="${ART[c.type]||A.tiles.baseWood}" alt="">`;slot.appendChild(tile);if(c.start)art(slot,'maze-start-art',A.tiles.startSocketIdle);if(c.star)art(slot,'maze-star-art',A.objects.starIdle);if(c.goal)art(slot,'maze-goal-art',A.objects.goalIdle);}
   function art(slot,cls,src){const e=document.createElement('img');e.className=cls;e.src=src;e.alt='';e.draggable=false;slot.appendChild(e);return e;}
-  function buildControl(){const slot=nodes.get(`${field.x},${field.y}`);const b=document.createElement('button');b.className='maze-field-control';b.dataset.id=field.id;b.innerHTML=`<img class="maze-field-dial" src="${A.tiles.rotatableIdle}" alt=""><img class="maze-field-device" src="${A.tiles.magnetOff}" alt=""><i class="maze-field-arrow"></i>`;slot.appendChild(b);const target=maze.cells.find(c=>c.id===field.targetId);if(target)art(nodes.get(`${target.x},${target.y}`),'maze-field-fx',A.fx.magnetField);gesture(b);sync(rotation,false);return b;}
+  function buildControl(){const slot=nodes.get(`${field.x},${field.y}`);if(!slot)throw new Error('Magnet control is outside the maze grid');const b=document.createElement('button');b.className='maze-field-control';b.dataset.id=field.id;b.innerHTML=`<img class="maze-field-dial" src="${A.tiles.rotatableIdle}" alt=""><img class="maze-field-device" src="${A.tiles.magnetOff}" alt=""><i class="maze-field-arrow"></i>`;slot.appendChild(b);const target=maze.cells.find(c=>c.id===field.targetId);if(target)art(nodes.get(`${target.x},${target.y}`),'maze-field-fx',A.fx.magnetField);gesture(b);return b;}
   function gesture(b){let down=false,start=0;const angle=e=>{const r=b.getBoundingClientRect();return Math.atan2(e.clientY-r.top-r.height/2,e.clientX-r.left-r.width/2)*180/Math.PI};const delta=(v,o)=>((v-o+540)%360)-180;
     b.addEventListener('pointerdown',e=>{if(running)return;down=true;start=angle(e);b.classList.add('dragging');b.setPointerCapture?.(e.pointerId);onEffect?.('metal')});
     b.addEventListener('pointermove',e=>{if(!down||running)return;const q=delta(angle(e),start);b.querySelector('.maze-field-device').style.transform=`rotate(${rotation*90+q}deg)`});
