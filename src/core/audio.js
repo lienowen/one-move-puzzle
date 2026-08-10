@@ -1,4 +1,5 @@
 let ctx;
+let rolling = null;
 
 function ensure() {
   try {
@@ -67,6 +68,70 @@ function metalClick(delay = 0, gain = .026) {
   tone(1040, .095, gain * .52, 'sine', delay + .012, 730);
 }
 
+function startRolling(enabled) {
+  stopRolling();
+  if (!enabled) return;
+  const c = ensure();
+  if (!c) return;
+
+  try {
+    const length = Math.floor(c.sampleRate * .55);
+    const buffer = c.createBuffer(1, length, c.sampleRate);
+    const data = buffer.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < length; i += 1) {
+      const white = Math.random() * 2 - 1;
+      last = last * .82 + white * .18;
+      data[i] = last * .75;
+    }
+
+    const source = c.createBufferSource();
+    const filter = c.createBiquadFilter();
+    const gain = c.createGain();
+    const hum = c.createOscillator();
+    const humGain = c.createGain();
+    const t = c.currentTime;
+
+    source.buffer = buffer;
+    source.loop = true;
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(290, t);
+    filter.Q.setValueAtTime(.55, t);
+    gain.gain.setValueAtTime(.0001, t);
+    gain.gain.exponentialRampToValueAtTime(.0075, t + .12);
+
+    hum.type = 'triangle';
+    hum.frequency.setValueAtTime(74, t);
+    humGain.gain.setValueAtTime(.0001, t);
+    humGain.gain.exponentialRampToValueAtTime(.0038, t + .14);
+
+    source.connect(filter).connect(gain).connect(c.destination);
+    hum.connect(humGain).connect(c.destination);
+    source.start(t);
+    hum.start(t);
+    rolling = { source, gain, hum, humGain, ctx:c };
+  } catch {
+    rolling = null;
+  }
+}
+
+function stopRolling(fade = .11) {
+  if (!rolling) return;
+  const current = rolling;
+  rolling = null;
+  try {
+    const t = current.ctx.currentTime;
+    current.gain.gain.cancelScheduledValues(t);
+    current.gain.gain.setValueAtTime(Math.max(.0001,current.gain.gain.value), t);
+    current.gain.gain.exponentialRampToValueAtTime(.0001, t + fade);
+    current.humGain.gain.cancelScheduledValues(t);
+    current.humGain.gain.setValueAtTime(Math.max(.0001,current.humGain.gain.value), t);
+    current.humGain.gain.exponentialRampToValueAtTime(.0001, t + fade);
+    current.source.stop(t + fade + .025);
+    current.hum.stop(t + fade + .025);
+  } catch {}
+}
+
 export const sfx = {
   tap(enabled) {
     if (!enabled) return;
@@ -87,10 +152,15 @@ export const sfx = {
     tone(178, .11, .026, 'triangle', .025, 112);
     noise(.08, .018, .022, 1150);
   },
-  roll(enabled) {
-    if (!enabled) return;
-    noise(.18, .014, 0, 520);
-    tone(94, .17, .012, 'triangle', 0, 76);
+  rollStart(enabled) {
+    startRolling(enabled);
+    if (enabled) {
+      noise(.08, .009, 0, 540);
+      tone(96, .09, .008, 'triangle', 0, 79);
+    }
+  },
+  rollStop() {
+    stopRolling();
   },
   track(enabled) {
     if (!enabled) return;
@@ -116,17 +186,20 @@ export const sfx = {
     tone(510, .15, .02, 'triangle', .045, 650);
   },
   sink(enabled) {
+    stopRolling(.08);
     if (!enabled) return;
     tone(260, .18, .026, 'sine', 0, 95);
     noise(.08, .014, .06, 650);
   },
   fail(enabled) {
+    stopRolling(.06);
     if (!enabled) return;
     woodKnock(0, .036);
     tone(170, .13, .033, 'sawtooth', .04, 110);
     tone(112, .18, .024, 'triangle', .13, 76);
   },
   win(enabled) {
+    stopRolling(.06);
     if (!enabled) return;
     tone(523, .085, .028, 'triangle');
     tone(659, .09, .028, 'triangle', .075);
