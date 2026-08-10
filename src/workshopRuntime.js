@@ -1,12 +1,16 @@
+import { POLISH_ASSETS as P } from './polishAssets.js';
+
 export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGoal, onFail, onEffect, onStatus }) {
   const scene = level.scene;
   if (!scene?.path?.length) throw new Error(`Level ${level.id} is missing machine path data`);
 
+  const polishedTutorial = level.id === 'release';
   let destroyed = false;
   let running = false;
   let frameId = 0;
   let startTimer = 0;
   let failTimer = 0;
+  const timers = new Set();
   const nodes = new Map();
   const pieces = new Map(scene.pieces.map(piece => [piece.id, piece]));
   const firedEvents = new Set();
@@ -15,7 +19,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   world.innerHTML = '';
 
   const board = document.createElement('div');
-  board.className = 'machine-board';
+  board.className = `machine-board${polishedTutorial ? ' polished-tutorial' : ''}`;
   board.setAttribute('aria-label', `${level.name} machine`);
   board.innerHTML = `
     <img class="machine-board-base" src="${scene.board}" alt="" draggable="false">
@@ -49,16 +53,63 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     node.style.zIndex = String(piece.z ?? 10);
     node.style.setProperty('--piece-rotation', `${piece.rotation || 0}deg`);
     node.innerHTML = `<img src="${piece.asset}" alt="" draggable="false">`;
+
+    if (polishedTutorial) applyTutorialArt(node, piece);
+
     if (piece.interactive) {
       node.setAttribute('aria-label', piece.label || 'Use this control');
       node.addEventListener('click', ev => onMove?.(piece.id, ev));
+      if (polishedTutorial && piece.id === 'pin') wirePinPreview(node, piece);
     }
+
     piecesRoot.appendChild(node);
     nodes.set(piece.id, node);
   });
 
   const ball = nodes.get('ball');
   if (!ball) throw new Error(`Level ${level.id} requires a ball piece`);
+
+  function applyTutorialArt(node, piece) {
+    if (piece.id === 'pin') {
+      node.classList.add('polish-state', 'polish-pin');
+      setNodeImage(node, P.interaction.pinBlueIdle);
+      return;
+    }
+    if (piece.id === 'pinSocket') {
+      node.classList.add('polish-suppressed');
+      return;
+    }
+    if (piece.id === 'star') {
+      node.classList.add('polish-state', 'polish-star');
+      setNodeImage(node, P.interaction.starIdle);
+      return;
+    }
+    if (piece.id === 'goal') {
+      node.classList.add('polish-state', 'polish-goal');
+      setNodeImage(node, P.interaction.goalYellowIdle);
+      return;
+    }
+    if (piece.id === 'goalSocket') {
+      node.classList.add('polish-suppressed');
+    }
+  }
+
+  function wirePinPreview(node, piece) {
+    node.addEventListener('pointerenter', () => {
+      if (!running && !destroyed) setNodeImage(node, P.interaction.pinBlueHover);
+    });
+    node.addEventListener('pointerleave', () => {
+      if (!running && !destroyed) setNodeImage(node, P.interaction.pinBlueIdle);
+    });
+    node.addEventListener('pointerdown', () => {
+      if (running || destroyed) return;
+      setNodeImage(node, P.interaction.pinBluePull);
+      playPolishFx(P.fx.fxClickRing, piece.x, piece.y, 'fx-click', 360);
+    });
+    node.addEventListener('pointercancel', () => {
+      if (!running && !destroyed) setNodeImage(node, P.interaction.pinBlueIdle);
+    });
+  }
 
   function commit(id) {
     if (destroyed || running) return { accepted:false, correct:false };
@@ -70,6 +121,12 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     stage.classList.add('machine-running');
     disableControls();
     node.classList.add(`action-${piece.action || 'press'}`);
+
+    if (polishedTutorial && id === 'pin') {
+      setNodeImage(node, P.interaction.pinBluePull);
+      playPolishFx(P.fx.fxMetalSparkSmall, piece.x + 6, piece.y, 'fx-metal', 460);
+      later(() => setNodeImage(node, P.interaction.pinBlueReleased), 285);
+    }
 
     if (id !== level.solution) {
       node.classList.add('action-wrong');
@@ -85,7 +142,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     onStatus?.('Watch the machine.');
     startTimer = window.setTimeout(() => {
       if (!destroyed) runBall();
-    }, 330);
+    }, polishedTutorial ? 430 : 330);
     return { accepted:true, correct:true };
   }
 
@@ -113,9 +170,15 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
         frameId = requestAnimationFrame(tick);
       } else {
         ball.classList.add('at-goal');
-        window.setTimeout(() => {
+        if (polishedTutorial) {
+          const goal = nodes.get('goal');
+          setNodeImage(goal, P.interaction.goalYellowSuccess);
+          playPolishFx(P.fx.fxGoalGlow, 77, 79, 'fx-goal', 950);
+          playPolishFx(P.fx.fxSuccessBurst, 77, 75, 'fx-success', 1100);
+        }
+        later(() => {
           if (!destroyed) onGoal?.();
-        }, 310);
+        }, polishedTutorial ? 470 : 310);
       }
     };
 
@@ -136,15 +199,29 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       }
 
       if (event.type === 'star') {
-        node?.classList.add('collected');
+        if (polishedTutorial && node) {
+          node.classList.add('polish-collecting');
+          setNodeImage(node, P.interaction.starCollect1);
+          playPolishFx(P.fx.fxStarBurst, event.x, event.y, 'fx-star', 780);
+          later(() => setNodeImage(node, P.interaction.starCollect2), 105);
+          later(() => setNodeImage(node, P.interaction.starCollectDone), 225);
+          later(() => node.classList.add('polish-collected'), 395);
+        } else {
+          node?.classList.add('collected');
+        }
         onStar?.();
         sparkAt(event.x, event.y, 9);
         return;
       }
 
       if (event.type === 'goal') {
-        nodes.get('goal')?.classList.add('activated');
+        const goal = nodes.get('goal');
+        goal?.classList.add('activated');
         nodes.get('goalSocket')?.classList.add('activated');
+        if (polishedTutorial) {
+          setNodeImage(goal, P.interaction.goalYellowActive);
+          playPolishFx(P.fx.fxGoalGlow, event.x, event.y, 'fx-goal-warmup', 950);
+        }
         onEffect?.('goal');
         sparkAt(event.x, event.y, 12);
       }
@@ -159,6 +236,35 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     });
   }
 
+  function playPolishFx(asset, x, y, className, life) {
+    if (!asset || destroyed) return;
+    const root = board.querySelector('.machine-fx');
+    const fx = document.createElement('img');
+    fx.className = `polish-fx ${className}`;
+    fx.src = asset;
+    fx.alt = '';
+    fx.draggable = false;
+    fx.style.left = `${x}%`;
+    fx.style.top = `${y}%`;
+    root.appendChild(fx);
+    later(() => fx.remove(), life);
+  }
+
+  function setNodeImage(node, src) {
+    if (!node || !src) return;
+    const image = node.querySelector('img');
+    if (image) image.src = src;
+  }
+
+  function later(fn, delay) {
+    const id = window.setTimeout(() => {
+      timers.delete(id);
+      if (!destroyed) fn();
+    }, delay);
+    timers.add(id);
+    return id;
+  }
+
   function sparkAt(x, y, count) {
     const root = board.querySelector('.machine-fx');
     for (let i = 0; i < count; i += 1) {
@@ -169,7 +275,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       spark.style.setProperty('--y', `${-15 - Math.random() * 44}px`);
       spark.style.animationDelay = `${Math.random() * 70}ms`;
       root.appendChild(spark);
-      window.setTimeout(() => spark.remove(), 820);
+      later(() => spark.remove(), 820);
     }
   }
 
@@ -179,6 +285,8 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     cancelAnimationFrame(frameId);
     clearTimeout(startTimer);
     clearTimeout(failTimer);
+    timers.forEach(id => clearTimeout(id));
+    timers.clear();
     world.innerHTML = '';
   }
 
