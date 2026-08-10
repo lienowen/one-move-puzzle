@@ -26,7 +26,7 @@ try{
   await turn(page,'ArrowRight');
   await board.locator('.maze-ball.airborne').waitFor({state:'attached',timeout:4500});
   await page.screenshot({path:'.visual-check/level8-carry-mobile.jpg',type:'jpeg',quality:76,fullPage:false});
-  await board.locator('.air-correct').waitFor({state:'attached',timeout:3500});
+  await page.locator('.maze-air-board.air-correct[data-maze-level="fan"]').waitFor({state:'attached',timeout:3500});
   await page.screenshot({path:'.visual-check/level8-landed-mobile.jpg',type:'jpeg',quality:76,fullPage:false});
   await page.locator('.maze-board.maze-solved').waitFor({state:'attached',timeout:7000});
   await result(page,'success');
