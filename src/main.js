@@ -105,10 +105,26 @@ function startLevel(index) {
   requestAnimationFrame(buildLevel);
 }
 
+function guidanceFor(level, logic) {
+  if (!logic) return { hint:level.hint, status:level.status || 'Choose one piece.' };
+
+  if (logic.archetype === 'choice-gate') {
+    return { hint:'Follow the linkage to the gate.', status:logic.copy?.ready || 'Trace the linkage.' };
+  }
+  if (logic.archetype === 'route-align') {
+    return { hint:'Find what turns the broken bridge.', status:logic.copy?.ready || 'Read the broken route.' };
+  }
+  if (logic.archetype === 'signal-match') {
+    return { hint:'Match the control to the receiver.', status:logic.copy?.ready || 'Read the signal path.' };
+  }
+  return { hint:level.hint, status:level.status || 'Choose one piece.' };
+}
+
 function buildLevel() {
   destroyRuntime();
   const level = levels[current];
   const logic = getMachineLogic(level.id);
+  const guidance = guidanceFor(level, logic);
   moveUsed = false;
   resolved = false;
   bonusStar = false;
@@ -121,15 +137,8 @@ function buildLevel() {
   dom.move.querySelector('strong').textContent = '1';
   dom.levelNumber.textContent = `LEVEL ${String(current + 1).padStart(2,'0')}`;
   dom.levelTitle.textContent = level.name;
-
-  if (logic?.archetype === 'choice-gate') {
-    dom.hint.textContent = 'Follow the linkage to the gate.';
-    dom.status.textContent = logic.copy?.ready || 'Trace the linkage.';
-  } else {
-    dom.hint.textContent = level.hint;
-    dom.status.textContent = level.status || 'Choose one piece.';
-  }
-
+  dom.hint.textContent = guidance.hint;
+  dom.status.textContent = guidance.status;
   resetResultButton();
   renderMiniProgress();
 
