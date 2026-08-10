@@ -119,7 +119,7 @@ function buildLevel() {
       if (bonusStar) return;
       bonusStar = true;
       sfx.star(save.sound);
-      haptic(save.haptics,[12,28,12]);
+      haptic(save.haptics,[7,18,11]);
       dom.status.textContent = 'Star collected. Keep rolling.';
     },
     onEffect: playEffect,
@@ -139,30 +139,76 @@ function useMove(id, event) {
   dom.move.classList.add('used');
   dom.move.querySelector('strong').textContent = '0';
   dom.stage.classList.add('running');
-  sfx.tap(save.sound);
-  haptic(save.haptics,18);
+
+  if (!outcome.effectHandled) {
+    sfx.tap(save.sound);
+    haptic(save.haptics,12);
+  }
   tapFx(event);
 }
 
 function playEffect(type) {
+  if (type === 'pin-grab') {
+    sfx.grab(save.sound);
+    haptic(save.haptics,5);
+    return;
+  }
+  if (type === 'pin-detent') {
+    sfx.detent(save.sound);
+    haptic(save.haptics,8);
+    return;
+  }
+  if (type === 'pin-reset') {
+    sfx.tap(save.sound);
+    return;
+  }
+  if (type === 'pin-release') {
+    sfx.release(save.sound);
+    haptic(save.haptics,[12,18,8]);
+    return;
+  }
+  if (type === 'roll-start') {
+    sfx.roll(save.sound);
+    return;
+  }
+  if (type === 'track-tick') {
+    sfx.track(save.sound);
+    haptic(save.haptics,4);
+    return;
+  }
   if (type === 'wood') {
     sfx.wood(save.sound);
-    haptic(save.haptics,10);
+    haptic(save.haptics,7);
     return;
   }
   if (type === 'metal') {
     sfx.metal(save.sound);
-    haptic(save.haptics,10);
+    haptic(save.haptics,7);
+    return;
+  }
+  if (type === 'goal-warmup') {
+    sfx.goal(save.sound);
+    haptic(save.haptics,5);
     return;
   }
   if (type === 'goal') {
-    sfx.metal(save.sound);
-    haptic(save.haptics,[10,20,10]);
+    sfx.goal(save.sound);
+    haptic(save.haptics,[6,16,7]);
+    return;
+  }
+  if (type === 'goal-sink') {
+    sfx.sink(save.sound);
+    haptic(save.haptics,[11,18,23]);
+    return;
+  }
+  if (type === 'tap') {
+    sfx.tap(save.sound);
+    haptic(save.haptics,7);
     return;
   }
   if (type === 'fail-soft') {
     sfx.wood(save.sound);
-    haptic(save.haptics,28);
+    haptic(save.haptics,24);
   }
 }
 
@@ -174,7 +220,7 @@ function winLevel() {
   recordClear(save,level.id,current + 1,stars);
   dom.stage.classList.add('solved');
   sfx.win(save.sound);
-  haptic(save.haptics,[18,30,18,30,38]);
+  haptic(save.haptics,[10,22,14,28,24]);
 
   window.setTimeout(() => {
     dom.resultBadge.textContent = '★';
@@ -189,7 +235,7 @@ function winLevel() {
 
     dom.result.hidden = false;
     refreshMeta();
-  },430);
+  },520);
 }
 
 function failLevel(copy = 'That move breaks the chain.') {
@@ -197,7 +243,7 @@ function failLevel(copy = 'That move breaks the chain.') {
   resolved = true;
   dom.stage.classList.add('failed');
   sfx.fail(save.sound);
-  haptic(save.haptics,[42,32,42]);
+  haptic(save.haptics,[36,28,36]);
 
   window.setTimeout(() => {
     dom.resultBadge.textContent = '×';
@@ -284,7 +330,7 @@ $('#hapticsToggle').addEventListener('click', () => {
   save.haptics = !save.haptics;
   storeSave(save);
   refreshMeta();
-  haptic(save.haptics,18);
+  haptic(save.haptics,12);
 });
 
 document.addEventListener('visibilitychange', () => {
