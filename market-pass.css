@@ -62,11 +62,14 @@
   transform:rotate(33deg);transform-origin:left center;
   background:linear-gradient(90deg,#514437,#70604f 52%,#574838);
   box-shadow:0 2px 4px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.12);
-  opacity:.46;
+  opacity:.46;overflow:visible;
 }
 .power-bus i{position:absolute;top:50%;width:5px;height:5px;border-radius:50%;transform:translateY(-50%);background:#27211c;box-shadow:inset 0 1px rgba(255,255,255,.12)}
 .power-bus i:nth-child(1){left:18%}.power-bus i:nth-child(2){left:51%}.power-bus i:nth-child(3){right:5%}
+.power-bus::after{content:"";position:absolute;left:-2%;top:50%;width:18%;height:7px;border-radius:999px;transform:translateY(-50%);background:radial-gradient(ellipse,rgba(255,226,146,.95),rgba(255,179,48,.42) 45%,transparent 72%);filter:blur(.3px);opacity:0}
 .goal-powered .power-bus{background:linear-gradient(90deg,#705b3e,#e0a439 55%,#ffe08b);opacity:.92;box-shadow:0 0 9px rgba(255,185,58,.33),inset 0 1px rgba(255,255,255,.22)}
+.goal-powered .power-bus::after{opacity:.82;animation:powerPacket .72s cubic-bezier(.18,.7,.2,1) 2 both}
+@keyframes powerPacket{0%{left:-3%;opacity:0}14%{opacity:.85}78%{opacity:.78}100%{left:87%;opacity:0}}
 .power-bus.pulse{animation:powerBusPulse .85s cubic-bezier(.18,.76,.2,1)}
 @keyframes powerBusPulse{35%{filter:brightness(1.65);box-shadow:0 0 18px rgba(255,195,69,.58)}to{filter:none}}
 
@@ -78,6 +81,7 @@
 .route-light{stroke:rgba(255,218,164,.25)!important;stroke-width:1.6!important}
 .route-progress{stroke:#ffd06a!important;stroke-width:1.7!important;opacity:0!important;filter:drop-shadow(0 0 3px rgba(255,190,57,.45))!important}
 .polished-tutorial.machine-running .route-progress{opacity:.34!important}
+.waiting-gate .route-progress{opacity:.44!important;filter:drop-shadow(0 0 5px rgba(255,195,71,.55))!important}
 .machine-complete .route-progress{opacity:.72!important}
 .route-joint{opacity:.86;transform-origin:center}
 
@@ -95,10 +99,17 @@
 .piece-logic-lamp.logic-active{opacity:1!important;filter:saturate(1.08) brightness(1.16) drop-shadow(0 0 11px rgba(78,238,139,.55))!important}
 .tutorial-drive-gear{left:62%!important;top:39%!important;width:9.5%!important;opacity:.34!important}
 .tutorial-drive-gear.drive-live{opacity:.88!important}
+.tutorial-drive-gear.drive-live img{animation:marketGearLoop .72s linear infinite!important}
+@keyframes marketGearLoop{to{transform:rotate(360deg)}}
+.tutorial-drive-gear.drive-coast{opacity:.72!important}
+.tutorial-drive-gear.drive-coast img{animation:marketGearCoast .78s cubic-bezier(.12,.7,.22,1) forwards!important}
+@keyframes marketGearCoast{0%{transform:rotate(0deg)}55%{transform:rotate(112deg)}100%{transform:rotate(154deg)}}
 
 .waiting-gate .piece-ball{filter:drop-shadow(0 8px 6px rgba(18,31,52,.34)) drop-shadow(0 0 11px rgba(70,148,244,.25))!important}
 .waiting-gate .piece-ball::before{animation:gateWaitBall .32s ease-in-out infinite alternate}
+.waiting-gate .piece-ball::after{animation:gateWaitRoll .38s ease-in-out infinite alternate}
 @keyframes gateWaitBall{to{transform:scale(.98,1.02) translateY(-1px)}}
+@keyframes gateWaitRoll{to{transform:rotate(calc(var(--roll-angle,0deg) + 8deg))}}
 .route-open .piece-logic-lamp{animation:routeOpenLamp .4s ease both}
 @keyframes routeOpenLamp{45%{transform:translate(-50%,-50%) scale(1.14)}to{transform:translate(-50%,-50%) scale(1)}}
 
@@ -123,8 +134,12 @@
 .star-secured .chassis-goal{box-shadow:inset 0 1px rgba(255,235,199,.11),inset 0 -6px 16px rgba(10,6,4,.14),0 0 12px rgba(224,159,51,.09)!important}
 .goal-powered .polish-goal{filter:drop-shadow(0 7px 7px rgba(47,23,5,.28)) drop-shadow(0 0 8px rgba(255,174,34,.18))!important}
 .goal-powered .chassis-goal::after{content:"";position:absolute;inset:13%;border-radius:50%;border:1px solid rgba(255,193,75,.11);box-shadow:0 0 12px rgba(255,177,36,.08)}
+.focus-goal .chassis-goal{animation:receiverBreath .82s ease-in-out infinite alternate}
+@keyframes receiverBreath{to{box-shadow:inset 0 1px rgba(255,235,199,.13),inset 0 -6px 16px rgba(10,6,4,.12),0 0 18px rgba(235,166,49,.13)}}
+.focus-goal .polish-goal{filter:drop-shadow(0 8px 8px rgba(47,23,5,.28)) drop-shadow(0 0 16px rgba(255,179,36,.30))!important}
 .machine-complete .chassis-start,.machine-complete .chassis-drive,.machine-complete .chassis-goal{filter:brightness(1.06)}
 .machine-complete .machine-deck{box-shadow:inset 0 1px rgba(255,235,201,.12),inset 0 0 28px rgba(17,10,6,.08),0 0 20px rgba(255,184,61,.08)}
+.machine-complete .power-bus::after{animation:none;opacity:.28;left:82%}
 
 /* ---------- Impacts / climax ---------- */
 .release-impact{animation:machineReleaseImpact .32s cubic-bezier(.2,.8,.2,1)}
@@ -150,9 +165,12 @@
   color:#fff1d7;
   box-shadow:0 30px 90px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.08)!important;
 }
+.modal:not([hidden]) .result-card{animation:marketSheetIn .4s cubic-bezier(.16,.82,.2,1.04) both}
+@keyframes marketSheetIn{from{opacity:0;transform:translateY(28px) scale(.965)}65%{opacity:1}to{transform:none}}
 .result-card .modal-kicker{color:#d89c4b!important}.result-card h2{color:#fff1d7}.result-card p{color:#cfb89b!important}
 .result-card .ghost-btn{background:rgba(255,241,216,.075)!important;border-color:rgba(255,225,181,.12)!important;color:#ead5b8;box-shadow:inset 0 1px rgba(255,255,255,.05)!important}
 .result-card .primary-btn{box-shadow:0 13px 28px rgba(20,64,134,.34),inset 0 1px rgba(255,255,255,.25)!important}
+.result-card .primary-btn:active,.result-card .ghost-btn:active{transform:translateY(2px) scale(.99)}
 
 @media(max-width:500px){
   .polished-tutorial.focus-start{transform:translate(-49%,-50.2%) scale(1.01)}
@@ -160,12 +178,12 @@
   .polished-tutorial.focus-drive{transform:translate(-50%,-49.8%) scale(1.018)}
   .polished-tutorial.focus-goal{transform:translate(-50.5%,-49.4%) scale(1.024)}
   .polished-tutorial.focus-complete{transform:translate(-49.7%,-49.8%) scale(1.012)}
-  .machine-deck{left:11.5%;width:78%;}
+  .machine-deck{left:11.5%;width:78%}
   .pull-cue{left:-12px;transform:translate(-85%,-50%)}
   @keyframes marketPullCue{50%{transform:translate(calc(-85% - 5px),-50%);opacity:.52}}
 }
 
 @media(prefers-reduced-motion:reduce){
   .machine-board{transition:none!important}
-  .pull-cue,.power-bus,.completion-wave{animation:none!important}
+  .pull-cue,.power-bus,.completion-wave,.tutorial-drive-gear img{animation:none!important}
 }
