@@ -3,16 +3,35 @@
 
 export const MACHINE_LOGIC = {
   release: {
-    archetype: 'release-chain',
-    checkpoints: { triggerAt:.34, gateHoldAt:.486, goalWakeAt:.83 },
-    timings: { driveDelay:90, gatePreloadDelay:250, gateOpenDelay:760, resultDelay:620 },
-    requirements: { goal:['star'], finish:['gateOpen','star','goalAwake'] },
+    archetype: 'maze-one-turn',
+    displayName: 'Turn the Corner',
+    displaySubtitle: 'Rotate one tile, then watch the maze run',
+    timings: { resultDelay:560 },
     copy: {
-      latch:'Latch released.', rolling:'Ball released.', trigger:'Pressure ring engaged.',
-      waitingGate:'Drive opening the gate…', routeOpen:'Route unlocked.', reward:'Energy captured.',
-      goal:'Receiver charged.', complete:'Machine complete.',
+      ready:'Study the whole route before you move.',
+      running:'Route set. Watch the machine.',
+      complete:'Perfect route.',
+      pit:'The ball found the pit.',
+      wrong:'That route does not connect.',
     },
-    focus: { initial:'start', release:'route', trigger:'drive', goal:'goal', complete:'complete' },
+    maze: {
+      cols:5,
+      rows:5,
+      start:{x:0,y:1,dir:'E'},
+      pivot:{id:'pivot',initialRotation:3,targetRotation:2},
+      cells:[
+        {id:'start',x:0,y:1,type:'straight',rotation:1,start:true},
+        {id:'pivot',x:1,y:1,type:'corner',rotation:3},
+        {id:'pit',x:1,y:0,hazard:true},
+        {id:'down',x:1,y:2,type:'straight',rotation:0},
+        {id:'turn',x:1,y:3,type:'corner',rotation:0},
+        {id:'run1',x:2,y:3,type:'straight',rotation:1},
+        {id:'starCell',x:3,y:3,type:'straight',rotation:1,star:true},
+        {id:'goalCell',x:4,y:3,type:'goal',rotation:0,goal:true},
+        {id:'deadDecor1',x:3,y:1,type:'corner',rotation:1},
+        {id:'deadDecor2',x:4,y:1,type:'straight',rotation:0},
+      ],
+    },
   },
 
   gate: {
