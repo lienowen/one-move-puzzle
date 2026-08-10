@@ -448,51 +448,39 @@
     ],
     "important": [
       {
-        "id": "greenButton",
-        "interactive": true,
-        "kind": "piece-button",
+        "id": "star-0",
+        "interactive": false,
+        "kind": "maze-star-art",
         "visibleRatio": 1,
         "rect": [
-          10,
-          582,
-          69,
-          641
-        ]
-      },
-      {
-        "id": "yellowButton",
-        "interactive": true,
-        "kind": "piece-button",
-        "visibleRatio": 1,
-        "rect": [
-          321,
-          287,
-          380,
-          346
+          244,
+          502,
+          272,
+          531
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "piece-goal",
+        "kind": "maze-goal-art",
         "visibleRatio": 1,
         "rect": [
-          331,
-          575,
-          381,
-          626
+          298,
+          494,
+          343,
+          539
         ]
       },
       {
         "id": "ball",
         "interactive": false,
-        "kind": "piece-ball",
+        "kind": "maze-ball",
         "visibleRatio": 1,
         "rect": [
-          11,
-          294,
-          57,
-          339
+          180,
+          313,
+          210,
+          342
         ]
       }
     ],
