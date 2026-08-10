@@ -38,6 +38,21 @@ export const MACHINE_LOGIC = {
       wrong:'Valve turned. The bridge is still misaligned.',
     },
   },
+
+  button: {
+    archetype: 'signal-match',
+    controls: { correct:'greenButton', decoy:'yellowButton', target:'gate' },
+    signal: { required:'circle', correct:'circle', decoy:'triangle' },
+    timings: { pulseDelay:80, receiverDelay:390, gateOpenDelay:620, ballReleaseDelay:830, resultDelay:440 },
+    requirements: { finish:['signalMatched','gateOpen'] },
+    copy: {
+      ready:'Read the receiver signal.',
+      correct:'Matching signal sent.',
+      receiver:'Receiver matched.',
+      gate:'Signal accepted. Gate open.',
+      wrong:'Wrong signal. Receiver rejected it.',
+    },
+  },
 };
 
 export function getMachineLogic(levelId) {
