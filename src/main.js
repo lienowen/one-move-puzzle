@@ -2,6 +2,7 @@ import { levels } from './levels.js';
 import { loadSave, storeSave, recordAttempt, recordClear } from './core/save.js';
 import { sfx, haptic } from './core/audio.js';
 import { mountWorkshopRuntime } from './workshopRuntime.js';
+import { POLISH_ASSETS as P } from './polishAssets.js';
 
 const $ = selector => document.querySelector(selector);
 
@@ -36,6 +37,13 @@ let runtime = null;
 let moveUsed = false;
 let resolved = false;
 let bonusStar = false;
+
+function installPolishUi() {
+  const brand = $('.brand-lockup');
+  if (brand && P.ui.uiLogo) {
+    brand.innerHTML = `<img class="brand-logo-image" src="${P.ui.uiLogo}" alt="" draggable="false">`;
+  }
+}
 
 function showScreen(name) {
   [dom.home, dom.levels, dom.game].forEach(screen => screen.classList.remove('active'));
@@ -101,6 +109,7 @@ function buildLevel() {
   dom.stage.className = 'stage';
   dom.result.hidden = true;
   dom.resultBadge.className = 'result-badge';
+  dom.resultBadge.textContent = '★';
   dom.move.classList.remove('used');
   dom.move.querySelector('strong').textContent = '1';
   dom.levelNumber.textContent = `LEVEL ${String(current + 1).padStart(2,'0')}`;
@@ -212,6 +221,13 @@ function playEffect(type) {
   }
 }
 
+function renderResultStars(stars) {
+  dom.resultStars.innerHTML = [0,1,2].map(index => {
+    const asset = index < stars ? P.ui.uiStarFull : P.ui.uiStarEmpty;
+    return `<img src="${asset}" alt="" draggable="false">`;
+  }).join('');
+}
+
 function winLevel() {
   if (resolved || !moveUsed) return;
   resolved = true;
@@ -223,9 +239,9 @@ function winLevel() {
   haptic(save.haptics,[10,22,14,28,24]);
 
   window.setTimeout(() => {
-    dom.resultBadge.textContent = '★';
+    dom.resultBadge.innerHTML = P.ui.uiStarFull ? `<img src="${P.ui.uiStarFull}" alt="" draggable="false">` : '★';
     dom.resultTitle.textContent = stars === 3 ? 'Perfect machine' : 'Machine solved';
-    dom.resultStars.textContent = '★'.repeat(stars) + '☆'.repeat(3-stars);
+    renderResultStars(stars);
     dom.resultCopy.textContent = stars === 3 ? 'One move. Clean route. Star collected.' : 'Solved in one move.';
 
     if (current === levels.length - 1) {
@@ -249,7 +265,7 @@ function failLevel(copy = 'That move breaks the chain.') {
     dom.resultBadge.textContent = '×';
     dom.resultBadge.classList.add('fail');
     dom.resultTitle.textContent = 'Wrong move';
-    dom.resultStars.textContent = '☆☆☆';
+    renderResultStars(0);
     dom.resultCopy.textContent = copy;
     $('#nextBtn span').textContent = 'TRY AGAIN';
     $('#nextBtn small').textContent = 'ONE MORE MOVE';
@@ -338,5 +354,6 @@ document.addEventListener('visibilitychange', () => {
   refreshMeta();
 });
 
+installPolishUi();
 refreshMeta();
 renderLevelGrid();
