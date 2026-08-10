@@ -149,6 +149,45 @@ export const MACHINE_LOGIC = {
       ],
     },
   },
+
+  spring: {
+    archetype: 'maze-one-turn',
+    displayName: 'Spring Gap',
+    displaySubtitle: 'Aim one launcher across the broken track',
+    timings: { resultDelay:620 },
+    copy: {
+      ready:'The rail is broken. Aim the spring before releasing the ball.',
+      running:'Spring aimed. Watch the flight path.',
+      launch:'Spring released.',
+      landing:'Clean landing.',
+      complete:'Perfect launch across the gap.',
+      pit:'The spring launched the ball into a pit.',
+      wrong:'That launch vector cannot reach the landing rail.',
+    },
+    maze: {
+      mode:'vector',
+      cols:5, rows:5,
+      start:{x:0,y:3,dir:'E'},
+      rotators:[{id:'springPivot',initialRotation:2,turns:[-1,1]}],
+      expectedSolution:{id:'springPivot',turn:1},
+      cells:[
+        {id:'start',x:0,y:3,type:'straight',rotation:1,start:true},
+        {
+          id:'springPivot',x:1,y:3,type:'tee',rotation:2,feature:'spring',airborneSteps:2,
+          exitByRotation:{
+            '1':{W:'S'},
+            '2':{W:'N'},
+            '3':{W:'E'},
+          },
+        },
+        {id:'pitNorth',x:1,y:2,hazard:true},
+        {id:'pitSouth',x:1,y:4,hazard:true},
+        {id:'gap',x:2,y:3,type:'straight',rotation:1,gap:true},
+        {id:'landing',x:3,y:3,type:'straight',rotation:1,star:true},
+        {id:'goalCell',x:4,y:3,type:'straight',rotation:1,goal:true},
+      ],
+    },
+  },
 };
 
 export function getMachineLogic(levelId) {
