@@ -15,6 +15,26 @@
 .game-screen .move-token{transform:scale(.94);transform-origin:right center}
 .game-footer{position:relative;z-index:18;max-width:520px!important;background:rgba(34,22,14,.54)!important;border-color:rgba(255,220,169,.08)!important}
 
+/* ---------- Home: same machine language as gameplay ---------- */
+.brand-logo-art{display:block;width:min(78vw,320px);max-width:100%;height:auto;filter:drop-shadow(0 12px 14px rgba(56,31,13,.18))}
+.hero-machine-preview{padding:0!important;background:transparent!important;box-shadow:none!important;transform:none!important;overflow:visible}
+.home-machine{position:relative;width:100%;height:100%;filter:drop-shadow(0 18px 22px rgba(54,31,13,.21))}
+.home-machine-board{position:absolute;inset:-8% -5%;width:110%;height:116%;object-fit:contain;pointer-events:none}
+.home-machine-deck{position:absolute;left:13%;top:12%;width:74%;height:72%;border-radius:20px;background:linear-gradient(145deg,rgba(62,43,31,.38),rgba(31,23,18,.31));border:1px solid rgba(43,27,16,.28);box-shadow:inset 0 1px rgba(255,235,201,.08),inset 0 0 18px rgba(17,10,6,.09)}
+.home-machine-route{position:absolute;left:13%;top:12%;width:74%;height:72%;overflow:visible;pointer-events:none}
+.home-machine-route path{fill:none;stroke:#8f5932;stroke-width:10;stroke-linecap:round;filter:drop-shadow(0 4px 3px rgba(27,13,6,.22))}
+.home-machine-route .home-route-light{stroke:#d89a57;stroke-width:6.6;filter:none}
+.home-preview-ball{position:absolute;left:21%;top:28%;width:11.5%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.96) 0 5%,#5da7f2 8% 18%,#2e7bd2 35%,#124a93 67%,#071e43 100%);box-shadow:0 7px 9px rgba(6,20,40,.30),inset -5px -6px 8px rgba(0,0,0,.22);z-index:8}
+.home-preview-pin{position:absolute;left:10%;top:38%;width:30%;height:auto;object-fit:contain;filter:drop-shadow(0 7px 6px rgba(8,28,61,.28));z-index:9}
+.home-preview-gear{position:absolute;left:57%;top:37%;width:12%;height:auto;object-fit:contain;opacity:.70;filter:drop-shadow(0 5px 4px rgba(0,0,0,.20));animation:homeGearIdle 7s linear infinite;z-index:7}
+@keyframes homeGearIdle{to{transform:rotate(360deg)}}
+.home-preview-star{position:absolute;left:56%;top:59%;width:9.5%;height:auto;object-fit:contain;filter:drop-shadow(0 0 8px rgba(255,187,37,.34));z-index:10;animation:homeStarIdle 1.8s ease-in-out infinite alternate}
+@keyframes homeStarIdle{to{transform:translateY(-3px);filter:drop-shadow(0 0 13px rgba(255,187,37,.47))}}
+.home-preview-goal{position:absolute;right:11%;bottom:12%;width:16%;height:auto;object-fit:contain;filter:drop-shadow(0 6px 6px rgba(45,22,5,.24));z-index:9}
+.home-preview-cue{position:absolute;left:6%;top:41%;display:flex;gap:1px;align-items:center;z-index:12;filter:drop-shadow(0 0 6px rgba(78,157,255,.40));animation:homePullCue 1.15s ease-in-out infinite}
+.home-preview-cue i{width:7px;height:7px;border-left:2px solid #7cbcff;border-bottom:2px solid #7cbcff;transform:rotate(45deg);opacity:.36}.home-preview-cue i:nth-child(2){opacity:.62}.home-preview-cue i:nth-child(3){opacity:.9}
+@keyframes homePullCue{50%{transform:translateX(-6px);opacity:.52}}
+
 /* ---------- Camera / board ---------- */
 .machine-board{
   transition:transform .62s cubic-bezier(.2,.72,.2,1),filter .46s ease;
@@ -38,17 +58,10 @@
   border:1px solid rgba(43,27,16,.34);
   box-shadow:inset 0 1px rgba(255,235,201,.08),inset 0 0 28px rgba(17,10,6,.10);
 }
-.machine-deck::after{
-  content:"";position:absolute;inset:8px;border-radius:18px;
-  border:1px solid rgba(210,151,81,.07);pointer-events:none;
-}
+.machine-deck::after{content:"";position:absolute;inset:8px;border-radius:18px;border:1px solid rgba(210,151,81,.07);pointer-events:none}
 
 /* Functional bays should read as parts of the deck, not three floating cards. */
-.chassis-module{
-  background:linear-gradient(145deg,rgba(67,48,36,.48),rgba(36,28,22,.44))!important;
-  border-color:rgba(37,24,16,.40)!important;
-  box-shadow:inset 0 1px rgba(255,235,199,.09),inset 0 -7px 16px rgba(10,6,4,.13),0 5px 9px rgba(26,13,6,.10)!important;
-}
+.chassis-module{background:linear-gradient(145deg,rgba(67,48,36,.48),rgba(36,28,22,.44))!important;border-color:rgba(37,24,16,.40)!important;box-shadow:inset 0 1px rgba(255,235,199,.09),inset 0 -7px 16px rgba(10,6,4,.13),0 5px 9px rgba(26,13,6,.10)!important}
 .chassis-module::before{border-color:rgba(202,143,73,.11)!important}
 .chassis-start{left:13.5%!important;top:11.5%!important;width:25.5%!important;height:25.5%!important;border-radius:18px!important}
 .chassis-drive{left:39.5%!important;top:30.5%!important;width:38.5%!important;height:34%!important;border-radius:21px!important}
@@ -57,13 +70,7 @@
 /* Transmission spine visually connects drive bay to receiver bay. */
 .drive-link{left:55.5%!important;top:43.2%!important;width:25%!important;height:4px!important;opacity:.52!important}
 .drive-live .drive-link{opacity:.92!important;box-shadow:0 3px 5px rgba(0,0,0,.28),0 0 8px rgba(151,203,255,.14),inset 0 1px rgba(255,255,255,.24)!important}
-.power-bus{
-  position:absolute;left:57%;top:57%;width:23%;height:3px;border-radius:999px;
-  transform:rotate(33deg);transform-origin:left center;
-  background:linear-gradient(90deg,#514437,#70604f 52%,#574838);
-  box-shadow:0 2px 4px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.12);
-  opacity:.46;overflow:visible;
-}
+.power-bus{position:absolute;left:57%;top:57%;width:23%;height:3px;border-radius:999px;transform:rotate(33deg);transform-origin:left center;background:linear-gradient(90deg,#514437,#70604f 52%,#574838);box-shadow:0 2px 4px rgba(0,0,0,.20),inset 0 1px rgba(255,255,255,.12);opacity:.46;overflow:visible}
 .power-bus i{position:absolute;top:50%;width:5px;height:5px;border-radius:50%;transform:translateY(-50%);background:#27211c;box-shadow:inset 0 1px rgba(255,255,255,.12)}
 .power-bus i:nth-child(1){left:18%}.power-bus i:nth-child(2){left:51%}.power-bus i:nth-child(3){right:5%}
 .power-bus::after{content:"";position:absolute;left:-2%;top:50%;width:18%;height:7px;border-radius:999px;transform:translateY(-50%);background:radial-gradient(ellipse,rgba(255,226,146,.95),rgba(255,179,48,.42) 45%,transparent 72%);filter:blur(.3px);opacity:0}
@@ -115,12 +122,7 @@
 
 /* ---------- Pull interaction ---------- */
 .polished-tutorial .polish-pin::before{display:none!important}
-.pull-cue{
-  position:absolute;left:-18px;top:50%;width:28px;height:24px;
-  transform:translate(-100%,-50%);display:flex;align-items:center;justify-content:flex-end;gap:1px;
-  pointer-events:none;filter:drop-shadow(0 0 7px rgba(78,157,255,.45));
-  animation:marketPullCue 1.05s ease-in-out infinite;
-}
+.pull-cue{position:absolute;left:-18px;top:50%;width:28px;height:24px;transform:translate(-100%,-50%);display:flex;align-items:center;justify-content:flex-end;gap:1px;pointer-events:none;filter:drop-shadow(0 0 7px rgba(78,157,255,.45));animation:marketPullCue 1.05s ease-in-out infinite}
 .pull-cue i{width:8px;height:8px;border-left:2px solid #8fc7ff;border-bottom:2px solid #8fc7ff;transform:rotate(45deg);opacity:.38}
 .pull-cue i:nth-child(2){opacity:.62}.pull-cue i:nth-child(3){opacity:.94}
 @keyframes marketPullCue{50%{transform:translate(calc(-100% - 6px),-50%);opacity:.52}}
@@ -157,14 +159,7 @@
 @keyframes completionBloom{0%{opacity:0}35%{opacity:1}to{opacity:.28}}
 
 /* ---------- Result sheet: same product, not a generic webpage modal ---------- */
-.game-screen + .modal .result-card,.result-card{
-  background:
-    radial-gradient(circle at 50% 0,rgba(255,228,178,.16),transparent 35%),
-    linear-gradient(160deg,#3a281d,#211710 72%,#160f0b)!important;
-  border-color:rgba(255,219,169,.13)!important;
-  color:#fff1d7;
-  box-shadow:0 30px 90px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.08)!important;
-}
+.game-screen + .modal .result-card,.result-card{background:radial-gradient(circle at 50% 0,rgba(255,228,178,.16),transparent 35%),linear-gradient(160deg,#3a281d,#211710 72%,#160f0b)!important;border-color:rgba(255,219,169,.13)!important;color:#fff1d7;box-shadow:0 30px 90px rgba(0,0,0,.46),inset 0 1px rgba(255,255,255,.08)!important}
 .modal:not([hidden]) .result-card{animation:marketSheetIn .4s cubic-bezier(.16,.82,.2,1.04) both}
 @keyframes marketSheetIn{from{opacity:0;transform:translateY(28px) scale(.965)}65%{opacity:1}to{transform:none}}
 .result-card .modal-kicker{color:#d89c4b!important}.result-card h2{color:#fff1d7}.result-card p{color:#cfb89b!important}
@@ -173,6 +168,8 @@
 .result-card .primary-btn:active,.result-card .ghost-btn:active{transform:translateY(2px) scale(.99)}
 
 @media(max-width:500px){
+  .brand-logo-art{width:min(76vw,300px)}
+  .home-machine-board{inset:-6% -4%;width:108%;height:112%}
   .polished-tutorial.focus-start{transform:translate(-49%,-50.2%) scale(1.01)}
   .polished-tutorial.focus-route{transform:translate(-49.5%,-50%) scale(1.012)}
   .polished-tutorial.focus-drive{transform:translate(-50%,-49.8%) scale(1.018)}
@@ -185,5 +182,5 @@
 
 @media(prefers-reduced-motion:reduce){
   .machine-board{transition:none!important}
-  .pull-cue,.power-bus,.completion-wave,.tutorial-drive-gear img{animation:none!important}
+  .pull-cue,.power-bus,.completion-wave,.tutorial-drive-gear img,.home-preview-gear,.home-preview-star,.home-preview-cue{animation:none!important}
 }
