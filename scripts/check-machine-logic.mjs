@@ -24,8 +24,7 @@ function chooseExit(cell,rotation,entry,currentDir,exits) {
 
 function solveMaze(maze,override = {}) {
   const cells = new Map(maze.cells.map(cell => [`${cell.x},${cell.y}`,cell]));
-  const rotators = maze.rotators || [];
-  const rotations = new Map(rotators.map(item => [item.id,item.initialRotation]));
+  const rotations = new Map((maze.rotators || []).map(item => [item.id,item.initialRotation]));
   for (const [id,rotation] of Object.entries(override)) rotations.set(id,rotation);
   const openGates = new Set(maze.openGates || []);
   const visited = new Set();
@@ -108,21 +107,11 @@ function validateMaze(levelId) {
   if (expected && (solutions[0]?.id !== expected.id || solutions[0]?.turn !== expected.turn)) fail(`${levelId}: unique solution does not match expected ${expected.id}:${expected.turn}`);
 }
 
-function validateSignalMatch() {
-  const logic = MACHINE_LOGIC.button;
-  if (!logic) return fail('button: missing signal-match logic');
-  if (logic.archetype !== 'signal-match') fail('button: archetype must remain signal-match until its maze redesign');
-  const ids = [logic.controls?.correct,logic.controls?.decoy,logic.controls?.target].filter(Boolean);
-  if (ids.length !== 3 || new Set(ids).size !== 3) fail('button: signal controls must be distinct');
-  if (!logic.signal?.required || logic.signal.correct !== logic.signal.required || logic.signal.decoy === logic.signal.required) fail('button: signal puzzle must have one matching and one rejected signal');
-}
-
-for (const id of ['release','gate','switch']) validateMaze(id);
-validateSignalMatch();
+for (const id of ['release','gate','switch','button']) validateMaze(id);
 
 if (errors.length) {
   for (const message of errors) console.error(`Machine logic check failed: ${message}`);
   process.exit(1);
 }
 
-console.log('Machine logic check passed: Levels 1-3 each have exactly one valid one-move maze solution.');
+console.log('Machine logic check passed: Levels 1-4 each have exactly one valid one-move maze solution.');
