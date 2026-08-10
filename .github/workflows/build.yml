@@ -85,7 +85,6 @@ jobs:
                 await page.locator('.piece-logic-trigger.logic-active').waitFor({state:'visible',timeout:3500});
                 await page.screenshot({path:'.visual-check/level1-trigger-mobile.jpg',type:'jpeg',quality:70,fullPage:false});
 
-                // The ball must physically stop at the gate until the drive opens it.
                 await page.locator('.machine-board.waiting-gate').waitFor({state:'attached',timeout:3500});
                 await page.screenshot({path:'.visual-check/level1-gate-wait-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
 
@@ -98,6 +97,48 @@ jobs:
 
                 await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:2500});
                 await page.screenshot({path:'.visual-check/level1-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+
+                // Level 2 must be readable as a choice puzzle, including a meaningful wrong path.
+                await page.click('#nextBtn');
+                await page.locator('.choice-gate-machine').waitFor({state:'visible',timeout:2500});
+                await page.waitForTimeout(250);
+                await page.screenshot({path:'.visual-check/level2-initial-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+
+                const blueLink = page.locator('.correct-link');
+                const redLink = page.locator('.decoy-link');
+                if (await blueLink.count() !== 1 || await redLink.count() !== 1) {
+                  throw new Error('Level 2 must render one real linkage and one dead linkage');
+                }
+
+                // Wrong reasoning path: dead linkage must visibly terminate and fail.
+                await page.click('[data-id="redLever"]');
+                await page.locator('.decoy-link.link-wrong').waitFor({state:'attached',timeout:1500});
+                await page.locator('.piece-choice-dead-stop.dead-stop-hit').waitFor({state:'attached',timeout:1500});
+                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:2500});
+                const wrongTitle = await page.locator('#resultTitle').textContent();
+                if (!/wrong/i.test(wrongTitle || '')) throw new Error('Level 2 red lever must resolve as a wrong move');
+                await page.screenshot({path:'.visual-check/level2-wrong-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+
+                // Retry and choose the physical linkage that reaches the gate.
+                await page.click('#nextBtn');
+                await page.locator('.choice-gate-machine').waitFor({state:'visible',timeout:2000});
+                const ballBefore = await page.locator('[data-id="ball"]').boundingBox();
+                await page.click('[data-id="blueLever"]');
+                await page.locator('.correct-link.link-live').waitFor({state:'attached',timeout:1200});
+                await page.locator('[data-id="gate"].choice-gate-open').waitFor({state:'attached',timeout:2200});
+
+                // The gate must open before the ball meaningfully leaves its holder.
+                const ballAtGateOpen = await page.locator('[data-id="ball"]').boundingBox();
+                if (ballBefore && ballAtGateOpen) {
+                  const travel = Math.hypot(ballAtGateOpen.x-ballBefore.x, ballAtGateOpen.y-ballBefore.y);
+                  if (travel > 12) throw new Error(`Level 2 ball moved ${travel.toFixed(1)}px before the gate was open`);
+                }
+                await page.screenshot({path:'.visual-check/level2-gate-open-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
+
+                await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:6500});
+                const successTitle = await page.locator('#resultTitle').textContent();
+                if (/wrong/i.test(successTitle || '')) throw new Error('Level 2 blue linkage unexpectedly failed');
+                await page.screenshot({path:'.visual-check/level2-result-mobile.jpg',type:'jpeg',quality:72,fullPage:false});
               }
 
               await context.close();
@@ -106,8 +147,6 @@ jobs:
           })().catch(err => { console.error(err); process.exit(1); });
           NODE
 
-          # Sweep all levels for viewport regressions. This produces a report instead of
-          # discarding the Level 1 screenshots if a later level needs composition work.
           node scripts/visual-sweep.mjs
 
       - name: Build review thumbnails
@@ -115,7 +154,7 @@ jobs:
           python3 -m pip install --quiet pillow
           python3 <<'PY'
           from PIL import Image
-          import json, os
+          import os
 
           keys = list('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!#$%&()*+,-./:;<=>?@[]^_{|}~')
 
@@ -144,6 +183,10 @@ jobs:
             'review-powered.xpm':'level1-powered-mobile.jpg',
             'review-complete.xpm':'level1-complete-mobile.jpg',
             'review-result.xpm':'level1-result-mobile.jpg',
+            'review-level2.xpm':'level2-initial-mobile.jpg',
+            'review-level2-wrong.xpm':'level2-wrong-mobile.jpg',
+            'review-level2-open.xpm':'level2-gate-open-mobile.jpg',
+            'review-level2-result.xpm':'level2-result-mobile.jpg',
             'review-desktop.xpm':'level1-desktop.jpg',
           }
           for dst,src in shots.items():
