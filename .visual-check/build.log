@@ -16,7 +16,7 @@ Portal logic check passed: shortcut hits the locked gate; detour teleports -> pa
 [2Ktransforming...✓ 269 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/index.html                                                5.24 kB │ gzip:  1.65 kB
+dist/index.html                                                5.24 kB │ gzip:  1.64 kB
 dist/assets/ball_blue-PIiPLHck.png                             7.65 kB
 dist/assets/ball_steel_b-Bph6ZyRM.png                          7.69 kB
 dist/assets/star_small-D38__nwP.png                            7.73 kB
@@ -248,7 +248,7 @@ dist/assets/ui_logo-CstV8EDv.png                             163.29 kB
 dist/assets/fx_success_burst-TOQJaVR1.png                    231.79 kB
 dist/assets/fx_trail_soft-B-2DF2VJ.png                       254.65 kB
 dist/assets/board_workshop_base--T8LUU1e.png                 570.56 kB
-dist/assets/index-063gLbsD.css                                88.23 kB │ gzip: 19.92 kB
-dist/assets/index-BdYqhxYz.js                                173.06 kB │ gzip: 42.43 kB
+dist/assets/index-yd8qVTuR.css                                90.12 kB │ gzip: 20.27 kB
+dist/assets/index-BsmUmmfW.js                                173.29 kB │ gzip: 42.47 kB
 
-[32m✓ built in 191ms[39m
+[32m✓ built in 184ms[39m

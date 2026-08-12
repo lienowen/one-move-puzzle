@@ -1,2 +1,11 @@
 === scripts/journey-browser-qa.mjs ===
-exit_code=0
+file:///home/runner/work/one-move-puzzle/one-move-puzzle/scripts/journey-browser-qa.mjs:24
+  if(linkOpacity<.55)throw new Error(`${label}: active gate needs a visible mechanical shaft/pipe connection`);
+                           ^
+
+Error: Gate 1: active gate needs a visible mechanical shaft/pipe connection
+    at assertPhysicalMechanism (file:///home/runner/work/one-move-puzzle/one-move-puzzle/scripts/journey-browser-qa.mjs:24:28)
+    at async file:///home/runner/work/one-move-puzzle/one-move-puzzle/scripts/journey-browser-qa.mjs:51:3
+
+Node.js v20.19.0
+exit_code=1
