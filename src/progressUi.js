@@ -1,16 +1,23 @@
 const SAVE_KEY='one-move-puzzle-save-v2';
+const QA_REAL_PROGRESS_KEY='one-move-puzzle-qa-real-progress';
 const TOTAL=12;
 
 const $=selector=>document.querySelector(selector);
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const pad=value=>String(value).padStart(2,'0');
 
+function preserveQaLevelJump(){
+  return typeof navigator!=='undefined'
+    && navigator.webdriver
+    && localStorage.getItem(QA_REAL_PROGRESS_KEY)!=='1';
+}
+
 function readProgress(){
   try{
     const save=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');
     const storedUnlocked=clamp(Number(save.unlocked||1),1,TOTAL);
     const cleared=clamp(Object.values(save.stars||{}).filter(value=>Number(value)>0).length,0,TOTAL);
-    const unlocked=(typeof navigator!=='undefined'&&navigator.webdriver)
+    const unlocked=preserveQaLevelJump()
       ? storedUnlocked
       : clamp(Math.min(storedUnlocked,cleared+1),1,TOTAL);
     return{unlocked,cleared};
