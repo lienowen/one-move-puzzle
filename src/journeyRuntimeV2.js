@@ -33,8 +33,7 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
     </svg>
     <img class="journey-ball" src="${A.objects.ballBlue}" alt="" draggable="false">
     <img class="journey-star" src="${A.objects.starIdle}" alt="" draggable="false">
-    <img class="journey-goal" src="${A.objects.goalIdle}" alt="" draggable="false">
-    <div class="journey-caption">FOLLOW THE BALL · OPEN WHAT BLOCKS IT</div>`;
+    <img class="journey-goal" src="${A.objects.goalIdle}" alt="" draggable="false">`;
   world.appendChild(board);
   stage.classList.add('journey-stage');
 
@@ -57,7 +56,7 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
     board.appendChild(link);
     linkEls.push(link);
 
-    const lock=renderLock(checkpoint,index);
+    const lock=renderMechanism(checkpoint,index);
     board.appendChild(lock);
     lockEls.push(lock);
   });
@@ -85,7 +84,7 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
     const hint=document.querySelector('#levelHint');
     const token=document.querySelector('#moveToken');
     if(title)title.textContent=logic.displayName;
-    if(hint)hint.textContent='Follow the ball. When a machine blocks it, solve that machine to continue.';
+    if(hint)hint.textContent='Follow the ball. Operate the machine that physically blocks its route.';
     if(token){
       const strong=token.querySelector('strong'),label=token.querySelector('span');
       if(strong)strong.textContent=`${Math.min(index+1,checkpoints.length)}/${checkpoints.length}`;
@@ -95,10 +94,10 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
   }
 
   function renderLink(checkpoint,index){
-    const gate=route[index+1],panel=checkpoint.panel||gate;
-    const dx=panel.x-gate.x,dy=panel.y-gate.y;
+    const gate=route[index+1],mount=checkpoint.panel||gate;
+    const dx=mount.x-gate.x,dy=mount.y-gate.y;
     const link=document.createElement('i');
-    link.className='journey-lock-link';
+    link.className=`journey-lock-link ${checkpoint.type}`;
     link.style.left=`${gate.x}%`;
     link.style.top=`${gate.y}%`;
     link.style.width=`${Math.hypot(dx,dy)}%`;
@@ -106,19 +105,21 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
     return link;
   }
 
-  function renderLock(checkpoint,index){
+  function renderMechanism(checkpoint,index){
     const section=document.createElement('section');
-    section.className=`journey-lock ${checkpoint.type}`;
+    section.className=`journey-lock journey-mechanism ${checkpoint.type}`;
     section.dataset.checkpoint=checkpoint.id;
+    section.dataset.machine=String(index+1);
     section.style.setProperty('--panel-x',`${checkpoint.panel?.x??50}%`);
     section.style.setProperty('--panel-y',`${checkpoint.panel?.y??50}%`);
-    section.innerHTML=`<div class="journey-lock-head"><span>MACHINE ${index+1}</span><b>${String(index+1).padStart(2,'0')}</b></div>`;
+    section.innerHTML='<i class="mechanism-mount" aria-hidden="true"></i>';
 
     if(checkpoint.type==='gear-lock'){
       const row=document.createElement('div');row.className='gear-row';
       checkpoint.initial.forEach((_,gearIndex)=>{
         const button=document.createElement('button');button.type='button';button.className='gear-control';button.dataset.gear=String(gearIndex);
-        button.innerHTML=`<i class="gear-target"></i><img src="${W.mechanisms.gear}" alt="" draggable="false"><span class="gear-pointer"></span>`;
+        button.setAttribute('aria-label',`Coupled gear ${gearIndex+1}`);
+        button.innerHTML=`<i class="gear-target"></i><i class="gear-axle"></i><img src="${W.mechanisms.gear}" alt="" draggable="false"><span class="gear-pointer"></span>`;
         button.addEventListener('click',event=>turnGear(index,gearIndex,event));row.appendChild(button);
       });
       section.appendChild(row);
@@ -126,9 +127,10 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
 
     if(checkpoint.type==='bridge-lock'){
       const strip=document.createElement('div');strip.className='bridge-strip';
-      strip.innerHTML='<i class="bridge-port in"></i><i class="bridge-port out"></i>';
+      strip.innerHTML='<i class="bridge-port in"></i><i class="bridge-port out"></i><i class="bridge-bed"></i>';
       checkpoint.initial.forEach((_,partIndex)=>{
         const button=document.createElement('button');button.type='button';button.className='bridge-cell';button.dataset.part=String(partIndex);
+        button.setAttribute('aria-label',`Bridge rail ${partIndex+1}`);
         const kind=checkpoint.parts?.[partIndex]||'corner';
         button.innerHTML=`<img class="plate" src="${A.tiles.rotatableIdle}" alt="" draggable="false"><img class="rail" src="${railAsset(kind)}" alt="" draggable="false">`;
         button.addEventListener('click',event=>turnBridge(index,partIndex,event));strip.appendChild(button);
@@ -137,18 +139,20 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
     }
 
     if(checkpoint.type==='valve-lock'){
+      const pipe=document.createElement('div');pipe.className='pressure-pipe';section.appendChild(pipe);
       const gauges=document.createElement('div');
       gauges.className='pressure-gauges';
       gauges.innerHTML=`
-        <div class="pressure-gauge" data-gauge="0"><i></i><span></span><b>0</b></div>
+        <div class="pressure-gauge" data-gauge="0"><i></i><b>0</b></div>
         <div class="pressure-balance"><i></i></div>
-        <div class="pressure-gauge" data-gauge="1"><i></i><span></span><b>0</b></div>`;
+        <div class="pressure-gauge" data-gauge="1"><i></i><b>0</b></div>`;
       section.appendChild(gauges);
       const flow=document.createElement('div');flow.className='valve-flow';section.appendChild(flow);
       const row=document.createElement('div');row.className='valve-row';
       checkpoint.initial.forEach((_,valveIndex)=>{
         const button=document.createElement('button');button.type='button';button.className='valve-control';button.dataset.valve=String(valveIndex);
-        button.innerHTML=`<img src="${W.mechanisms.wheelValve}" alt="" draggable="false"><span></span>`;
+        button.setAttribute('aria-label',`Pressure valve ${valveIndex+1}`);
+        button.innerHTML=`<i class="valve-seat"></i><img src="${W.mechanisms.wheelValve}" alt="" draggable="false"><span></span>`;
         button.addEventListener('click',event=>turnValve(index,valveIndex,event));row.appendChild(button);
       });
       section.appendChild(row);
@@ -237,6 +241,7 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
     syncProductUi(index);
     lockEls.forEach((lock,i)=>lock.classList.toggle('active',i===index));
     linkEls.forEach((link,i)=>link.classList.toggle('active',i===index));
+    gateEls.forEach((gate,i)=>gate.classList.toggle('current',i===index));
     gateEls[index].classList.add('waiting');
     onStatus?.(checkpoints[index].copy.ready);
     onEffect?.('roll-brake');
@@ -248,7 +253,7 @@ export function mountJourneyRuntimeV2({world,stage,level,onMove,onStar,onGoal,on
     const lock=lockEls[index],gate=gateEls[index],link=linkEls[index],checkpoint=checkpoints[index];
     lock.classList.remove('active');lock.classList.add('solved');
     link.classList.remove('active');link.classList.add('solved');
-    gate.classList.remove('waiting');gate.src=gateAsset(checkpoint,'opening');
+    gate.classList.remove('waiting','current');gate.src=gateAsset(checkpoint,'opening');
     onStatus?.(checkpoint.copy.solved);onEffect?.('gate-preload');
     later(()=>{
       gate.src=gateAsset(checkpoint,'open');gate.classList.add('open');onEffect?.('gate-open');
