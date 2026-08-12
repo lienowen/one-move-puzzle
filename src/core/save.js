@@ -1,9 +1,29 @@
 const KEY = 'one-move-puzzle-save-v2';
 const DEFAULTS = { unlocked: 1, stars: {}, sound: true, haptics: true, attempts: {} };
 
+function repairUnlocked(save) {
+  const stored = Math.max(1, Number(save.unlocked || 1));
+
+  // Browser QA intentionally jumps directly to authored levels by setting only
+  // `unlocked`. Keep that test harness behavior isolated from real-player saves.
+  if (typeof navigator !== 'undefined' && navigator.webdriver) return stored;
+
+  // Production progression is strictly sequential: clearing N levels may unlock
+  // at most level N + 1. Older dev/test saves could leave unlocked=12 with few
+  // or no clears, which made PLAY jump straight to the finale.
+  const cleared = Object.values(save.stars || {}).filter(value => Number(value) > 0).length;
+  return Math.max(1, Math.min(stored, cleared + 1));
+}
+
 export function loadSave() {
   try {
-    return { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
+    const save = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
+    const repaired = repairUnlocked(save);
+    if (repaired !== Number(save.unlocked || 1)) {
+      save.unlocked = repaired;
+      localStorage.setItem(KEY, JSON.stringify(save));
+    }
+    return save;
   } catch {
     return { ...DEFAULTS };
   }
