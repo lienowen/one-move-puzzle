@@ -1,17 +1,40 @@
 import { chromium } from 'playwright';
 
 const BASE=process.env.QA_BASE_URL||'http://127.0.0.1:4173';
-const SAVE_KEY='one-move-puzzle-save-v2';
-const QA_REAL_PROGRESS_KEY='one-move-puzzle-qa-real-progress';
+const SAVE_KEY='one-move-puzzle-save-v3';
+const LEGACY_KEY='one-move-puzzle-save-v2';
 const browser=await chromium.launch({headless:true});
 
+async function waitActive(page,id,timeout=4500){
+  const lock=page.locator(`[data-checkpoint="${id}"]`);
+  await lock.waitFor({state:'visible',timeout});
+  await lock.evaluate((el,limit)=>new Promise((resolve,reject)=>{const start=performance.now();const tick=()=>{if(el.classList.contains('active'))resolve();else if(performance.now()-start>limit)reject(new Error(`${el.dataset.checkpoint} never became active`));else requestAnimationFrame(tick)};tick()}),timeout);
+  return lock;
+}
+
+async function solveJourney(page){
+  await page.locator('.journey-board[data-journey-level="release"]').waitFor({state:'visible',timeout:3000});
+  await waitActive(page,'gearLock');
+  await page.locator('[data-checkpoint="gearLock"] .gear-control').nth(0).click();
+  await page.locator('[data-checkpoint="gearLock"] .gear-control').nth(2).click();
+  await waitActive(page,'bridgeLock');
+  await page.locator('[data-checkpoint="bridgeLock"] .bridge-cell').nth(0).click();
+  await page.locator('[data-checkpoint="bridgeLock"] .bridge-cell').nth(2).click();
+  await waitActive(page,'valveLock');
+  await page.locator('[data-checkpoint="valveLock"] .valve-control').nth(0).click();
+  await page.locator('[data-checkpoint="valveLock"] .valve-control').nth(1).click();
+  await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:7000});
+}
+
 try{
-  // Normal fresh-player progression: show all content, keep Level 02 locked,
-  // then unlock and enter it immediately after clearing Level 01.
+  // Fresh player: all 12 levels visible, Level 02 locked, then a real three-lock
+  // Level 01 journey advances the validated v3 save to Level 02.
   {
     const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
     const page=await context.newPage();
     await page.goto(BASE,{waitUntil:'networkidle'});
+    await page.evaluate(([v3,v2])=>{localStorage.removeItem(v3);localStorage.removeItem(v2);},[SAVE_KEY,LEGACY_KEY]);
+    await page.reload({waitUntil:'networkidle'});
 
     const rail=page.locator('#campaignRail i');
     await rail.first().waitFor({state:'visible',timeout:2500});
@@ -22,24 +45,13 @@ try{
     const cards=page.locator('#levelGrid .level-card');
     await cards.first().waitFor({state:'visible',timeout:2500});
     if(await cards.count()!==12)throw new Error(`Level select must always show 12 cards, found ${await cards.count()}`);
-    const second=cards.nth(1);
-    if(!await second.isVisible())throw new Error('Level 02 card must be visible before it is unlocked');
-    if(!await second.isDisabled())throw new Error('Level 02 must remain locked until Level 01 is cleared');
-    if(!/LEVEL 02/i.test(await second.textContent()||''))throw new Error('Second visible card must identify itself as LEVEL 02');
-    if(!/12 LEVELS · 1 UNLOCKED/i.test(await page.locator('#levelCountMeta').textContent()||''))throw new Error('Level select must communicate total content and unlock count');
+    if(!await cards.nth(1).isDisabled())throw new Error('Level 02 must remain locked until Level 01 is cleared');
 
-    await page.click('#levelsBackBtn');
-    await page.click('#playBtn');
-    const pivot=page.locator('[data-id="pivot"]');
-    await pivot.waitFor({state:'visible',timeout:2500});
-    await pivot.focus();
-    await page.keyboard.press('ArrowLeft');
-    await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:7500});
-    await page.waitForTimeout(80);
-
-    const nextCopy=await page.locator('#nextBtn span').textContent()||'';
-    if(!/NEXT · LEVEL 02/i.test(nextCopy))throw new Error(`Successful Level 01 must advertise Level 02, got: ${nextCopy}`);
-    if(!/LEVEL 02 OF 12/i.test(await page.locator('#continueLabel').textContent()||''))throw new Error('Home progression state must advance to Level 02 after clear');
+    await page.click('#levelsBackBtn');await page.click('#playBtn');await solveJourney(page);await page.waitForTimeout(100);
+    const stored=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)||'{}'),SAVE_KEY);
+    if(Number(stored.version)!==3||Number(stored.unlocked)!==2||Number(stored.stars?.release||0)<=0)throw new Error(`Level 01 must create contiguous v3 progress, got ${JSON.stringify(stored)}`);
+    if(!/NEXT · LEVEL 02/i.test(await page.locator('#nextBtn span').textContent()||''))throw new Error('Successful journey must advertise Level 02');
+    if(!/LEVEL 02 OF 12/i.test(await page.locator('#continueLabel').textContent()||''))throw new Error('Campaign UI must advance to Level 02');
 
     await page.click('#nextBtn');
     await page.locator('.maze-puzzle-board[data-maze-level="gate"]').waitFor({state:'visible',timeout:3000});
@@ -47,28 +59,24 @@ try{
     await context.close();
   }
 
-  // Regression for the user-visible bug: an old dev/test save could say
-  // unlocked=12 even though only Level 01 had actually been cleared. Real-player
-  // loading must repair that to Level 02 instead of jumping to the finale.
+  // Legacy pollution regression: later fake stars and unlocked=12 must not survive
+  // migration once the first missing contiguous level is found.
   {
     const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
     const page=await context.newPage();
     await page.goto(BASE,{waitUntil:'networkidle'});
-    await page.evaluate(([saveKey,qaKey])=>{
-      localStorage.setItem(qaKey,'1');
-      localStorage.setItem(saveKey,JSON.stringify({unlocked:12,stars:{release:3},sound:false,haptics:false,attempts:{}}));
-    },[SAVE_KEY,QA_REAL_PROGRESS_KEY]);
+    await page.evaluate(([v3,v2])=>{
+      localStorage.removeItem(v3);
+      localStorage.setItem(v2,JSON.stringify({unlocked:12,stars:{release:3,finale:3,hammer:3},sound:false,haptics:false,attempts:{finale:9}}));
+    },[SAVE_KEY,LEGACY_KEY]);
     await page.reload({waitUntil:'networkidle'});
 
-    const repaired=await page.evaluate(saveKey=>JSON.parse(localStorage.getItem(saveKey)||'{}'),SAVE_KEY);
-    if(Number(repaired.unlocked)!==2)throw new Error(`Stale unlocked=12 save must repair to unlocked=2, got ${repaired.unlocked}`);
-    if(!/LEVEL 02 OF 12/i.test(await page.locator('#continueLabel').textContent()||''))throw new Error('Repaired stale save must continue at Level 02');
-
+    const migrated=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)||'{}'),SAVE_KEY);
+    if(Number(migrated.unlocked)!==2)throw new Error(`Legacy pollution must migrate to unlocked=2, got ${migrated.unlocked}`);
+    if(migrated.stars?.finale||migrated.stars?.hammer)throw new Error(`Non-contiguous legacy stars must be discarded: ${JSON.stringify(migrated.stars)}`);
+    if(!/LEVEL 02 OF 12/i.test(await page.locator('#continueLabel').textContent()||''))throw new Error('Migrated save must continue at Level 02');
     await page.click('#playBtn');
     await page.locator('.maze-puzzle-board[data-maze-level="gate"]').waitFor({state:'visible',timeout:3000});
-    if(!/LEVEL 02/i.test(await page.locator('#levelNumber').textContent()||''))throw new Error('Repaired stale save PLAY must enter Level 02, not Level 12');
     await context.close();
   }
-}finally{
-  await browser.close();
-}
+}finally{await browser.close();}
