@@ -2,22 +2,38 @@ import { levels } from '../levels.js';
 
 const KEY = 'one-move-puzzle-save-v3';
 const LEGACY_KEY = 'one-move-puzzle-save-v2';
+const QA_REAL_PROGRESS_KEY = 'one-move-puzzle-qa-real-progress';
 const DEFAULTS = { version:3, unlocked:1, stars:{}, sound:true, haptics:true, attempts:{} };
 
 const clampStars = value => Math.max(0, Math.min(3, Number(value || 0)));
+const clampUnlocked = value => Math.max(1, Math.min(levels.length, Number(value || 1)));
+
+function preserveQaLevelJump() {
+  return typeof navigator !== 'undefined'
+    && navigator.webdriver
+    && localStorage.getItem(QA_REAL_PROGRESS_KEY) !== '1';
+}
 
 function sanitize(raw = {}) {
   const stars = {};
   let unlocked = 1;
 
-  // Progress is strictly contiguous. Once the first uncleared puzzle is found,
-  // later legacy/test stars are ignored instead of inflating campaign progress.
-  for (let index = 0; index < levels.length; index += 1) {
-    const id = levels[index].id;
-    const value = clampStars(raw.stars?.[id]);
-    if (value <= 0) break;
-    stars[id] = value;
-    unlocked = Math.min(levels.length, index + 2);
+  if (preserveQaLevelJump()) {
+    unlocked = clampUnlocked(raw.unlocked);
+    for (const level of levels) {
+      const value = clampStars(raw.stars?.[level.id]);
+      if (value > 0) stars[level.id] = value;
+    }
+  } else {
+    // Real progress is strictly contiguous. Once the first uncleared puzzle is
+    // found, later legacy/test stars are ignored instead of inflating progress.
+    for (let index = 0; index < levels.length; index += 1) {
+      const id = levels[index].id;
+      const value = clampStars(raw.stars?.[id]);
+      if (value <= 0) break;
+      stars[id] = value;
+      unlocked = Math.min(levels.length, index + 2);
+    }
   }
 
   const attempts = {};
@@ -71,8 +87,7 @@ export function recordAttempt(save, levelId) {
 }
 
 export function recordClear(save, levelId, levelNumber, stars) {
-  // Only the currently unlocked frontier can advance campaign progress.
-  if (levelNumber <= Number(save.unlocked || 1)) {
+  if (preserveQaLevelJump() || levelNumber <= Number(save.unlocked || 1)) {
     save.stars[levelId] = Math.max(save.stars[levelId] || 0, clampStars(stars));
   }
   storeSave(save);
