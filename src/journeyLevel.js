@@ -17,7 +17,7 @@ export const JOURNEY_LEVELS={
       ],
       checkpoints:[
         {
-          id:'gearLock',type:'gear-lock',panel:{x:31,y:43},
+          id:'gearLock',type:'gear-lock',panel:{x:25,y:58},
           initial:[0,1,3],target:[0,0,3],
           copy:{
             ready:'Gate 1 · These three gears are coupled. Make every blue pointer meet its brass notch.',
@@ -26,16 +26,16 @@ export const JOURNEY_LEVELS={
           }
         },
         {
-          id:'bridgeLock',type:'bridge-lock',panel:{x:52,y:68},
+          id:'bridgeLock',type:'bridge-lock',panel:{x:52,y:34},
           initial:[0,0,2],target:[1,0,3],parts:['corner','straight','corner'],
           copy:{
-            ready:'Gate 2 · The bridge is physically broken. Rotate the plates until the rail runs continuously from the lower-left port to the upper-right port.',
-            thinking:'There is still a break in the rail. Follow the metal groove from entrance to exit.',
+            ready:'Gate 2 · The bridge is physically broken. Rotate the rail plates until the metal route is continuous.',
+            thinking:'There is still a break in the rail. Follow the groove from one side to the other.',
             solved:'The bridge is continuous. The ball can cross.'
           }
         },
         {
-          id:'valveLock',type:'valve-lock',panel:{x:71,y:34},
+          id:'valveLock',type:'valve-lock',panel:{x:79,y:72},
           initial:[0,0],target:[2,1],solve:'balance',
           pressure:[[1,3,5,7],[7,5,3,1]],
           copy:{
