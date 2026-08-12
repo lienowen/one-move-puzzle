@@ -1,44 +1,68 @@
-const KEY = 'one-move-puzzle-save-v2';
-const QA_REAL_PROGRESS_KEY = 'one-move-puzzle-qa-real-progress';
-const DEFAULTS = { unlocked: 1, stars: {}, sound: true, haptics: true, attempts: {} };
+import { levels } from '../levels.js';
 
-function preserveQaLevelJump() {
-  return typeof navigator !== 'undefined'
-    && navigator.webdriver
-    && localStorage.getItem(QA_REAL_PROGRESS_KEY) !== '1';
+const KEY = 'one-move-puzzle-save-v3';
+const LEGACY_KEY = 'one-move-puzzle-save-v2';
+const DEFAULTS = { version:3, unlocked:1, stars:{}, sound:true, haptics:true, attempts:{} };
+
+const clampStars = value => Math.max(0, Math.min(3, Number(value || 0)));
+
+function sanitize(raw = {}) {
+  const stars = {};
+  let unlocked = 1;
+
+  // Progress is strictly contiguous. Once the first uncleared puzzle is found,
+  // later legacy/test stars are ignored instead of inflating campaign progress.
+  for (let index = 0; index < levels.length; index += 1) {
+    const id = levels[index].id;
+    const value = clampStars(raw.stars?.[id]);
+    if (value <= 0) break;
+    stars[id] = value;
+    unlocked = Math.min(levels.length, index + 2);
+  }
+
+  const attempts = {};
+  for (const level of levels) {
+    const value = Math.max(0, Math.floor(Number(raw.attempts?.[level.id] || 0)));
+    if (value) attempts[level.id] = value;
+  }
+
+  return {
+    version:3,
+    unlocked,
+    stars,
+    sound: raw.sound !== false,
+    haptics: raw.haptics !== false,
+    attempts,
+  };
 }
 
-function repairUnlocked(save) {
-  const stored = Math.max(1, Number(save.unlocked || 1));
-
-  // Browser QA intentionally jumps directly to authored levels by setting only
-  // `unlocked`. Keep that test harness behavior isolated from real-player saves,
-  // except when a dedicated regression explicitly asks to exercise real progress.
-  if (preserveQaLevelJump()) return stored;
-
-  // Production progression is strictly sequential: clearing N levels may unlock
-  // at most level N + 1. Older dev/test saves could leave unlocked=12 with few
-  // or no clears, which made PLAY jump straight to the finale.
-  const cleared = Object.values(save.stars || {}).filter(value => Number(value) > 0).length;
-  return Math.max(1, Math.min(stored, cleared + 1));
+function readJson(key) {
+  try { return JSON.parse(localStorage.getItem(key) || 'null'); }
+  catch { return null; }
 }
 
 export function loadSave() {
-  try {
-    const save = { ...DEFAULTS, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
-    const repaired = repairUnlocked(save);
-    if (repaired !== Number(save.unlocked || 1)) {
-      save.unlocked = repaired;
-      localStorage.setItem(KEY, JSON.stringify(save));
-    }
+  const current = readJson(KEY);
+  if (current) {
+    const save = sanitize(current);
+    localStorage.setItem(KEY, JSON.stringify(save));
     return save;
-  } catch {
-    return { ...DEFAULTS };
   }
+
+  const legacy = readJson(LEGACY_KEY);
+  if (legacy) {
+    const migrated = sanitize(legacy);
+    localStorage.setItem(KEY, JSON.stringify(migrated));
+    return migrated;
+  }
+
+  return { ...DEFAULTS, stars:{}, attempts:{} };
 }
 
 export function storeSave(save) {
-  localStorage.setItem(KEY, JSON.stringify(save));
+  const clean = sanitize(save);
+  Object.assign(save, clean);
+  localStorage.setItem(KEY, JSON.stringify(clean));
 }
 
 export function recordAttempt(save, levelId) {
@@ -47,7 +71,12 @@ export function recordAttempt(save, levelId) {
 }
 
 export function recordClear(save, levelId, levelNumber, stars) {
-  save.stars[levelId] = Math.max(save.stars[levelId] || 0, stars);
-  save.unlocked = Math.max(save.unlocked || 1, levelNumber + 1);
+  // Only the currently unlocked frontier can advance campaign progress.
+  if (levelNumber <= Number(save.unlocked || 1)) {
+    save.stars[levelId] = Math.max(save.stars[levelId] || 0, clampStars(stars));
+  }
   storeSave(save);
 }
+
+export const SAVE_KEY = KEY;
+export const LEGACY_SAVE_KEY = LEGACY_KEY;
