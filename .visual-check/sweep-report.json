@@ -62,10 +62,10 @@
         "kind": "journey-control",
         "visibleRatio": 1,
         "rect": [
-          58,
-          410,
-          102,
-          454
+          37,
+          458,
+          88,
+          509
         ]
       },
       {
@@ -74,10 +74,10 @@
         "kind": "journey-control",
         "visibleRatio": 1,
         "rect": [
-          103,
-          410,
-          147,
-          454
+          77,
+          458,
+          128,
+          509
         ]
       },
       {
@@ -86,10 +86,10 @@
         "kind": "journey-control",
         "visibleRatio": 1,
         "rect": [
-          148,
-          410,
-          192,
-          454
+          117,
+          458,
+          168,
+          509
         ]
       }
     ],
