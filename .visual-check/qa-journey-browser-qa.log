@@ -1,13 +1,2 @@
 === scripts/journey-browser-qa.mjs ===
-node:internal/process/promises:391
-    triggerUncaughtException(err, true /* fromPromise */);
-    ^
-
-locator.evaluate: Target page, context or browser has been closed
-Call log:
-  - waiting for locator('.journey-board[data-journey-level="release"]').locator('[data-checkpoint="gearLock"]')
-
-    at /home/runner/work/one-move-puzzle/one-move-puzzle/scripts/journey-browser-qa.mjs:29:12
-
-Node.js v20.19.0
-exit_code=1
+exit_code=0
