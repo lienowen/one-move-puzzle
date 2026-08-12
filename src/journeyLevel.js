@@ -35,7 +35,7 @@ export const JOURNEY_LEVELS={
           }
         },
         {
-          id:'valveLock',type:'valve-lock',panel:{x:79,y:72},
+          id:'valveLock',type:'valve-lock',panel:{x:75,y:72},
           initial:[0,0],target:[2,1],solve:'balance',
           pressure:[[1,3,5,7],[7,5,3,1]],
           copy:{
