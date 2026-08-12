@@ -16,7 +16,7 @@ try{
   const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
   const page=await context.newPage();
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await page.evaluate(([key,value])=>localStorage.setItem(key,value),[SAVE_KEY,JSON.stringify({version:3,stars:{release:3},sound:false,haptics:false,attempts:{}})]);
+  await page.evaluate(([key,value])=>localStorage.setItem(key,value),[SAVE_KEY,JSON.stringify({version:3,unlocked:2,stars:{release:3},sound:false,haptics:false,attempts:{}})]);
   await page.reload({waitUntil:'networkidle'});
   await page.click('#playBtn');
 
