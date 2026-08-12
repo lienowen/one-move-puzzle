@@ -1,43 +1,47 @@
 export const JOURNEY_LEVELS={
   release:{
-    displayName:'Three Locks',
-    displaySubtitle:'Follow the ball and solve every machine in its path',
+    displayName:'The First Run',
+    displaySubtitle:'Follow the ball and solve each machine when it blocks the route',
     copy:{
-      ready:'The ball moves on its own. Solve each lock when it reaches you.',
-      complete:'All three locks cleared. The machine is open.'
+      ready:'The ball runs by itself. When a machine blocks it, work out how that machine opens.',
+      complete:'Three different machines solved. Route complete.'
     },
     timings:{resultDelay:680},
     journey:{
       route:[
-        {x:15,y:78},
-        {x:31,y:64},
-        {x:52,y:48},
-        {x:73,y:31},
-        {x:87,y:18}
+        {x:14,y:79},
+        {x:31,y:68},
+        {x:51,y:43},
+        {x:73,y:59},
+        {x:87,y:23}
       ],
       checkpoints:[
         {
-          id:'gearLock',type:'gear-lock',initial:[0,1,3],target:[1,3,0],
+          id:'gearLock',type:'gear-lock',panel:{x:31,y:43},
+          initial:[0,1,3],target:[0,0,3],
           copy:{
-            ready:'Gate 1 · The gears are linked. Align all three blue pointers with the brass marks.',
-            thinking:'Turning one gear moves its neighbour too. Read the coupling.',
-            solved:'Gear train aligned. Gate 1 released.'
+            ready:'Gate 1 · These three gears are coupled. Make every blue pointer meet its brass notch.',
+            thinking:'One gear changes another. Predict the coupling before the next turn.',
+            solved:'Gear train synchronized. The first gate releases.'
           }
         },
         {
-          id:'bridgeLock',type:'bridge-lock',initial:[0,1,2],target:[1,1,3],
+          id:'bridgeLock',type:'bridge-lock',panel:{x:52,y:68},
+          initial:[0,0,2],target:[1,0,3],parts:['corner','straight','corner'],
           copy:{
-            ready:'Gate 2 · Rebuild the broken bridge before the ball can cross.',
-            thinking:'The bridge still breaks between two plates.',
-            solved:'Bridge aligned. Gate 2 released.'
+            ready:'Gate 2 · The bridge is physically broken. Rotate the plates until the rail runs continuously from the lower-left port to the upper-right port.',
+            thinking:'There is still a break in the rail. Follow the metal groove from entrance to exit.',
+            solved:'The bridge is continuous. The ball can cross.'
           }
         },
         {
-          id:'valveLock',type:'valve-lock',initial:[0,2],target:[1,3],
+          id:'valveLock',type:'valve-lock',panel:{x:71,y:34},
+          initial:[0,0],target:[2,1],solve:'balance',
+          pressure:[[1,3,5,7],[7,5,3,1]],
           copy:{
-            ready:'Gate 3 · Route pressure through both valves to unlock the final gate.',
-            thinking:'Pressure cannot pass both valves yet.',
-            solved:'Pressure line is open. Final gate released.'
+            ready:'Gate 3 · Balance the two pressure gauges. Equal pressure releases the final gate.',
+            thinking:'The gauges are still uneven. Work out which valve changes which side.',
+            solved:'Pressure balanced. Final gate released.'
           }
         }
       ]
