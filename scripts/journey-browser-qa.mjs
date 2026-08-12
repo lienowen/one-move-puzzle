@@ -16,17 +16,17 @@ try{
   await board.waitFor({state:'visible',timeout:3000});
   await page.screenshot({path:'.visual-check/level1-mobile.jpg',type:'jpeg',quality:75,fullPage:false});
 
-  // The ball must reach Gate 1 and wait for a real mechanism solve.
+  // The ball must reach Gate 1 and remain there until the first mechanism is solved.
   const lock1=board.locator('[data-checkpoint="gearLock"]');
   await lock1.waitFor({state:'visible',timeout:3500});
   await lock1.evaluate(el=>new Promise((resolve,reject)=>{const started=performance.now();const tick=()=>{if(el.classList.contains('active'))resolve();else if(performance.now()-started>3500)reject(new Error('Gate 1 never became active'));else requestAnimationFrame(tick)};tick()}));
   if(!/1\/3/.test(await page.locator('#moveToken strong').textContent()||''))throw new Error('Journey UI must show Gate 1/3');
   await page.waitForTimeout(450);
-  if(!lock1.evaluate(el=>el.classList.contains('active')))throw new Error('Ball did not remain blocked at Gate 1');
+  if(!(await lock1.evaluate(el=>el.classList.contains('active'))))throw new Error('Ball did not remain blocked at Gate 1');
 
-  // Linked gear solution: left then right. One gear turn affects its neighbour.
+  // Linked gear solution must require multiple coupled actions.
   await click(page,'[data-checkpoint="gearLock"] .gear-control',0);
-  if(lock1.evaluate(el=>el.classList.contains('solved')))throw new Error('Gate 1 solved after only one trivial click');
+  if(await lock1.evaluate(el=>el.classList.contains('solved')))throw new Error('Gate 1 solved after only one trivial click');
   await click(page,'[data-checkpoint="gearLock"] .gear-control',2);
   await lock1.evaluate(el=>new Promise((resolve,reject)=>{const started=performance.now();const tick=()=>{if(el.classList.contains('solved'))resolve();else if(performance.now()-started>2500)reject(new Error('Gate 1 did not solve'));else requestAnimationFrame(tick)};tick()}));
   await page.screenshot({path:'.visual-check/level1-gate1-mobile.jpg',type:'jpeg',quality:76,fullPage:false});
@@ -47,9 +47,7 @@ try{
   await lock3.evaluate(el=>new Promise((resolve,reject)=>{const started=performance.now();const tick=()=>{if(el.classList.contains('solved'))resolve();else if(performance.now()-started>2500)reject(new Error('Gate 3 did not solve'));else requestAnimationFrame(tick)};tick()}));
   await page.screenshot({path:'.visual-check/level1-gate3-mobile.jpg',type:'jpeg',quality:76,fullPage:false});
 
-  await board.locator('.journey-complete').waitFor({state:'attached',timeout:5000}).catch(async()=>{
-    if(!await board.evaluate(el=>el.classList.contains('journey-complete')))throw new Error('Journey never completed after all three locks');
-  });
+  await board.evaluate(el=>new Promise((resolve,reject)=>{const started=performance.now();const tick=()=>{if(el.classList.contains('journey-complete'))resolve();else if(performance.now()-started>5000)reject(new Error('Journey never completed after all three locks'));else requestAnimationFrame(tick)};tick()}));
   await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:5000});
   if(/wrong/i.test(await page.locator('#resultTitle').textContent()||''))throw new Error('Three solved locks must end in success');
   await page.screenshot({path:'.visual-check/level1-result-mobile.jpg',type:'jpeg',quality:76,fullPage:false});
