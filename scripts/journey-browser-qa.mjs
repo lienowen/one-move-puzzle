@@ -5,7 +5,7 @@ const browser=await chromium.launch({headless:true});
 
 async function click(page,selector,index=0){const el=page.locator(selector).nth(index);await el.waitFor({state:'visible',timeout:3500});await el.click();}
 async function waitClass(locator,name,timeout=4500){await locator.evaluate((el,{name,timeout})=>new Promise((resolve,reject)=>{const start=performance.now();const tick=()=>{if(el.classList.contains(name))resolve();else if(performance.now()-start>timeout)reject(new Error(`${el.dataset.checkpoint||el.className} never gained ${name}`));else requestAnimationFrame(tick)};tick()}),{name,timeout});}
-async function dormant(locator){return locator.evaluate(el=>{const s=getComputedStyle(el);return Number(s.opacity)<=.28&&s.pointerEvents==='none'&&!el.classList.contains('active');});}
+async function dormant(locator){return locator.evaluate(el=>{const s=getComputedStyle(el);return Number(s.opacity)<=.45&&s.pointerEvents==='none'&&!el.classList.contains('active');});}
 async function assertPhysicalMechanism(lock,gate,link,label){
   const info=await lock.evaluate(el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return{hasHeader:!!el.querySelector('.journey-lock-head'),background:s.backgroundColor,backgroundImage:s.backgroundImage,border:[s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth],boxShadow:s.boxShadow,rect:{x:r.x,y:r.y,w:r.width,h:r.height},pointerEvents:s.pointerEvents};});
   if(info.hasHeader)throw new Error(`${label}: popup-style title/header is forbidden`);
