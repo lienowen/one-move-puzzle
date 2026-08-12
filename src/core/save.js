@@ -1,12 +1,20 @@
 const KEY = 'one-move-puzzle-save-v2';
+const QA_REAL_PROGRESS_KEY = 'one-move-puzzle-qa-real-progress';
 const DEFAULTS = { unlocked: 1, stars: {}, sound: true, haptics: true, attempts: {} };
+
+function preserveQaLevelJump() {
+  return typeof navigator !== 'undefined'
+    && navigator.webdriver
+    && localStorage.getItem(QA_REAL_PROGRESS_KEY) !== '1';
+}
 
 function repairUnlocked(save) {
   const stored = Math.max(1, Number(save.unlocked || 1));
 
   // Browser QA intentionally jumps directly to authored levels by setting only
-  // `unlocked`. Keep that test harness behavior isolated from real-player saves.
-  if (typeof navigator !== 'undefined' && navigator.webdriver) return stored;
+  // `unlocked`. Keep that test harness behavior isolated from real-player saves,
+  // except when a dedicated regression explicitly asks to exercise real progress.
+  if (preserveQaLevelJump()) return stored;
 
   // Production progression is strictly sequential: clearing N levels may unlock
   // at most level N + 1. Older dev/test saves could leave unlocked=12 with few
