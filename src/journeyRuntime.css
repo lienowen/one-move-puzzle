@@ -2,9 +2,9 @@
 .journey-board{position:absolute;left:50%;top:50%;width:min(100%,560px,72dvh);aspect-ratio:1;transform:translate(-50%,-50%);filter:drop-shadow(0 18px 22px rgba(28,14,7,.32))}
 .journey-deck{position:absolute;inset:8.5%;border-radius:26px;background:linear-gradient(145deg,rgba(66,45,31,.82),rgba(31,22,17,.88)),repeating-linear-gradient(0deg,rgba(255,222,173,.025) 0 1px,transparent 1px 18px);border:1px solid rgba(215,157,94,.16);box-shadow:inset 0 1px rgba(255,238,210,.09),inset 0 0 34px rgba(0,0,0,.22);z-index:2}
 .journey-path{position:absolute;inset:9%;width:82%;height:82%;z-index:4;overflow:visible;pointer-events:none}
-.journey-path .bed{fill:none;stroke:rgba(33,18,10,.72);stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round}
+.journey-path .bed{fill:none;stroke:rgba(33,18,10,.76);stroke-width:5.4;stroke-linecap:round;stroke-linejoin:round}
 .journey-path .rail{fill:none;stroke:#a96838;stroke-width:3.35;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1.2px 1px rgba(0,0,0,.38))}
-.journey-path .light{fill:none;stroke:rgba(255,213,151,.30);stroke-width:.72;stroke-linecap:round;stroke-linejoin:round}
+.journey-path .light{fill:none;stroke:rgba(255,213,151,.22);stroke-width:.72;stroke-linecap:round;stroke-linejoin:round}
 .journey-ball{position:absolute;width:7.6%;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%) rotate(var(--roll,0deg));z-index:50;filter:drop-shadow(0 7px 6px rgba(10,20,40,.36));will-change:left,top,transform}
 .journey-ball.rolling{filter:drop-shadow(0 6px 7px rgba(10,20,40,.42)) drop-shadow(0 0 7px rgba(65,145,240,.18))}
 .journey-goal{position:absolute;width:11%;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%);z-index:15;filter:drop-shadow(0 6px 7px rgba(0,0,0,.28))}
@@ -13,62 +13,80 @@
 .journey-star.collected{animation:journeyStarCollect .28s ease forwards}
 @keyframes journeyStarCollect{to{opacity:0;transform:translate(-50%,-65%) scale(1.5)}}
 
-.journey-gate{position:absolute;width:10.5%;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%);z-index:25;opacity:.56;filter:drop-shadow(0 5px 6px rgba(0,0,0,.28));transition:opacity .2s,filter .2s,transform .25s}
-.journey-gate.bridge-gate{width:13%}
+.journey-gate{position:absolute;width:10.5%;aspect-ratio:1;object-fit:contain;transform:translate(-50%,-50%);z-index:25;opacity:.42;filter:drop-shadow(0 5px 6px rgba(0,0,0,.28));transition:opacity .2s,filter .2s,transform .25s}
+.journey-gate.bridge-gate{width:12%}
+.journey-gate.current{opacity:.78}
 .journey-gate.waiting{opacity:1;animation:gateWaitPulse .72s ease-in-out infinite alternate}
 @keyframes gateWaitPulse{to{filter:drop-shadow(0 5px 6px rgba(0,0,0,.28)) drop-shadow(0 0 11px rgba(255,174,56,.38))}}
-.journey-gate.open{opacity:.32;transform:translate(-50%,-50%) scale(.90)}
+.journey-gate.open{opacity:.28;transform:translate(-50%,-50%) scale(.90)}
 
-.journey-lock-link{position:absolute;height:2px;z-index:23;transform-origin:0 50%;transform:rotate(var(--link-angle));background:linear-gradient(90deg,rgba(224,163,87,.85),rgba(224,163,87,.12));box-shadow:0 0 5px rgba(226,159,73,.16);opacity:0;transition:opacity .22s;pointer-events:none}
-.journey-lock-link.active{opacity:.72}
-.journey-lock-link.solved{opacity:0}
+.journey-lock-link{position:absolute;height:4px;z-index:23;transform-origin:0 50%;transform:rotate(var(--link-angle));border-radius:999px;background:linear-gradient(180deg,#8a623b,#3c291c 54%,#1f1712);box-shadow:0 1px 1px rgba(255,213,154,.18),0 2px 4px rgba(0,0,0,.34);opacity:.14;transition:opacity .22s,filter .22s;pointer-events:none}
+.journey-lock-link::before,.journey-lock-link::after{content:"";position:absolute;top:50%;width:9px;height:9px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#c7975d 0 12%,#6e4c2f 20% 56%,#241910 62%);transform:translateY(-50%);box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.journey-lock-link::before{left:-4px}.journey-lock-link::after{right:-4px}
+.journey-lock-link.valve-lock{height:5px;background:linear-gradient(180deg,#425d6b,#20333d 55%,#17242a)}
+.journey-lock-link.active{opacity:.88;filter:drop-shadow(0 0 5px rgba(229,166,84,.2))}
+.journey-lock-link.valve-lock.active{filter:drop-shadow(0 0 6px rgba(81,174,237,.38))}
+.journey-lock-link.solved{opacity:.34}
 
-.journey-lock{position:absolute;left:var(--panel-x);top:var(--panel-y);z-index:35;width:36%;min-height:23%;border-radius:17px;padding:7px;background:linear-gradient(145deg,rgba(48,35,27,.98),rgba(20,15,12,.98));border:1px solid rgba(222,165,99,.17);box-shadow:0 12px 22px rgba(0,0,0,.34),inset 0 1px rgba(255,235,202,.06);opacity:0;visibility:hidden;filter:saturate(.55);transform:translate(-50%,-50%) scale(.72);transition:opacity .2s,transform .28s cubic-bezier(.18,.82,.23,1),filter .2s,visibility 0s linear .28s;pointer-events:none}
-.journey-lock.active{opacity:1;visibility:visible;filter:none;transform:translate(-50%,-50%) scale(1);pointer-events:auto;transition-delay:0s;box-shadow:0 14px 24px rgba(0,0,0,.38),0 0 0 1px rgba(242,179,84,.24),0 0 22px rgba(255,171,56,.09),inset 0 1px rgba(255,235,202,.07)}
-.journey-lock.solved{opacity:0;visibility:hidden;transform:translate(-50%,-50%) scale(.78);pointer-events:none}
-.journey-lock-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 5px;color:#d8b681;font-size:6px;font-weight:900;letter-spacing:.14em}
-.journey-lock-head b{font-size:7px;color:#f4c66d}
-.journey-lock button{appearance:none;border:0;background:transparent;padding:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* A mechanism is part of the board, never a popup panel. */
+.journey-mechanism{position:absolute;left:var(--panel-x);top:var(--panel-y);z-index:35;transform:translate(-50%,-50%) scale(.9);opacity:.20;filter:saturate(.42) brightness(.72);transition:opacity .22s,transform .28s cubic-bezier(.18,.82,.23,1),filter .22s;pointer-events:none}
+.journey-mechanism.active{opacity:1;filter:none;transform:translate(-50%,-50%) scale(1.04);pointer-events:auto}
+.journey-mechanism.solved{opacity:.42;filter:saturate(.65) brightness(.85);transform:translate(-50%,-50%) scale(.94);pointer-events:none}
+.journey-mechanism button{appearance:none;border:0;background:transparent;padding:0;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.mechanism-mount{position:absolute;left:4%;right:4%;top:42%;height:21%;border-radius:999px;background:linear-gradient(180deg,#6e6257 0,#3c352f 45%,#241f1b 100%);border:1px solid rgba(222,194,154,.16);box-shadow:inset 0 1px rgba(255,255,255,.08),0 4px 8px rgba(0,0,0,.32);pointer-events:none}
+.mechanism-mount::before,.mechanism-mount::after{content:"";position:absolute;top:50%;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#c7aa83 0 12%,#66594c 18% 52%,#211c18 60%);transform:translateY(-50%)}
+.mechanism-mount::before{left:5px}.mechanism-mount::after{right:5px}
 
-.gear-lock{width:38%;height:25%}
-.gear-row{display:flex;align-items:center;justify-content:center;gap:1px;height:calc(100% - 14px)}
-.gear-control{position:relative;width:32%;min-width:44px;aspect-ratio:1;border-radius:50%!important;display:grid;place-items:center}
-.gear-control img{width:100%;height:100%;object-fit:contain;transform:rotate(var(--gear-angle));transition:transform .22s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 3px 3px rgba(0,0,0,.30))}
-.gear-pointer{position:absolute;left:50%;top:6%;width:2px;height:23%;border-radius:2px;background:#79c3ff;transform:translateX(-50%) rotate(var(--gear-angle));transform-origin:50% 191%;box-shadow:0 0 5px rgba(80,174,255,.55)}
-.gear-target{position:absolute;left:50%;top:-2px;width:4px;height:7px;border-radius:4px;background:#efb64e;transform:translateX(-50%) rotate(var(--target-angle));transform-origin:50% 2100%;box-shadow:0 0 5px rgba(255,184,63,.42)}
+/* Gate 1: coupled gears mounted directly on a common shaft plate. */
+.gear-lock{width:36%;height:21%}
+.gear-row{position:relative;display:flex;align-items:center;justify-content:center;height:100%;z-index:2}
+.gear-control{position:relative;width:37%;min-width:44px;aspect-ratio:1;border-radius:50%!important;display:grid;place-items:center}
+.gear-control+.gear-control{margin-left:-8%}
+.gear-control img{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;transform:rotate(var(--gear-angle));transition:transform .22s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 3px 3px rgba(0,0,0,.30))}
+.gear-axle{position:absolute;left:50%;top:50%;z-index:1;width:27%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 38% 35%,#d7bf9a 0 10%,#766758 19% 50%,#28221e 58%);box-shadow:0 2px 3px rgba(0,0,0,.35)}
+.gear-pointer{position:absolute;z-index:4;left:50%;top:6%;width:2px;height:23%;border-radius:2px;background:#79c3ff;transform:translateX(-50%) rotate(var(--gear-angle));transform-origin:50% 191%;box-shadow:0 0 5px rgba(80,174,255,.55)}
+.gear-target{position:absolute;z-index:5;left:50%;top:-2px;width:4px;height:7px;border-radius:4px;background:#efb64e;transform:translateX(-50%) rotate(var(--target-angle));transform-origin:50% 2100%;box-shadow:0 0 5px rgba(255,184,63,.42)}
+.gear-control:active img{filter:drop-shadow(0 2px 2px rgba(0,0,0,.28)) brightness(1.08)}
 
-.bridge-lock{width:39%;height:24%}
-.bridge-strip{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:2px;align-items:center;height:calc(100% - 13px);padding:4px 7px}
-.bridge-cell{position:relative;aspect-ratio:1;min-width:42px;border-radius:9px!important;background:rgba(86,67,52,.28)!important;border:1px solid rgba(213,163,105,.10)!important}
+/* Gate 2: the puzzle is the broken rail itself, with no surrounding card. */
+.bridge-lock{width:39%;height:18%}
+.bridge-lock .mechanism-mount{display:none}
+.bridge-strip{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;align-items:center;height:100%;padding:2px 6px}
+.bridge-bed{position:absolute;left:2%;right:2%;top:50%;height:14px;border-radius:999px;background:linear-gradient(180deg,#5c4633,#2b2119);transform:translateY(-50%);box-shadow:inset 0 2px 3px rgba(0,0,0,.45),0 3px 5px rgba(0,0,0,.24)}
+.bridge-cell{position:relative;z-index:2;aspect-ratio:1;min-width:44px;border-radius:9px!important}
 .bridge-cell .plate,.bridge-cell .rail{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .bridge-cell .rail{transform:rotate(var(--bridge-angle));transition:transform .22s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 2px 2px rgba(0,0,0,.28))}
-.bridge-port{position:absolute;width:7px;height:7px;border-radius:50%;background:#d09a55;box-shadow:0 0 0 2px rgba(62,40,24,.9),0 0 6px rgba(232,172,93,.24);z-index:4}
-.bridge-port.in{left:2px;bottom:7px}.bridge-port.out{right:2px;top:7px}
+.bridge-port{position:absolute;top:50%;z-index:4;width:8px;height:8px;border-radius:50%;background:#b0773f;box-shadow:0 0 0 2px rgba(45,31,21,.95),0 0 6px rgba(232,172,93,.24);transform:translateY(-50%)}
+.bridge-port.in{left:-1px}.bridge-port.out{right:-1px}
 .bridge-live .bridge-port{background:#81c7ff;box-shadow:0 0 0 2px rgba(36,54,67,.9),0 0 9px rgba(91,184,255,.65)}
-.bridge-live .bridge-strip{filter:drop-shadow(0 0 5px rgba(83,173,238,.25))}
+.bridge-live .bridge-bed{box-shadow:inset 0 2px 3px rgba(0,0,0,.45),0 0 9px rgba(83,173,238,.28)}
 
-.valve-lock{width:38%;height:31%;padding-bottom:6px}
-.pressure-gauges{height:39%;display:grid;grid-template-columns:1fr 22px 1fr;align-items:center;gap:2px;padding:0 8px}
-.pressure-gauge{position:relative;width:42px;height:25px;justify-self:center;border-radius:24px 24px 7px 7px;background:radial-gradient(circle at 50% 90%,#d8c6a6 0 55%,#71624f 57% 66%,#2a211a 68%);box-shadow:inset 0 0 5px rgba(0,0,0,.42),0 2px 3px rgba(0,0,0,.26)}
-.pressure-gauge i{position:absolute;left:50%;bottom:5px;width:14px;height:2px;border-radius:2px;background:#397fb9;transform-origin:0 50%;transform:rotate(var(--pressure-angle));transition:transform .2s}
-.pressure-gauge b{position:absolute;right:3px;bottom:1px;color:#33281e;font-size:6px;font-weight:900}
-.pressure-balance{position:relative;height:2px;background:rgba(208,154,83,.30);border-radius:2px}
-.pressure-balance i{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#6f5741;transform:translate(-50%,-50%);transition:.2s}
+/* Gate 3: two physical valves feed a common pressure line into the gate. */
+.valve-lock{width:34%;height:26%}
+.valve-lock .mechanism-mount{top:57%;height:16%}
+.pressure-pipe{position:absolute;left:9%;right:9%;top:61%;height:7px;border-radius:999px;background:linear-gradient(180deg,#4f6470,#243640 55%,#17232a);box-shadow:inset 0 1px rgba(255,255,255,.08),0 3px 5px rgba(0,0,0,.3)}
+.pressure-pipe::before,.pressure-pipe::after{content:"";position:absolute;top:-22px;width:6px;height:26px;border-radius:6px;background:linear-gradient(90deg,#203039,#506873,#203039)}
+.pressure-pipe::before{left:20%}.pressure-pipe::after{right:20%}
+.pressure-gauges{position:absolute;left:3%;right:3%;top:0;height:40%;display:grid;grid-template-columns:1fr 24px 1fr;align-items:center;gap:2px}
+.pressure-gauge{position:relative;width:44px;height:28px;justify-self:center;border-radius:24px 24px 8px 8px;background:radial-gradient(circle at 50% 90%,#d8c6a6 0 55%,#71624f 57% 66%,#2a211a 68%);box-shadow:inset 0 0 5px rgba(0,0,0,.42),0 3px 4px rgba(0,0,0,.3)}
+.pressure-gauge i{position:absolute;left:50%;bottom:6px;width:15px;height:2px;border-radius:2px;background:#397fb9;transform-origin:0 50%;transform:rotate(var(--pressure-angle));transition:transform .2s}
+.pressure-gauge b{position:absolute;right:4px;bottom:1px;color:#33281e;font-size:6px;font-weight:900}
+.pressure-balance{position:relative;height:3px;background:rgba(208,154,83,.34);border-radius:2px}
+.pressure-balance i{position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;background:#6f5741;transform:translate(-50%,-50%);transition:.2s}
 .valve-lock.balanced .pressure-balance i{background:#77c8ff;box-shadow:0 0 8px rgba(92,190,255,.75)}
-.valve-flow{position:absolute;left:10%;right:10%;top:50%;height:4px;border-radius:999px;background:linear-gradient(90deg,#2a2723,#6d563d,#2a2723);box-shadow:inset 0 1px rgba(255,255,255,.07)}
+.valve-flow{position:absolute;left:12%;right:12%;top:60%;height:4px;border-radius:999px;background:transparent;z-index:4;box-shadow:none}
 .valve-flow.live{background:linear-gradient(90deg,#398dd8,#8fd4ff,#398dd8);box-shadow:0 0 8px rgba(76,169,243,.48)}
-.valve-row{position:relative;display:flex;justify-content:space-around;align-items:center;height:48%;z-index:2}
-.valve-control{position:relative;width:40%;min-width:44px;aspect-ratio:1;border-radius:50%!important}
-.valve-control img{width:100%;height:100%;object-fit:contain;transform:rotate(var(--valve-angle));transition:transform .22s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
-.valve-control span{position:absolute;left:50%;top:8%;width:3px;height:24%;border-radius:2px;background:#72baf2;transform:translateX(-50%) rotate(var(--valve-angle));transform-origin:50% 175%;box-shadow:0 0 5px rgba(81,170,241,.42)}
+.valve-row{position:absolute;left:4%;right:4%;bottom:0;display:flex;justify-content:space-around;align-items:flex-end;height:55%;z-index:5}
+.valve-control{position:relative;width:43%;min-width:44px;aspect-ratio:1;border-radius:50%!important}
+.valve-control img{position:relative;z-index:2;width:100%;height:100%;object-fit:contain;transform:rotate(var(--valve-angle));transition:transform .22s cubic-bezier(.2,.8,.2,1);filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.valve-seat{position:absolute;left:50%;top:50%;width:56%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,#2c3940 0 40%,#61747d 43% 50%,#1a262c 54%);box-shadow:0 3px 5px rgba(0,0,0,.32)}
+.valve-control span{position:absolute;z-index:4;left:50%;top:8%;width:3px;height:24%;border-radius:2px;background:#72baf2;transform:translateX(-50%) rotate(var(--valve-angle));transform-origin:50% 175%;box-shadow:0 0 5px rgba(81,170,241,.42)}
 
-.journey-caption{position:absolute;left:50%;bottom:4.8%;transform:translateX(-50%);z-index:32;color:rgba(236,205,164,.52);font-size:6px;letter-spacing:.16em;font-weight:900;white-space:nowrap}
 .journey-complete .journey-path .light{stroke:rgba(109,199,255,.72);filter:drop-shadow(0 0 4px rgba(70,169,239,.46))}
 
 @media(max-width:420px){
-  .journey-lock{padding:5px;border-radius:13px}
-  .journey-lock-head{margin-bottom:3px;font-size:5.5px}
-  .gear-lock{width:39%}.bridge-lock{width:41%}.valve-lock{width:40%}
-  .bridge-cell{min-width:40px}.pressure-gauge{width:38px}
-  .journey-caption{bottom:4.2%}
+  .journey-mechanism{transform:translate(-50%,-50%) scale(.86)}
+  .journey-mechanism.active{transform:translate(-50%,-50%) scale(.98)}
+  .gear-lock{width:38%}.bridge-lock{width:41%}.valve-lock{width:36%}
+  .bridge-cell{min-width:42px}.pressure-gauge{width:40px}
 }
