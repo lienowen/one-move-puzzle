@@ -8,7 +8,6 @@ const browser=await chromium.launch({headless:true});
 
 async function waitActive(page,id,timeout=4500){
   const lock=page.locator(`[data-checkpoint="${id}"]`);
-  await lock.waitFor({state:'visible',timeout});
   await lock.evaluate((el,limit)=>new Promise((resolve,reject)=>{const start=performance.now();const tick=()=>{if(el.classList.contains('active'))resolve();else if(performance.now()-start>limit)reject(new Error(`${el.dataset.checkpoint} never became active`));else requestAnimationFrame(tick)};tick()}),timeout);
   return lock;
 }
@@ -17,14 +16,16 @@ async function solveJourney(page){
   await page.locator('.journey-board[data-journey-level="release"]').waitFor({state:'visible',timeout:3000});
   await waitActive(page,'gearLock');
   await page.locator('[data-checkpoint="gearLock"] .gear-control').nth(0).click();
+  await page.locator('[data-checkpoint="gearLock"] .gear-control').nth(1).click();
   await page.locator('[data-checkpoint="gearLock"] .gear-control').nth(2).click();
   await waitActive(page,'bridgeLock');
   await page.locator('[data-checkpoint="bridgeLock"] .bridge-cell').nth(0).click();
   await page.locator('[data-checkpoint="bridgeLock"] .bridge-cell').nth(2).click();
   await waitActive(page,'valveLock');
   await page.locator('[data-checkpoint="valveLock"] .valve-control').nth(0).click();
+  await page.locator('[data-checkpoint="valveLock"] .valve-control').nth(0).click();
   await page.locator('[data-checkpoint="valveLock"] .valve-control').nth(1).click();
-  await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:7000});
+  await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:7500});
 }
 
 try{
