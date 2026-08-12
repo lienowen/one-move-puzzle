@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
-    "check:logic": "node scripts/check-machine-logic.mjs && node scripts/check-field-logic.mjs && node scripts/check-airflow-logic.mjs && node scripts/check-oneway-logic.mjs && node scripts/check-portal-logic.mjs",
+    "check:logic": "node scripts/check-journey-logic.mjs && node scripts/check-machine-logic.mjs && node scripts/check-field-logic.mjs && node scripts/check-airflow-logic.mjs && node scripts/check-oneway-logic.mjs && node scripts/check-portal-logic.mjs",
     "build": "npm run check:logic && vite build",
     "preview": "vite preview --host 0.0.0.0"
   },
