@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 
 const BASE=process.env.QA_BASE_URL||'http://127.0.0.1:4173';
-const SAVE_KEY='one-move-puzzle-save-v2';
+const SAVE_KEY='one-move-puzzle-save-v3';
 
 async function expectResult(page,expected){
   await page.locator('#resultSheet:not([hidden])').waitFor({state:'visible',timeout:7500});
@@ -16,7 +16,7 @@ try{
   const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
   const page=await context.newPage();
   await page.goto(BASE,{waitUntil:'networkidle'});
-  await page.evaluate(([key,value])=>localStorage.setItem(key,value),[SAVE_KEY,JSON.stringify({unlocked:6,stars:{},sound:false,haptics:false,attempts:{}})]);
+  await page.evaluate(([key,value])=>localStorage.setItem(key,value),[SAVE_KEY,JSON.stringify({version:3,unlocked:6,stars:{},sound:false,haptics:false,attempts:{}})]);
   await page.reload({waitUntil:'networkidle'});
   await page.click('#playBtn');
   let board=page.locator('.maze-slide-board[data-maze-level="conveyor"]');
