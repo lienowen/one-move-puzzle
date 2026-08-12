@@ -4,18 +4,19 @@
 
 
 > one-move-puzzle@0.7.0 check:logic
-> node scripts/check-machine-logic.mjs && node scripts/check-field-logic.mjs && node scripts/check-airflow-logic.mjs && node scripts/check-oneway-logic.mjs && node scripts/check-portal-logic.mjs
+> node scripts/check-journey-logic.mjs && node scripts/check-machine-logic.mjs && node scripts/check-field-logic.mjs && node scripts/check-airflow-logic.mjs && node scripts/check-oneway-logic.mjs && node scripts/check-portal-logic.mjs
 
+Journey logic check passed: Level 1 has three sequential locks and no one-click solution.
 Machine logic check passed: Levels 1-6 have unique one-move solutions across rotate, vector and row-slide mechanics.
 Field logic check passed: Magnetic Fork has exactly one one-move field solution.
 Airflow logic check passed: Crosswind Drop has one safe landing vector across a real air well.
 One-way logic check passed: 22-node loop reaches the valve at step 19, with one valid return direction (N).
 Portal logic check passed: shortcut hits the locked gate; detour teleports -> pad -> star -> same gate -> goal.
 [36mvite v8.2.1 [32mbuilding client environment for production...[36m[39m
-[2Ktransforming...✓ 266 modules transformed.
+[2Ktransforming...✓ 269 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/index.html                                                5.24 kB │ gzip:  1.64 kB
+dist/index.html                                                5.24 kB │ gzip:  1.65 kB
 dist/assets/ball_blue-PIiPLHck.png                             7.65 kB
 dist/assets/ball_steel_b-Bph6ZyRM.png                          7.69 kB
 dist/assets/star_small-D38__nwP.png                            7.73 kB
@@ -247,7 +248,7 @@ dist/assets/ui_logo-CstV8EDv.png                             163.29 kB
 dist/assets/fx_success_burst-TOQJaVR1.png                    231.79 kB
 dist/assets/fx_trail_soft-B-2DF2VJ.png                       254.65 kB
 dist/assets/board_workshop_base--T8LUU1e.png                 570.56 kB
-dist/assets/index-x66-GiNX.css                                79.87 kB │ gzip: 18.09 kB
-dist/assets/index-CJSXrKex.js                                163.36 kB │ gzip: 39.61 kB
+dist/assets/index-DuWqdgPW.css                                86.43 kB │ gzip: 19.45 kB
+dist/assets/index-DQ9f7vJH.js                                170.81 kB │ gzip: 41.70 kB
 
-[32m✓ built in 153ms[39m
+[32m✓ built in 204ms[39m
