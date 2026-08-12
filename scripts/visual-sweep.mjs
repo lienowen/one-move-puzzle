@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 
 const BASE = 'http://127.0.0.1:4173';
-const SAVE_KEY = 'one-move-puzzle-save-v2';
+const SAVE_KEY = 'one-move-puzzle-save-v3';
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
@@ -15,7 +15,7 @@ try {
   await page.goto(BASE, { waitUntil: 'networkidle' });
   await page.evaluate(([key, value]) => localStorage.setItem(key, value), [
     SAVE_KEY,
-    JSON.stringify({ unlocked:12, stars:{}, sound:false, haptics:false, attempts:{} }),
+    JSON.stringify({ version:3, unlocked:12, stars:{}, sound:false, haptics:false, attempts:{} }),
   ]);
   await page.reload({ waitUntil: 'networkidle' });
   await page.click('#levelsBtn');
@@ -29,6 +29,9 @@ try {
     await page.locator('.level-card').nth(index).click();
     await page.locator('.game-screen.active').waitFor({state:'visible'});
     await page.waitForTimeout(240);
+    if(await page.locator('.journey-board').count()){
+      await page.locator('.journey-lock.active').waitFor({state:'visible',timeout:3500});
+    }
 
     const info = await page.evaluate(() => {
       const viewport = {left:0,top:0,right:innerWidth,bottom:innerHeight};
@@ -37,6 +40,7 @@ try {
         ...document.querySelectorAll('.machine-piece'),
         ...document.querySelectorAll('.maze-tile.rotatable'),
         ...document.querySelectorAll('.maze-ball,.maze-star-art,.maze-goal-art,.maze-feature-art'),
+        ...document.querySelectorAll('.journey-ball,.journey-goal,.journey-star,.journey-gate.waiting,.journey-lock.active button'),
       ];
       const unique = [...new Set(candidates)];
       const pieces = unique.map((node,index) => {
@@ -44,16 +48,17 @@ try {
         const visibleW = Math.max(0,Math.min(r.right,viewport.right)-Math.max(r.left,viewport.left));
         const visibleH = Math.max(0,Math.min(r.bottom,viewport.bottom)-Math.max(r.top,viewport.top));
         const area = Math.max(1,r.width*r.height);
-        let id = node.dataset.id || '';
-        if (!id && node.classList.contains('maze-ball')) id = 'ball';
-        if (!id && node.classList.contains('maze-star-art')) id = `star-${index}`;
-        if (!id && node.classList.contains('maze-goal-art')) id = 'goal';
+        let id = node.dataset.id || node.dataset.gate || '';
+        if (!id && (node.classList.contains('maze-ball')||node.classList.contains('journey-ball'))) id = 'ball';
+        if (!id && (node.classList.contains('maze-star-art')||node.classList.contains('journey-star'))) id = `star-${index}`;
+        if (!id && (node.classList.contains('maze-goal-art')||node.classList.contains('journey-goal'))) id = 'goal';
+        if (!id && node.closest?.('.journey-lock.active')) id = `journey-control-${index}`;
         if (!id && node.classList.contains('maze-pad-art')) id = 'pressure-pad';
         if (!id && node.classList.contains('maze-gate-art')) id = node.dataset.gateId || 'gate';
         return {
           id,
-          interactive: node.classList.contains('interactive') || node.classList.contains('rotatable'),
-          kind: node.classList.contains('rotatable') ? 'maze-rotator' : [...node.classList].find(c => c.startsWith('piece-') || c.startsWith('maze-')),
+          interactive: node.matches?.('button') || node.classList.contains('interactive') || node.classList.contains('rotatable'),
+          kind: node.closest?.('.journey-lock.active') ? 'journey-control' : node.classList.contains('rotatable') ? 'maze-rotator' : [...node.classList].find(c => c.startsWith('piece-') || c.startsWith('maze-') || c.startsWith('journey-')),
           visibleRatio:Number(((visibleW*visibleH)/area).toFixed(3)),
           rect:[r.left,r.top,r.right,r.bottom].map(v => Math.round(v)),
         };
@@ -64,8 +69,8 @@ try {
       };
     });
 
-    const important = info.pieces.filter(piece => piece.interactive || piece.id === 'ball' || piece.id === 'goal' || piece.id.startsWith('star-') || ['pressure-pad','gate','mainGate'].includes(piece.id));
-    const warnings = important.filter(piece => piece.visibleRatio < .82);
+    const important = info.pieces.filter(piece => piece.interactive || piece.id === 'ball' || piece.id === 'goal' || piece.id.startsWith('star-') || ['pressure-pad','gate','mainGate','gearLock','bridgeLock','valveLock'].includes(piece.id));
+    const warnings = important.filter(piece => piece.visibleRatio < .82 || (piece.interactive && ((piece.rect[2]-piece.rect[0])<40 || (piece.rect[3]-piece.rect[1])<40)));
 
     await page.locator('#stage').screenshot({path:`.visual-check/sweep-${String(index+1).padStart(2,'0')}.jpg`,type:'jpeg',quality:62});
     report.push({level:index+1,stage:info.stage,important,warnings,pass:warnings.length===0});
