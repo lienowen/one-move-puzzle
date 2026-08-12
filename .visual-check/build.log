@@ -13,7 +13,7 @@ Airflow logic check passed: Crosswind Drop has one safe landing vector across a 
 One-way logic check passed: 22-node loop reaches the valve at step 19, with one valid return direction (N).
 Portal logic check passed: shortcut hits the locked gate; detour teleports -> pad -> star -> same gate -> goal.
 [36mvite v8.2.1 [32mbuilding client environment for production...[36m[39m
-[2Ktransforming...✓ 269 modules transformed.
+[2Ktransforming...✓ 270 modules transformed.
 rendering chunks...
 computing gzip size...
 dist/index.html                                                5.24 kB │ gzip:  1.64 kB
@@ -248,7 +248,7 @@ dist/assets/ui_logo-CstV8EDv.png                             163.29 kB
 dist/assets/fx_success_burst-TOQJaVR1.png                    231.79 kB
 dist/assets/fx_trail_soft-B-2DF2VJ.png                       254.65 kB
 dist/assets/board_workshop_base--T8LUU1e.png                 570.56 kB
-dist/assets/index-yd8qVTuR.css                                90.12 kB │ gzip: 20.27 kB
-dist/assets/index-BsmUmmfW.js                                173.29 kB │ gzip: 42.47 kB
+dist/assets/index-Dntj6Kjp.css                                93.17 kB │ gzip: 20.89 kB
+dist/assets/index-DrNwMKbx.js                                173.29 kB │ gzip: 42.47 kB
 
-[32m✓ built in 189ms[39m
+[32m✓ built in 212ms[39m
