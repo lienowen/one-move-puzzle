@@ -8,7 +8,7 @@ async function waitClass(locator,name,timeout=4500){await locator.evaluate((el,{
 async function dormant(locator){return locator.evaluate(el=>{const s=getComputedStyle(el);return Number(s.opacity)<=.45&&s.pointerEvents==='none'&&!el.classList.contains('active');});}
 async function settle(page){await page.waitForTimeout(300);}
 async function assertPhysicalMechanism(lock,gate,link,label){
-  const info=await lock.evaluate(el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return{hasHeader:!!el.querySelector('.journey-lock-head'),background:s.backgroundColor,backgroundImage:s.backgroundImage,border:[s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth],boxShadow:s.boxShadow,rect:{x:r.x,y:r.y,w:r.width,h:r.height},pointerEvents:s.pointerEvents};});
+  const info=await lock.evaluate(el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return{hasHeader:!!el.querySelector('.journey-lock-head'),background:s.backgroundColor,backgroundImage:s.backgroundImage,border:[s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth],boxShadow:s.boxShadow,rect:{x:r.x,y:r.y,w:r.width,h:r.height},pointerEvents:s.pointerEvents,viewport:{w:innerWidth,h:innerHeight}};});
   if(info.hasHeader)throw new Error(`${label}: popup-style title/header is forbidden`);
   if(info.backgroundImage!=='none')throw new Error(`${label}: mechanism root must not use a panel background image`);
   const alpha=Number((info.background.match(/rgba?\([^,]+,[^,]+,[^,]+(?:,\s*([\d.]+))?\)/)||[])[1]??(info.background.startsWith('rgb(')?1:0));
@@ -21,6 +21,14 @@ async function assertPhysicalMechanism(lock,gate,link,label){
   if(!gateBox||!lockBox)throw new Error(`${label}: gate/mechanism geometry missing`);
   const distance=Math.hypot((gateBox.x+gateBox.width/2)-(lockBox.x+lockBox.width/2),(gateBox.y+gateBox.height/2)-(lockBox.y+lockBox.height/2));
   if(distance>95)throw new Error(`${label}: mechanism is ${distance.toFixed(1)}px from the gate and reads like a separate UI puzzle`);
+  if(lockBox.x<2||lockBox.y<2||lockBox.x+lockBox.width>info.viewport.w-2||lockBox.y+lockBox.height>info.viewport.h-2)throw new Error(`${label}: active mechanism is clipped by the mobile viewport`);
+
+  const controls=await lock.locator('button').evaluateAll(nodes=>nodes.map(node=>{const r=node.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height};}));
+  for(const [i,box] of controls.entries()){
+    if(box.w<44||box.h<44)throw new Error(`${label}: control ${i+1} is smaller than 44px (${box.w.toFixed(1)}×${box.h.toFixed(1)})`);
+    if(box.x<0||box.y<0||box.x+box.w>info.viewport.w||box.y+box.h>info.viewport.h)throw new Error(`${label}: control ${i+1} is clipped by the mobile viewport`);
+  }
+
   const linkOpacity=Number(await link.evaluate(el=>getComputedStyle(el).opacity));
   if(linkOpacity<.55)throw new Error(`${label}: active gate needs a visible mechanical shaft/pipe connection`);
 }
