@@ -6,6 +6,7 @@ const browser=await chromium.launch({headless:true});
 async function click(page,selector,index=0){const el=page.locator(selector).nth(index);await el.waitFor({state:'visible',timeout:3500});await el.click();}
 async function waitClass(locator,name,timeout=4500){await locator.evaluate((el,{name,timeout})=>new Promise((resolve,reject)=>{const start=performance.now();const tick=()=>{if(el.classList.contains(name))resolve();else if(performance.now()-start>timeout)reject(new Error(`${el.dataset.checkpoint||el.className} never gained ${name}`));else requestAnimationFrame(tick)};tick()}),{name,timeout});}
 async function dormant(locator){return locator.evaluate(el=>{const s=getComputedStyle(el);return Number(s.opacity)<=.45&&s.pointerEvents==='none'&&!el.classList.contains('active');});}
+async function settle(page){await page.waitForTimeout(300);}
 async function assertPhysicalMechanism(lock,gate,link,label){
   const info=await lock.evaluate(el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return{hasHeader:!!el.querySelector('.journey-lock-head'),background:s.backgroundColor,backgroundImage:s.backgroundImage,border:[s.borderTopWidth,s.borderRightWidth,s.borderBottomWidth,s.borderLeftWidth],boxShadow:s.boxShadow,rect:{x:r.x,y:r.y,w:r.width,h:r.height},pointerEvents:s.pointerEvents};});
   if(info.hasHeader)throw new Error(`${label}: popup-style title/header is forbidden`);
@@ -46,6 +47,7 @@ try{
   const link3=board.locator('.journey-lock-link.valve-lock');
 
   await waitClass(lock1,'active');
+  await settle(page);
   if(!/1\/3/.test(await page.locator('#moveToken strong').textContent()||''))throw new Error('Journey UI must show Gate 1/3');
   if(!(await dormant(lock2))||!(await dormant(lock3)))throw new Error('Future mechanisms must stay visually dormant and non-interactive until reached');
   await assertPhysicalMechanism(lock1,gate1,link1,'Gate 1');
@@ -64,6 +66,7 @@ try{
   await waitClass(lock1,'solved',2500);
 
   await waitClass(lock2,'active');
+  await settle(page);
   if(!/2\/3/.test(await page.locator('#moveToken strong').textContent()||''))throw new Error('Journey UI must advance to Gate 2/3');
   if(!(await dormant(lock1))||!(await dormant(lock3)))throw new Error('Only the bridge mechanism may be active at Gate 2');
   await assertPhysicalMechanism(lock2,gate2,link2,'Gate 2');
@@ -73,6 +76,7 @@ try{
   await waitClass(lock2,'solved',2500);
 
   await waitClass(lock3,'active');
+  await settle(page);
   if(!/3\/3/.test(await page.locator('#moveToken strong').textContent()||''))throw new Error('Journey UI must advance to Gate 3/3');
   if(!(await dormant(lock1))||!(await dormant(lock2)))throw new Error('Only the pressure mechanism may be active at Gate 3');
   await assertPhysicalMechanism(lock3,gate3,link3,'Gate 3');
