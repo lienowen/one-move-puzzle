@@ -1,4 +1,5 @@
 import { getMachineLogic } from './machineLogic.js';
+import { getJourneyLevel } from './journeyLevel.js';
 import { mountWorkshopRuntime } from './workshopRuntime.js';
 import { mountSignalMatchRuntime } from './signalMatchRuntime.js';
 import { mountMazePuzzleRuntime } from './mazePuzzleRuntime.js';
@@ -8,6 +9,7 @@ import { mountMazeMagnetRuntime } from './mazeMagnetRuntime.js';
 import { mountMazeAirflowRuntime } from './mazeAirflowRuntime.js';
 import { mountMazeOneWayRuntime } from './mazeOneWayRuntime.js';
 import { mountMazePortalRuntime } from './mazePortalRuntime.js';
+import { mountJourneyRuntimeV2 } from './journeyRuntimeV2.js';
 
 function applyMazeHint(logic) {
   const hint=document.querySelector('#levelHint');
@@ -24,6 +26,9 @@ function applyMazeHint(logic) {
 }
 
 export function mountMachineRuntime(options) {
+  const journey=getJourneyLevel(options.level.id);
+  if(journey)return mountJourneyRuntimeV2(options);
+
   const logic=getMachineLogic(options.level.id);
   applyMazeHint(logic);
   if(logic?.maze?.mode==='portal-relay')return mountMazePortalRuntime(options);
