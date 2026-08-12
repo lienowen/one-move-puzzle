@@ -35,7 +35,7 @@ jobs:
         run: |
           npm install --no-save playwright@1.54.2
           npx playwright install --with-deps chromium
-      - name: Run causal gameplay and visual QA
+      - name: Run gameplay and visual QA
         run: |
           set +e
           mkdir -p .visual-check
@@ -47,7 +47,8 @@ jobs:
           failed=0
           for script in \
             scripts/progression-ui-qa.mjs \
-            scripts/causal-browser-qa.mjs \
+            scripts/journey-browser-qa.mjs \
+            scripts/levels2to5-browser-qa.mjs \
             scripts/level6-slide-qa.mjs \
             scripts/level7-magnet-qa.mjs \
             scripts/level8-airflow-qa.mjs \
@@ -96,17 +97,16 @@ jobs:
                   f.write('};\n')
           shots={
             'review-home.xpm':'home-mobile.jpg',
-            'review-level1.xpm':'level1-mobile.jpg','review-level1-wrong.xpm':'level1-wrong-mobile.jpg','review-level1-complete.xpm':'level1-complete-mobile.jpg','review-level1-result.xpm':'level1-result-mobile.jpg',
+            'review-level1.xpm':'level1-mobile.jpg','review-level1-gate1.xpm':'level1-gate1-mobile.jpg','review-level1-gate2.xpm':'level1-gate2-mobile.jpg','review-level1-gate3.xpm':'level1-gate3-mobile.jpg','review-level1-result.xpm':'level1-result-mobile.jpg',
             'review-level2.xpm':'level2-initial-mobile.jpg','review-level2-wrong.xpm':'level2-wrong-mobile.jpg','review-level2-result.xpm':'level2-result-mobile.jpg',
             'review-level3.xpm':'level3-initial-mobile.jpg','review-level3-blocked.xpm':'level3-gate-blocked-mobile.jpg','review-level3-pad-gate.xpm':'level3-pad-gate-mobile.jpg','review-level3-result.xpm':'level3-result-mobile.jpg',
-            'review-level4.xpm':'level4-initial-mobile.jpg','review-level4-wrong.xpm':'level4-wrong-mobile.jpg','review-level4-complete.xpm':'level4-complete-mobile.jpg','review-level4-result.xpm':'level4-result-mobile.jpg',
+            'review-level4.xpm':'level4-initial-mobile.jpg','review-level4-wrong.xpm':'level4-wrong-mobile.jpg','review-level4-result.xpm':'level4-result-mobile.jpg',
             'review-level5.xpm':'level5-initial-mobile.jpg','review-level5-wrong.xpm':'level5-wrong-mobile.jpg','review-level5-airborne.xpm':'level5-airborne-mobile.jpg','review-level5-result.xpm':'level5-result-mobile.jpg',
             'review-level6.xpm':'level6-initial-mobile.jpg','review-level6-wrong.xpm':'level6-wrong-mobile.jpg','review-level6-shifted.xpm':'level6-shifted-mobile.jpg','review-level6-result.xpm':'level6-result-mobile.jpg',
             'review-level7.xpm':'level7-initial-mobile.jpg','review-level7-wrong-field.xpm':'level7-wrong-field-mobile.jpg','review-level7-captured.xpm':'level7-captured-mobile.jpg','review-level7-result.xpm':'level7-result-mobile.jpg',
             'review-level8.xpm':'level8-initial-mobile.jpg','review-level8-wrong-air.xpm':'level8-wrong-airborne-mobile.jpg','review-level8-carry.xpm':'level8-carry-mobile.jpg','review-level8-landed.xpm':'level8-landed-mobile.jpg','review-level8-result.xpm':'level8-result-mobile.jpg',
             'review-level9.xpm':'level9-initial-mobile.jpg','review-level9-running.xpm':'level9-loop-running-mobile.jpg','review-level9-blocked.xpm':'level9-blocked-mobile.jpg','review-level9-open.xpm':'level9-valve-open-mobile.jpg','review-level9-result.xpm':'level9-result-mobile.jpg',
-            'review-level10.xpm':'level10-initial-mobile.jpg','review-level10-wrong-portal.xpm':'level10-teleport-wrong-mobile.jpg','review-level10-blocked.xpm':'level10-gate-blocked-mobile.jpg','review-level10-pad-gate.xpm':'level10-pad-gate-mobile.jpg','review-level10-result.xpm':'level10-result-mobile.jpg',
-            'review-desktop.xpm':'level1-desktop.jpg'
+            'review-level10.xpm':'level10-initial-mobile.jpg','review-level10-wrong-portal.xpm':'level10-teleport-wrong-mobile.jpg','review-level10-blocked.xpm':'level10-gate-blocked-mobile.jpg','review-level10-pad-gate.xpm':'level10-pad-gate-mobile.jpg','review-level10-result.xpm':'level10-result-mobile.jpg'
           }
           for dst,src in shots.items(): xpm('.visual-check/'+src,'.visual-check/'+dst)
           PY
