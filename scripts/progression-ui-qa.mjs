@@ -3,6 +3,7 @@ import { chromium } from 'playwright';
 const BASE=process.env.QA_BASE_URL||'http://127.0.0.1:4173';
 const SAVE_KEY='one-move-puzzle-save-v3';
 const LEGACY_KEY='one-move-puzzle-save-v2';
+const QA_REAL_PROGRESS_KEY='one-move-puzzle-qa-real-progress';
 const browser=await chromium.launch({headless:true});
 
 async function waitActive(page,id,timeout=4500){
@@ -27,13 +28,11 @@ async function solveJourney(page){
 }
 
 try{
-  // Fresh player: all 12 levels visible, Level 02 locked, then a real three-lock
-  // Level 01 journey advances the validated v3 save to Level 02.
   {
     const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
     const page=await context.newPage();
     await page.goto(BASE,{waitUntil:'networkidle'});
-    await page.evaluate(([v3,v2])=>{localStorage.removeItem(v3);localStorage.removeItem(v2);},[SAVE_KEY,LEGACY_KEY]);
+    await page.evaluate(([v3,v2,qa])=>{localStorage.setItem(qa,'1');localStorage.removeItem(v3);localStorage.removeItem(v2);},[SAVE_KEY,LEGACY_KEY,QA_REAL_PROGRESS_KEY]);
     await page.reload({waitUntil:'networkidle'});
 
     const rail=page.locator('#campaignRail i');
@@ -59,16 +58,15 @@ try{
     await context.close();
   }
 
-  // Legacy pollution regression: later fake stars and unlocked=12 must not survive
-  // migration once the first missing contiguous level is found.
   {
     const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,reducedMotion:'reduce'});
     const page=await context.newPage();
     await page.goto(BASE,{waitUntil:'networkidle'});
-    await page.evaluate(([v3,v2])=>{
+    await page.evaluate(([v3,v2,qa])=>{
+      localStorage.setItem(qa,'1');
       localStorage.removeItem(v3);
       localStorage.setItem(v2,JSON.stringify({unlocked:12,stars:{release:3,finale:3,hammer:3},sound:false,haptics:false,attempts:{finale:9}}));
-    },[SAVE_KEY,LEGACY_KEY]);
+    },[SAVE_KEY,LEGACY_KEY,QA_REAL_PROGRESS_KEY]);
     await page.reload({waitUntil:'networkidle'});
 
     const migrated=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)||'{}'),SAVE_KEY);
