@@ -1,16 +1,2 @@
 === scripts/maze-control-safe-area-qa.mjs ===
-node:internal/modules/run_main:123
-    triggerUncaughtException(
-    ^
-
-locator.waitFor: Timeout 2500ms exceeded.
-Call log:
-  - waiting for locator('[data-id="magnetDial"]') to be visible
-
-    at open (/home/runner/work/one-move-puzzle/one-move-puzzle/scripts/maze-control-safe-area-qa.mjs:6:349)
-    at async file:///home/runner/work/one-move-puzzle/one-move-puzzle/scripts/maze-control-safe-area-qa.mjs:9:38 {
-  name: 'TimeoutError'
-}
-
-Node.js v20.19.0
-exit_code=1
+exit_code=0

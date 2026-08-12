@@ -9,51 +9,87 @@
     ],
     "important": [
       {
-        "id": "pivot",
-        "interactive": true,
-        "kind": "maze-rotator",
+        "id": "ball",
+        "interactive": false,
+        "kind": "journey-ball",
         "visibleRatio": 1,
         "rect": [
-          102,
-          360,
-          162,
-          421
+          105,
+          501,
+          144,
+          539
         ]
       },
       {
         "id": "star-1",
         "interactive": false,
-        "kind": "maze-star-art",
+        "kind": "journey-star",
         "visibleRatio": 1,
         "rect": [
-          244,
-          502,
-          272,
-          531
+          228,
+          445,
+          254,
+          471
         ]
       },
       {
         "id": "goal",
         "interactive": false,
-        "kind": "maze-goal-art",
+        "kind": "journey-goal",
         "visibleRatio": 1,
         "rect": [
-          298,
-          494,
-          343,
-          539
+          312,
+          333,
+          352,
+          374
         ]
       },
       {
-        "id": "ball",
+        "id": "gearLock",
         "interactive": false,
-        "kind": "maze-ball",
+        "kind": "journey-gate",
         "visibleRatio": 1,
         "rect": [
-          55,
-          376,
-          84,
-          405
+          105,
+          501,
+          144,
+          540
+        ]
+      },
+      {
+        "id": "journey-control-4",
+        "interactive": true,
+        "kind": "journey-control",
+        "visibleRatio": 1,
+        "rect": [
+          58,
+          410,
+          102,
+          454
+        ]
+      },
+      {
+        "id": "journey-control-5",
+        "interactive": true,
+        "kind": "journey-control",
+        "visibleRatio": 1,
+        "rect": [
+          103,
+          410,
+          147,
+          454
+        ]
+      },
+      {
+        "id": "journey-control-6",
+        "interactive": true,
+        "kind": "journey-control",
+        "visibleRatio": 1,
+        "rect": [
+          148,
+          410,
+          192,
+          454
         ]
       }
     ],
