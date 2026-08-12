@@ -87,8 +87,13 @@ export function recordAttempt(save, levelId) {
 }
 
 export function recordClear(save, levelId, levelNumber, stars) {
-  if (preserveQaLevelJump() || levelNumber <= Number(save.unlocked || 1)) {
+  const allowed = preserveQaLevelJump() || levelNumber <= Number(save.unlocked || 1);
+  if (allowed) {
     save.stars[levelId] = Math.max(save.stars[levelId] || 0, clampStars(stars));
+    // QA can start from an authored later level, but after clearing it the test
+    // still needs NEXT to reach the following level. Real saves are re-derived
+    // from contiguous stars by sanitize(), so this cannot skip player progress.
+    save.unlocked = Math.max(Number(save.unlocked || 1), Math.min(levels.length, levelNumber + 1));
   }
   storeSave(save);
 }
