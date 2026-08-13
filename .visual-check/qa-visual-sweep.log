@@ -1,2 +1,38 @@
 === scripts/visual-sweep.mjs ===
-exit_code=0
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator('#gameBackBtn')
+    - locator resolved to <button type="button" id="gameBackBtn" class="icon-btn" aria-label="Back">←</button>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <section id="tutorialOverlay" class="tutorial-overlay">…</section> intercepts pointer events
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is visible, enabled and stable
+      - scrolling into view if needed
+      - done scrolling
+      - <section id="tutorialOverlay" class="tutorial-overlay">…</section> intercepts pointer events
+    - retrying click action
+      - waiting 100ms
+    56 × waiting for element to be visible, enabled and stable
+       - element is visible, enabled and stable
+       - scrolling into view if needed
+       - done scrolling
+       - <section id="tutorialOverlay" class="tutorial-overlay">…</section> intercepts pointer events
+     - retrying click action
+       - waiting 500ms
+
+    at /home/runner/work/one-move-puzzle/one-move-puzzle/scripts/visual-sweep.mjs:78:16 {
+  name: 'TimeoutError'
+}
+
+Node.js v20.19.0
+exit_code=1

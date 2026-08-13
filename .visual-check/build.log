@@ -7,7 +7,7 @@
 > node scripts/check-journey-logic.mjs && node scripts/check-machine-logic.mjs && node scripts/check-field-logic.mjs && node scripts/check-airflow-logic.mjs && node scripts/check-oneway-logic.mjs && node scripts/check-portal-logic.mjs
 
 Journey logic check passed: Level 1 has three distinct sequential mechanisms with real reasoning depth.
-Machine logic check passed: Levels 1-6 have unique one-move solutions across rotate, vector and row-slide mechanics.
+Machine logic check passed: Level 1 release-chain and Levels 2-6 one-move maze solutions are valid.
 Field logic check passed: Magnetic Fork has exactly one one-move field solution.
 Airflow logic check passed: Crosswind Drop has one safe landing vector across a real air well.
 One-way logic check passed: 22-node loop reaches the valve at step 19, with one valid return direction (N).
@@ -16,7 +16,7 @@ Portal logic check passed: shortcut hits the locked gate; detour teleports -> pa
 [2Ktransforming...✓ 270 modules transformed.
 rendering chunks...
 computing gzip size...
-dist/index.html                                                5.24 kB │ gzip:  1.65 kB
+dist/index.html                                                6.98 kB │ gzip:  2.07 kB
 dist/assets/ball_blue-PIiPLHck.png                             7.65 kB
 dist/assets/ball_steel_b-Bph6ZyRM.png                          7.69 kB
 dist/assets/star_small-D38__nwP.png                            7.73 kB
@@ -248,7 +248,7 @@ dist/assets/ui_logo-CstV8EDv.png                             163.29 kB
 dist/assets/fx_success_burst-TOQJaVR1.png                    231.79 kB
 dist/assets/fx_trail_soft-B-2DF2VJ.png                       254.65 kB
 dist/assets/board_workshop_base--T8LUU1e.png                 570.56 kB
-dist/assets/index-gAnhw4Kv.css                                93.79 kB │ gzip: 21.06 kB
-dist/assets/index-vSNTv9z5.js                                173.29 kB │ gzip: 42.47 kB
+dist/assets/index-BWRitEAs.css                                97.41 kB │ gzip: 21.79 kB
+dist/assets/index-DdBoICSK.js                                178.73 kB │ gzip: 44.11 kB
 
-[32m✓ built in 218ms[39m
+[32m✓ built in 197ms[39m
