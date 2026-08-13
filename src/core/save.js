@@ -3,7 +3,7 @@ import { levels } from '../levels.js';
 const KEY = 'one-move-puzzle-save-v3';
 const LEGACY_KEY = 'one-move-puzzle-save-v2';
 const QA_REAL_PROGRESS_KEY = 'one-move-puzzle-qa-real-progress';
-const DEFAULTS = { version:3, unlocked:1, stars:{}, sound:true, haptics:true, attempts:{} };
+const DEFAULTS = { version:3, unlocked:1, stars:{}, sound:true, haptics:true, attempts:{}, tutorialDone:false, consecutiveFails:{}, reducedMotion:false };
 
 const clampStars = value => Math.max(0, Math.min(3, Number(value || 0)));
 const clampUnlocked = value => Math.max(1, Math.min(levels.length, Number(value || 1)));
@@ -37,9 +37,12 @@ function sanitize(raw = {}) {
   }
 
   const attempts = {};
+  const consecutiveFails = {};
   for (const level of levels) {
     const value = Math.max(0, Math.floor(Number(raw.attempts?.[level.id] || 0)));
     if (value) attempts[level.id] = value;
+    const failures = Math.max(0, Math.floor(Number(raw.consecutiveFails?.[level.id] || 0)));
+    if (failures) consecutiveFails[level.id] = failures;
   }
 
   return {
@@ -49,6 +52,9 @@ function sanitize(raw = {}) {
     sound: raw.sound !== false,
     haptics: raw.haptics !== false,
     attempts,
+    tutorialDone: raw.tutorialDone === true,
+    consecutiveFails,
+    reducedMotion: raw.reducedMotion === true,
   };
 }
 
@@ -78,11 +84,13 @@ export function loadSave() {
 export function storeSave(save) {
   const clean = sanitize(save);
   Object.assign(save, clean);
-  localStorage.setItem(KEY, JSON.stringify(clean));
+  try { localStorage.setItem(KEY, JSON.stringify(clean)); }
+  catch { /* Keep the sanitized save in memory when storage is unavailable. */ }
 }
 
 export function recordAttempt(save, levelId) {
   save.attempts[levelId] = (save.attempts[levelId] || 0) + 1;
+  save.consecutiveFails[levelId] = (save.consecutiveFails[levelId] || 0) + 1;
   storeSave(save);
 }
 
@@ -94,9 +102,25 @@ export function recordClear(save, levelId, levelNumber, stars) {
     // still needs NEXT to reach the following level. Real saves are re-derived
     // from contiguous stars by sanitize(), so this cannot skip player progress.
     save.unlocked = Math.max(Number(save.unlocked || 1), Math.min(levels.length, levelNumber + 1));
+    save.consecutiveFails[levelId] = 0;
   }
   storeSave(save);
 }
 
 export const SAVE_KEY = KEY;
 export const LEGACY_SAVE_KEY = LEGACY_KEY;
+
+export function recordSkip(save, levelId, levelNumber) {
+  if (levelNumber <= Number(save.unlocked || 1)) {
+    save.unlocked = Math.max(Number(save.unlocked || 1), Math.min(levels.length, levelNumber + 1));
+    save.consecutiveFails[levelId] = 0;
+    if (!save.stars[levelId]) save.stars[levelId] = 0;
+  }
+  storeSave(save);
+}
+
+export function resetProgress() {
+  const fresh = { ...DEFAULTS, stars:{}, attempts:{}, consecutiveFails:{}, tutorialDone:true };
+  storeSave(fresh);
+  return fresh;
+}

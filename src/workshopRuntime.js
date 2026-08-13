@@ -233,6 +233,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     let startX = 0;
     let progress = 0;
     let passedDetent = false;
+    let dragged = false;
     let travelPx = 72;
     const threshold = .48;
 
@@ -252,6 +253,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       startX = ev.clientX;
       progress = 0;
       passedDetent = false;
+      dragged = false;
       travelPx = Math.max(66, Math.min(96, node.getBoundingClientRect().width * .46));
       node.classList.add('is-dragging');
       node.setPointerCapture?.(pointerId);
@@ -265,6 +267,7 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       if (!dragging || ev.pointerId !== pointerId || running) return;
       const dx = Math.max(0, startX - ev.clientX);
       progress = Math.min(1, dx / travelPx);
+      if (progress > .06) dragged = true;
       const resisted = Math.pow(progress, .88);
       const offset = Math.round(resisted * 34);
       node.style.setProperty('--pull-progress', progress.toFixed(3));
@@ -287,6 +290,13 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
       if (running || destroyed) return;
       if (ev.key !== 'Enter' && ev.key !== ' ') return;
       ev.preventDefault();
+      setNodeImage(node, P.interaction.pinBluePull);
+      onMove?.(piece.id, ev);
+    });
+
+    // Desktop / tap fallback: a plain click commits the pull (drag is the tactile path).
+    node.addEventListener('click', ev => {
+      if (running || destroyed || dragged) return;
       setNodeImage(node, P.interaction.pinBluePull);
       onMove?.(piece.id, ev);
     });
@@ -355,12 +365,12 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     }
 
     if (id !== level.solution) {
-      node.classList.add('action-wrong');
+      node.classList.add('action-wrong','dead-control');
       onEffect?.('fail-soft');
       onStatus?.('That move breaks the route.');
-      failTimer = window.setTimeout(() => {
-        if (!destroyed) onFail?.('That move breaks the chain.');
-      }, 720);
+      startTimer = window.setTimeout(() => {
+        if (!destroyed) runBallPartial(0.32, 'That move breaks the chain.');
+      }, 280);
       return { accepted:true, correct:false, effectHandled:true };
     }
 
@@ -373,15 +383,15 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   function commitChoiceGate(id,node) {
     const controls = logic.controls;
     if (id !== controls.correct) {
-      node.classList.add('action-wrong');
+      node.classList.add('action-wrong','dead-control');
       nodes.get('decoyLink')?.classList.add('link-wrong');
       nodes.get('choiceDeadStop')?.classList.add('dead-stop-hit');
       board.classList.add('choice-wrong');
       onEffect?.('fail-soft');
       onStatus?.(copy.wrong || 'Dead linkage. Route blocked.');
-      failTimer = window.setTimeout(() => {
-        if (!destroyed) onFail?.(copy.wrong || 'Dead linkage. Route blocked.');
-      }, 700);
+      startTimer = window.setTimeout(() => {
+        if (!destroyed) runBallPartial(0.35, copy.wrong || 'Dead linkage. Route blocked.');
+      }, 320);
       return {accepted:true,correct:false,effectHandled:true};
     }
 
@@ -418,15 +428,15 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
   function commitRouteAlign(id,node) {
     const controls = logic.controls;
     if (id !== controls.correct) {
-      node.classList.add('action-wrong');
+      node.classList.add('action-wrong','dead-control');
       nodes.get('valveLink')?.classList.add('valve-live','link-wrong');
       nodes.get('valveStop')?.classList.add('valve-spinning');
       board.classList.add('align-wrong');
       onEffect?.('metal');
       onStatus?.(copy.wrong || 'Valve turned. The bridge is still misaligned.');
-      failTimer = window.setTimeout(() => {
-        if (!destroyed) onFail?.(copy.wrong || 'The bridge is still misaligned.');
-      }, 760);
+      startTimer = window.setTimeout(() => {
+        if (!destroyed) runBallPartial(0.38, copy.wrong || 'The bridge is still misaligned.');
+      }, 340);
       return {accepted:true,correct:false,effectHandled:true};
     }
 
@@ -521,6 +531,72 @@ export function mountWorkshopRuntime({ world, stage, level, onMove, onStar, onGo
     };
 
     frameId = requestAnimationFrame(tick);
+  }
+
+  function runBallPartial(stopAt, failCopy) {
+    const duration = 700;
+    const start = performance.now();
+    ball.classList.remove('release-ready');
+    ball.classList.add('running');
+    onEffect?.('roll-start');
+
+    const tick = now => {
+      if (destroyed) return;
+      const elapsed = Math.max(0, now - start);
+      const raw = Math.min(1, elapsed / duration);
+      const motion = motionAt(scene.motion, raw);
+      const t = motion.progress * stopAt;
+
+      const point = pointOnSampledPath(sampledPath, t);
+      const ahead = pointOnSampledPath(sampledPath, Math.min(1, t + .008));
+      const angle = Math.atan2(ahead.y - point.y, ahead.x - point.x) * 180 / Math.PI;
+
+      ball.style.left = `${point.x}%`;
+      ball.style.top = `${point.y}%`;
+      ball.style.setProperty('--roll-angle', `${angle * .24 + t * 360}deg`);
+      ball.style.setProperty('--roll-speed', '1.0');
+      if (routeProgress) routeProgress.style.strokeDasharray = `${Math.max(0, t * 100).toFixed(1)} 100`;
+
+      fireJointFeedback(t);
+
+      if (raw < 1) {
+        frameId = requestAnimationFrame(tick);
+      } else {
+        // Ball reached the break point
+        ball.classList.add('chain-break');
+        showBreakMarker(point.x, point.y);
+        onEffect?.('chain-break');
+        onStatus?.(failCopy);
+        sfx.rollStop();
+        failTimer = window.setTimeout(() => {
+          if (!destroyed) onFail?.(failCopy);
+        }, 500);
+      }
+    };
+
+    frameId = requestAnimationFrame(tick);
+  }
+
+  function showBreakMarker(x, y) {
+    const root = board.querySelector('.machine-fx');
+    if (!root) return;
+    const marker = document.createElement('div');
+    marker.className = 'break-marker';
+    marker.style.left = `${x}%`;
+    marker.style.top = `${y}%`;
+    root.appendChild(marker);
+    // Add sparks
+    for (let i = 0; i < 5; i++) {
+      const spark = document.createElement('i');
+      spark.style.left = `${x}%`;
+      spark.style.top = `${y}%`;
+      spark.style.setProperty('--x', `${(Math.random() - .5) * 50}px`);
+      spark.style.setProperty('--y', `${-10 - Math.random() * 30}px`);
+      spark.style.animationDelay = `${Math.random() * 60}ms`;
+      root.appendChild(spark);
+      later(() => spark.remove(), 700);
+    }
+    later(() => marker.remove(), 700);
   }
 
   function fireTutorialMachineLogic(t) {

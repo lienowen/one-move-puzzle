@@ -232,6 +232,7 @@ button,img{user-select:none}
 .machine-piece.action-lift{animation:liftAction .46s cubic-bezier(.2,.8,.25,1) forwards}
 @keyframes liftAction{to{transform:translate(-50%,-95%) rotate(var(--piece-rotation,0deg));opacity:.45}}
 .machine-piece.action-wrong{animation:wrongAction .42s ease}
+.machine-piece.dead-control{opacity:.42;filter:grayscale(.6) brightness(.88)}
 @keyframes wrongAction{20%,60%{margin-left:-6px}40%,80%{margin-left:6px}}
 .piece-gate.activated{animation:gateOpen .55s cubic-bezier(.2,.82,.2,1) forwards}
 @keyframes gateOpen{to{transform:translate(-50%,-112%) scale(.94);opacity:.45}}
@@ -293,5 +294,52 @@ button,img{user-select:none}
   .game-title h1{font-size:23px}
   .machine-board{width:100%}
 }
+
+/* Tutorial overlay */
+.tutorial-overlay{position:fixed;inset:0;z-index:130;display:grid;place-items:center;padding:24px;background:rgba(33,20,12,.55);backdrop-filter:blur(6px)}
+.tutorial-overlay[hidden]{display:none}
+.tutorial-card{width:min(100%,360px);padding:28px 24px;border-radius:26px;background:#fff6e6;border:1px solid rgba(69,45,26,.15);box-shadow:0 28px 84px rgba(43,25,11,.32);text-align:center;animation:sheetIn .3s cubic-bezier(.18,.86,.24,1.08)}
+.tutorial-icon{font-size:40px;margin-bottom:10px}
+.tutorial-card h2{font:900 24px/1 Georgia,serif;margin:0 0 10px}
+.tutorial-card p{margin:0 0 20px;color:#76593e;font-size:13px;line-height:1.5}
+
+/* Result extras */
+.result-stats{margin:0 0 14px!important;font-size:10px!important;font-weight:800!important;letter-spacing:.1em;color:#9a7a5c!important}
+.result-secondary{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.skip-btn{border-color:rgba(189,85,71,.3);color:#a34135}
+.skip-btn:active{transform:scale(.985)}
+.share-btn{font-size:10px}
+
+/* 3-star celebration */
+.result-card.celebrate{animation:celebrate .5s cubic-bezier(.18,.86,.24,1.08)}
+@keyframes celebrate{0%{opacity:0;transform:translateY(30px) scale(.94)}60%{transform:translateY(-6px) scale(1.02)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.result-card.celebrate .result-badge{animation:badgePop .5s cubic-bezier(.18,.86,.24,1.08)}
+@keyframes badgePop{0%{transform:rotate(-5deg) scale(.6)}60%{transform:rotate(2deg) scale(1.12)}100%{transform:rotate(-5deg) scale(1)}}
+.confetti{position:fixed;pointer-events:none;z-index:135;width:8px;height:14px;border-radius:2px;animation:confettiFall 1.4s cubic-bezier(.22,.67,.31,1) forwards}
+@keyframes confettiFall{to{transform:translate(var(--cx),var(--cy)) rotate(var(--cr));opacity:0}}
+
+/* Settings expansion */
+.settings-divider{height:1px;background:rgba(70,47,29,.11);margin:4px 0}
+.setting-row.danger{color:#a34135}
+.setting-row.danger b{color:#a34135}
+.settings-about{text-align:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(70,47,29,.08)}
+.settings-about strong{display:block;font-size:13px;color:var(--muted)}
+.settings-about span{display:block;margin-top:4px;font-size:9px;letter-spacing:.1em;color:#a08064}
+
+/* Confirm modal */
+.confirm-card{width:min(100%,380px);padding:24px;border-radius:26px;background:#fff6e6;border:1px solid rgba(69,45,26,.15);box-shadow:0 28px 84px rgba(43,25,11,.32);text-align:center;animation:sheetIn .28s cubic-bezier(.18,.86,.24,1.08)}
+.confirm-card h2{font:900 22px/1 Georgia,serif;margin:0 0 10px}
+.confirm-card p{margin:0 0 20px;color:#76593e;font-size:12px;line-height:1.5}
+.danger-btn{background:linear-gradient(145deg,#d97863,#a34135)!important;box-shadow:0 13px 27px rgba(163,65,53,.26),inset 0 1px rgba(255,255,255,.28)!important}
+
+/* Reduced motion (user toggle) */
+.app-shell.reduced-motion *,.app-shell.reduced-motion *::before,.app-shell.reduced-motion *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
+
+/* Chain-break visual */
+.piece-ball.chain-break{animation:chainBreak .5s ease forwards}
+@keyframes chainBreak{0%{opacity:1}40%{filter:drop-shadow(0 0 12px rgba(189,85,71,.6)) brightness(1.2)}100%{opacity:.3;transform:translate(-50%,-50%) scale(.7)}}
+.break-marker{position:absolute;z-index:50;pointer-events:none;width:8%;aspect-ratio:1/1;transform:translate(-50%,-50%);animation:breakPulse .6s ease forwards}
+@keyframes breakPulse{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-50%) scale(2)}}
+.break-marker::before{content:"×";position:absolute;inset:0;display:grid;place-items:center;font-size:28px;font-weight:900;color:#d97863;text-shadow:0 0 12px rgba(189,85,71,.6)}
 
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}

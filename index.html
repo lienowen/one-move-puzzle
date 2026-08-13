@@ -88,20 +88,35 @@
       </main>
 
       <footer class="game-footer">
-        <span id="statusText">Choose one piece.</span>
+        <span id="statusText" role="status" aria-live="polite">Choose one piece.</span>
         <div id="miniProgress" class="mini-progress" aria-hidden="true"></div>
       </footer>
+    </section>
+
+    <!-- Tutorial overlay -->
+    <section id="tutorialOverlay" class="tutorial-overlay" hidden>
+      <div class="tutorial-card">
+        <div class="tutorial-icon">💡</div>
+        <h2 id="tutorialTitle">Welcome</h2>
+        <p id="tutorialBody">Each machine gives you ONE move.</p>
+        <button id="tutorialNext" class="primary-btn compact" type="button"><span>GOT IT</span><b>→</b></button>
+      </div>
     </section>
 
     <section id="resultSheet" class="modal" hidden>
       <div class="result-card">
         <div id="resultBadge" class="result-badge">★</div>
-        <span class="modal-kicker">MACHINE SOLVED</span>
+        <span class="modal-kicker" id="resultKicker">MACHINE SOLVED</span>
         <h2 id="resultTitle">Perfect move</h2>
         <div id="resultStars" class="result-stars">★★★</div>
         <p id="resultCopy">One move. Clean chain.</p>
+        <p id="resultStats" class="result-stats"></p>
         <button id="nextBtn" class="primary-btn compact" type="button"><span>NEXT</span><small>KEEP GOING</small><b>→</b></button>
-        <button id="retryBtn" class="ghost-btn full" type="button">REPLAY</button>
+        <div class="result-secondary">
+          <button id="retryBtn" class="ghost-btn full" type="button">REPLAY</button>
+          <button id="skipBtn" class="ghost-btn full skip-btn" type="button" hidden>SKIP LEVEL</button>
+          <button id="shareBtn" class="ghost-btn full share-btn" type="button">SHARE</button>
+        </div>
       </div>
     </section>
 
@@ -113,10 +128,26 @@
         </div>
         <button id="soundToggle" class="setting-row" type="button"><span>Sound</span><b>ON</b></button>
         <button id="hapticsToggle" class="setting-row" type="button"><span>Haptics</span><b>ON</b></button>
+        <button id="reducedMotionToggle" class="setting-row" type="button"><span>Reduced Motion</span><b>OFF</b></button>
+        <div class="settings-divider"></div>
+        <button id="resetProgressBtn" class="setting-row danger" type="button"><span>Reset Progress</span><b>→</b></button>
+        <div class="settings-about">
+          <strong>One Move Puzzle</strong>
+          <span>v0.4.0 · Wood Workshop Season 01</span>
+        </div>
       </div>
     </section>
 
-    <div id="toast" class="toast" role="status"></div>
+    <section id="confirmSheet" class="modal" hidden>
+      <div class="confirm-card">
+        <h2 id="confirmTitle">Reset all progress?</h2>
+        <p id="confirmBody">Your stars, unlocks, and attempts will be erased. This cannot be undone.</p>
+        <button id="confirmYes" class="primary-btn compact danger-btn" type="button"><span>RESET</span><b>→</b></button>
+        <button id="confirmNo" class="ghost-btn full" type="button">CANCEL</button>
+      </div>
+    </section>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </div>
   <script type="module" src="./src/main.js"></script>
   <script type="module" src="./src/progressUi.js"></script>

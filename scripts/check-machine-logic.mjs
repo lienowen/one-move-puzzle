@@ -29,6 +29,14 @@ function solveMaze(maze,override={}){
   for(const [id,rotation] of Object.entries(override))rotations.set(id,rotation); return solveMap(maze,map,rotations);
 }
 
+function validateRelease(){
+  const logic=MACHINE_LOGIC.release;
+  if(!logic)return fail('release logic is missing');
+  if(logic.archetype!=='release-chain')fail('release: archetype must be release-chain');
+  if(!(Number.isFinite(logic.timings?.resultDelay)&&logic.timings.resultDelay>=300&&logic.timings.resultDelay<=750))fail('release: invalid resultDelay');
+  if(typeof logic.copy?.ready!=='string'||!logic.copy.ready.trim())fail('release: ready copy is required');
+}
+
 function validateBase(levelId,needsRotators=true){
   const logic=MACHINE_LOGIC[levelId]; if(!logic?.maze){fail(`${levelId}: missing maze configuration`);return null;} const maze=logic.maze;
   if(!(Number.isInteger(maze.cols)&&maze.cols>=4))fail(`${levelId}: cols must be >= 4`); if(!(Number.isInteger(maze.rows)&&maze.rows>=4))fail(`${levelId}: rows must be >= 4`);
@@ -67,11 +75,12 @@ function validateSlide(levelId){
   if(solutions.length!==1)fail(`${levelId}: expected exactly one slide solution, found ${solutions.length}`);if(slide.expectedMove&&solutions[0]?.dir!==slide.expectedMove)fail(`${levelId}: unique slide solution must be ${slide.expectedMove>0?'right':'left'}`);
 }
 
-for(const id of ['release','gate','switch','button'])validateMaze(id);
+validateRelease();
+for(const id of ['gate','switch','button'])validateMaze(id);
 const springSolution=validateMaze('spring');const springMaze=MACHINE_LOGIC.spring?.maze;
 if(springMaze?.mode!=='vector')fail('spring: must use vector maze mode');const springCells=springMaze?.cells?.filter(c=>c.feature==='spring')||[],gaps=springMaze?.cells?.filter(c=>c.gap)||[];
 if(springCells.length!==1)fail(`spring: expected exactly one spring launcher, found ${springCells.length}`);if(!gaps.length)fail('spring: must contain a real visible gap');if(springCells[0]&&!(Number.isInteger(springCells[0].airborneSteps)&&springCells[0].airborneSteps>=2))fail('spring: launcher must keep the ball airborne across at least two grid steps');if(springSolution&&gaps.length&&!gaps.some(c=>springSolution.result.path.includes(c.id)))fail('spring: unique solution must actually cross the authored gap');
 validateSlide('conveyor');
 
 if(errors.length){for(const message of errors)console.error(`Machine logic check failed: ${message}`);process.exit(1);}
-console.log('Machine logic check passed: Levels 1-6 have unique one-move solutions across rotate, vector and row-slide mechanics.');
+console.log('Machine logic check passed: Level 1 release-chain and Levels 2-6 one-move maze solutions are valid.');
